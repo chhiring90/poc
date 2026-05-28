@@ -1,21 +1,19 @@
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import { type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { Button } from "../ui/button";
 
-const heroVariants = cva(
-  "group/hero relative w-full overflow-hidden rounded-3xl border bg-card",
-  {
-    variants: {
-      size: {
-        default: "min-h-[90.5vh]",
-      },
-    },
-    defaultVariants: {
-      size: "default",
+const heroVariants = cva("group/hero relative w-full overflow-hidden bg-card", {
+  variants: {
+    size: {
+      default: "min-h-[90.5vh]",
     },
   },
-);
+  defaultVariants: {
+    size: "default",
+  },
+});
 
 const contentVariants = cva(
   "relative z-10 flex h-full min-h-[90.5vh] w-full flex-col justify-center gap-6 px-6 py-10 sm:px-8 lg:px-12 lg:py-14",
@@ -92,34 +90,6 @@ function HeroContent({
   );
 }
 
-const heroTitleVariants = cva(
-  "max-w-2xl font-bold tracking-tight text-foreground",
-  {
-    variants: {
-      size: {
-        default: "text-3xl sm:text-4xl lg:text-5xl",
-        sm: "text-2xl sm:text-3xl lg:text-4xl",
-        lg: "text-4xl sm:text-5xl lg:text-6xl",
-        xxl: "text-5xl sm:text-6xl lg:text-8xl",
-        custom: "text-5xl sm:text-6xl lg:text-7xl",
-      },
-    },
-    defaultVariants: {
-      size: "default",
-    },
-  },
-);
-
-function HeroTitle({
-  className,
-  size = "default",
-  ...props
-}: ComponentPropsWithoutRef<"h1"> & VariantProps<typeof heroTitleVariants>) {
-  return (
-    <h1 className={cn(heroTitleVariants({ size }), className)} {...props} />
-  );
-}
-
 function HeroDescription({
   className,
   ...props
@@ -132,4 +102,19 @@ function HeroDescription({
   );
 }
 
-export { Hero, HeroImage, HeroContent, HeroTitle, HeroDescription };
+function HeroCta({ className, ...props }: ComponentPropsWithoutRef<"div">) {
+  return (
+    <div
+      className={cn("flex flex-wrap items-center gap-4", className)}
+      {...props}
+    >
+      <Button size="lg">Get Started</Button>
+      <Button variant="outline" size="lg">
+        Learn More
+      </Button>
+    </div>
+  );
+}
+
+export { Hero, HeroImage, HeroContent, HeroDescription, HeroCta };
+export { HeroTitle, HeroHighlight } from "@/components/ui/hero-title";

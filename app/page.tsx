@@ -1,25 +1,46 @@
-import { Button } from "@/components/ui/button";
-import { Nav } from "@/components/layouts/nav";
-import { Hero, HeroDescription, HeroTitle } from "@/components/layouts/hero";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Hero, HeroTitle, HeroCta } from "@/components/layouts/hero";
+import { Header } from "@/components/layouts/header";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="flex items-center justify-between gap-4 px-4 py-4">
-        <Button>Click me</Button>
-        <ThemeToggle />
-      </div>
-      <Nav />
-      <Hero align="left" imageSrc="/hero-bg.webp" className="mt-6">
+      <Header />
+      <Hero align="left" imageSrc="/hero-bg.webp" className="pt-32">
         <span className="rounded-full border border-border/80 bg-background/80 px-3 py-1 text-sm font-medium text-muted-foreground shadow-sm">
           Creative web solutions
         </span>
-        <HeroTitle size="custom">Build your next idea with us.</HeroTitle>
-        <HeroDescription>
-          We help startups and small businesses launch polished, high-performing
-          web experiences tailored to their goals.
-        </HeroDescription>
+        <HeroTitle
+          size="custom"
+          className="filter-[url(#goo)]"
+          highlightClassName="bg-[#111] px-4 py-1 text-white"
+          lines={["Build your text", "next idea double", "with us."]}
+        >
+          <svg
+            width="0"
+            height="0"
+            aria-hidden="true"
+            className="absolute"
+            style={{ position: "absolute" }}
+          >
+            <defs>
+              <filter id="goo" colorInterpolationFilters="sRGB">
+                <feGaussianBlur
+                  in="SourceGraphic"
+                  stdDeviation="6"
+                  result="blur"
+                />
+                <feColorMatrix
+                  in="blur"
+                  mode="matrix"
+                  values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
+                  result="goo"
+                />
+                <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+              </filter>
+            </defs>
+          </svg>
+        </HeroTitle>
+        <HeroCta />
       </Hero>
     </div>
   );
