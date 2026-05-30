@@ -1,22 +1,27 @@
+import { motion } from "motion/react";
 import { type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { Button } from "../ui/button";
+import { ArrowUp } from "lucide-react";
+import { Button } from "./button";
 
-const heroVariants = cva("group/hero relative w-full overflow-hidden bg-card", {
-  variants: {
-    size: {
-      default: "min-h-[90.5vh]",
+const heroVariants = cva(
+  "group/hero relative w-full overflow-hidden bg-card rounded-b-[2rem]",
+  {
+    variants: {
+      size: {
+        default: "min-h-[80.5vh]",
+      },
+    },
+    defaultVariants: {
+      size: "default",
     },
   },
-  defaultVariants: {
-    size: "default",
-  },
-});
+);
 
 const contentVariants = cva(
-  "relative z-10 flex h-full min-h-[90.5vh] w-full flex-col justify-center gap-6 px-6 py-10 sm:px-8 lg:px-12 lg:py-14",
+  "relative z-10 mx-auto flex h-full min-h-[80.5vh] w-full max-w-7xl flex-col justify-center p-6 sm:p-8 lg:px-12 lg:py-14",
   {
     variants: {
       align: {
@@ -55,7 +60,7 @@ function Hero({
       <HeroImage src={imageSrc} alt={imageAlt} />
       <div
         className={cn(
-          "absolute inset-0 bg-background/10 backdrop-blur-[2px]",
+          "absolute inset-0 bg-white/10 backdrop-blur-3xl",
           overlayClassName,
         )}
       />
@@ -108,9 +113,14 @@ function HeroCta({ className, ...props }: ComponentPropsWithoutRef<"div">) {
       className={cn("flex flex-wrap items-center gap-4", className)}
       {...props}
     >
-      <Button size="lg">Get Started</Button>
-      <Button variant="outline" size="lg">
+      <Button size="lg" className="group bg-primary text-primary-foreground">
+        Get Started
+        <ArrowUp className="ml-1 inline-block transform transition-transform duration-200 group-hover:rotate-45 size-4" />
+      </Button>
+
+      <Button variant="ghost" size="lg" className="group text-white">
         Learn More
+        <ArrowUp className="ml-1 inline-block transform transition-transform duration-200 group-hover:rotate-45 size-4" />
       </Button>
     </div>
   );

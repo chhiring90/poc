@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const heroTitleVariants = cva(
-  "font-bold tracking-tight leading-none text-gray-600 js-cross-browser gooey-content",
+  "font-bold tracking-tight leading-none text-gray-600 js-cross-browser gooey-content ",
   {
     variants: {
       size: {
