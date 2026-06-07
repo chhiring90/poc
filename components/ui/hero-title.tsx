@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const heroTitleVariants = cva(
-  "font-bold tracking-tight leading-none text-gray-600 js-cross-browser gooey-content ",
+  "font-bold tracking-tight px-2 py-3 tracking-wider leading-none text-gray-600 js-cross-browser gooey-content ",
   {
     variants: {
       size: {
@@ -74,7 +74,7 @@ function HeroHighlight({
   return (
     <span
       className={cn(
-        "relative inline-flex shrink-0 truncate rounded-md bg-foreground px-2 pt-2 pb-3 text-background js-cross-browser lg:px-4 lg:pt-3 lg:pb-4",
+        "relative inline-flex shrink-0 truncate rounded-2xl bg-white/20 px-2 pt-2 pb-3 text-white shadow-[0_10px_35px_rgba(0,0,0,0.35)] backdrop-blur-xl js-cross-browser lg:px-4 lg:pt-3 lg:pb-4",
         className,
       )}
       {...props}

@@ -1,16 +1,83 @@
 import { Hero, HeroTitle, HeroCta } from "@/components/ui/hero";
 import { Header } from "@/components/layouts/header";
 import { About } from "@/components/layouts/about";
-import { Project } from "@/components/layouts/project";
+import { OurWork } from "@/components/layouts/our-work";
+import { HowWeWork } from "@/components/layouts/how-we-work";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
-      <Hero align="left" imageSrc="/hero-bg.webp" className="pt-32">
-        <span className="rounded-xl bg-secondary-foreground/80 backdrop-blur-3xl text-white px-4 py-2 text-sm font-medium font-mono">
+      <Hero
+        align="center"
+        imageSrc="/hero.mp4"
+        className="pt-32 rounded-b-3xl overflow-hidden"
+      >
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <svg
+            aria-hidden="true"
+            className="absolute -left-10 top-12 h-40 w-40 opacity-60 blur-3xl"
+            viewBox="0 0 200 200"
+          >
+            <defs>
+              <radialGradient id="bubbleA" cx="50%" cy="50%" r="55%">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+                <stop offset="55%" stopColor="#ffffff" stopOpacity="0.35" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+              </radialGradient>
+              <filter
+                id="bubbleBlurA"
+                x="-30%"
+                y="-30%"
+                width="160%"
+                height="160%"
+              >
+                <feGaussianBlur stdDeviation="18" />
+              </filter>
+            </defs>
+            <ellipse
+              cx="100"
+              cy="100"
+              rx="72"
+              ry="72"
+              fill="url(#bubbleA)"
+              filter="url(#bubbleBlurA)"
+            />
+          </svg>
+          <svg
+            aria-hidden="true"
+            className="absolute right-0 top-24 h-52 w-52 opacity-40 blur-3xl"
+            viewBox="0 0 240 240"
+          >
+            <defs>
+              <radialGradient id="bubbleB" cx="50%" cy="50%" r="55%">
+                <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.8" />
+                <stop offset="55%" stopColor="#818cf8" stopOpacity="0.35" />
+                <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
+              </radialGradient>
+              <filter
+                id="bubbleBlurB"
+                x="-30%"
+                y="-30%"
+                width="160%"
+                height="160%"
+              >
+                <feGaussianBlur stdDeviation="16" />
+              </filter>
+            </defs>
+            <ellipse
+              cx="120"
+              cy="120"
+              rx="84"
+              ry="84"
+              fill="url(#bubbleB)"
+              filter="url(#bubbleBlurB)"
+            />
+          </svg>
+        </div>
+        {/* <span className="rounded-xl bg-secondary-foreground/80 backdrop-blur-3xl text-white px-4 py-2 text-sm font-medium font-mono">
           Creative web solutions
-        </span>
+        </span> */}
         <HeroTitle
           size="custom"
           className="filter-[url(#goo)] mt-2 mb-6"
@@ -42,10 +109,12 @@ export default function Home() {
             </defs>
           </svg>
         </HeroTitle>
-        <HeroCta />
+        {/* <HeroCta /> */}
       </Hero>
       <About />
-      <Project />
+      {/* <Project /> */}
+      <HowWeWork />
+      <OurWork />
     </div>
   );
 }

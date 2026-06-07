@@ -1,10 +1,9 @@
-import { motion } from "motion/react";
 import { type ComponentPropsWithoutRef, type ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { ArrowUp } from "lucide-react";
 import { Button } from "./button";
+import { HeroMedia } from "./hero-media";
 
 const heroVariants = cva(
   "group/hero relative w-full overflow-hidden bg-card rounded-b-[2rem]",
@@ -49,39 +48,23 @@ function Hero({
   className,
   size = "default",
   align = "left",
-  imageSrc = "/hero-bg.webp",
-  imageAlt = "Hero background",
+  imageSrc = "/hero.mp4",
+  imageAlt = "Hero background video",
   overlayClassName,
   children,
   ...props
 }: HeroProps) {
   return (
     <section className={cn(heroVariants({ size }), className)} {...props}>
-      <HeroImage src={imageSrc} alt={imageAlt} />
+      <HeroMedia src={imageSrc} aria-label={imageAlt} poster="/hero-bg.webp" />
       <div
         className={cn(
-          "absolute inset-0 bg-white/10 backdrop-blur-3xl",
+          "absolute inset-0 bg-black/20 backdrop-blur-xs",
           overlayClassName,
         )}
       />
       <HeroContent align={align}>{children}</HeroContent>
     </section>
-  );
-}
-
-function HeroImage({
-  className,
-  alt = "Hero background",
-  ...props
-}: ComponentPropsWithoutRef<typeof Image>) {
-  return (
-    <Image
-      fill
-      priority
-      alt={alt}
-      className={cn("object-cover", className)}
-      {...props}
-    />
   );
 }
 
@@ -126,5 +109,5 @@ function HeroCta({ className, ...props }: ComponentPropsWithoutRef<"div">) {
   );
 }
 
-export { Hero, HeroImage, HeroContent, HeroDescription, HeroCta };
+export { Hero, HeroContent, HeroDescription, HeroCta };
 export { HeroTitle, HeroHighlight } from "@/components/ui/hero-title";

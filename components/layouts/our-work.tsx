@@ -1,6 +1,6 @@
-import { ProjectCard } from "@/components/ui/project-card";
+import { Carousel } from "@/components/ui/carousel";
 
-const PROJECT_DATA = [
+const OUR_WORK_DATA = [
   {
     title: "Project One",
     description:
@@ -23,16 +23,29 @@ const PROJECT_DATA = [
   },
 ];
 
-function Project() {
+function OurWork() {
   return (
-    <section className="py-16 grid gap-10 lg:grid-cols-2">
-      <div className="space-y-6 text-left">
-        {PROJECT_DATA.map((_, i) => (
-          <ProjectCard key={i} />
-        ))}
-      </div>
+    <section className="py-16 grid gap-10 px-4 text-left">
+      <Carousel />
     </section>
   );
 }
 
-export { Project };
+function OurWorkCard({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <>
+      <article className="rounded-lg min-h-[400px] border bg-card p-4">
+        <h2 className="text-lg font-semibold">{title}</h2>
+        <p className="text-sm text-muted-foreground mt-1">{description}</p>
+      </article>
+    </>
+  );
+}
+
+export { OurWork };
