@@ -1,8 +1,9 @@
 import { Hero, HeroTitle, HeroCta } from "@/components/ui/hero";
+import { WhyUs } from "@/components/layouts/why-us";
 import { Header } from "@/components/layouts/header";
 import { About } from "@/components/layouts/about";
-import { OurWork } from "@/components/layouts/our-work";
 import { HowWeWork } from "@/components/layouts/how-we-work";
+import { Cta } from "@/components/layouts/cta";
 
 export default function Home() {
   return (
@@ -112,9 +113,10 @@ export default function Home() {
         {/* <HeroCta /> */}
       </Hero>
       <About />
-      {/* <Project /> */}
       <HowWeWork />
-      <OurWork />
+      {/* <OurWork /> */}
+      <WhyUs />
+      <Cta />
     </div>
   );
 }

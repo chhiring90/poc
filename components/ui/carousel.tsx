@@ -136,7 +136,7 @@ function FeaturePill({
           <motion.h4
             variants={TEXT_VARIANTS}
             transition={{ delay: 0.16, duration: 0.18 }}
-            className="text-white/90"
+            className="text-white/90 font-semibold"
           >
             {feature.label}
           </motion.h4>
@@ -158,7 +158,7 @@ function FeaturePill({
             onClick={handleToggle}
           >
             <PlusIcon className="w-4 h-4 stroke-white" />
-            <h4 className="text-white/90">{feature.label}</h4>
+            <h4 className="text-white/90 font-semibold">{feature.label}</h4>
           </motion.div>
 
           <p className="px-4 pb-4 text-white/75">{feature.body}</p>
