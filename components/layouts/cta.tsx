@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState } from "react";
 import {
   motion,
   useScroll,
@@ -9,17 +9,9 @@ import {
 } from "motion/react";
 import { ArrowUp, Sun } from "lucide-react";
 import { Button } from "../ui/button";
-import { HslTuple, TimeKey, Theme } from "@/lib/type/cta.type";
+import { TimeKey, Theme } from "@/lib/type/cta.type";
 import { TIME_THEMES } from "@/lib/const/cta.const";
 import { useSunburstCanvas } from "@/hooks/useSubBrustCanvas.hook";
-
-// ─── Theme definitions ────────────────────────────────────────────────────────
-
-// ─── Colour helpers ───────────────────────────────────────────────────────────
-
-// ─── Animated sunburst canvas ─────────────────────────────────────────────────
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function TimeDropdown({
   selected,
@@ -160,18 +152,16 @@ function CtaSupportText({
   );
 }
 
-// ─── Main CTA ─────────────────────────────────────────────────────────────────
-
 function Cta() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [themeKey, setThemeKey] = useState<TimeKey>("sunrise");
-  const prevThemeKey = useRef<TimeKey>("sunrise");
+  const [themeKey, setThemeKey] = useState<TimeKey>("sunset");
+  const prevThemeKey = useRef<TimeKey>("sunset");
   const theme = TIME_THEMES[themeKey];
 
   useSunburstCanvas(
     canvasRef,
-    sectionRef as React.RefObject<HTMLElement>,
+    sectionRef as React.RefObject<HTMLElement | null>,
     themeKey,
     prevThemeKey,
   );
@@ -203,16 +193,11 @@ function Cta() {
   return (
     <section ref={sectionRef} className="py-32 px-4">
       <div className="relative px-6 sm:px-16 lg:px-36 py-16 sm:py-24 lg:py-36 rounded-2xl flex items-center flex-col max-w-6xl mx-auto text-center overflow-hidden">
-        {/* Animated canvas — background + rays */}
         <canvas
           ref={canvasRef}
           className="absolute inset-0 w-full h-full rounded-2xl pointer-events-none z-0"
         />
-
-        {/* Frosted glass overlay */}
         <div className="absolute inset-0 bg-white/[0.06] rounded-2xl pointer-events-none z-[1]" />
-
-        {/* Time-of-day picker */}
         <TimeDropdown selected={themeKey} onChange={setThemeKey} />
 
         <div className="relative z-10 flex flex-col items-center w-full">

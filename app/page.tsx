@@ -3,7 +3,9 @@ import { WhyUs } from "@/components/layouts/why-us";
 import { Header } from "@/components/layouts/header";
 import { About } from "@/components/layouts/about";
 import { HowWeWork } from "@/components/layouts/how-we-work";
+import { OurWork } from "@/components/layouts/our-work";
 import { Cta } from "@/components/layouts/cta";
+import { Footer } from "@/components/layouts/footer";
 
 export default function Home() {
   return (
@@ -114,9 +116,10 @@ export default function Home() {
       </Hero>
       <About />
       <HowWeWork />
-      {/* <OurWork /> */}
+      <OurWork />
       <WhyUs />
       <Cta />
+      <Footer />
     </div>
   );
 }

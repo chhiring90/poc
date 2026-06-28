@@ -6,7 +6,7 @@ import { TIME_THEMES } from "@/lib/const/cta.const";
 const WAVE_COUNT = 25;
 
 export function useSunburstCanvas(
-  canvasRef: React.RefObject<HTMLCanvasElement>,
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
   cardRef: React.RefObject<HTMLElement | null>,
   themeKey: TimeKey,
   prevThemeKey: React.RefObject<TimeKey>,

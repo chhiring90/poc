@@ -17,7 +17,7 @@ const FEATURES: Feature[] = [
     id: "01",
     label: "Top Notch Quality",
     image:
-      "https://images.unsplash.com/photo-1633613286991-611fe299c4be?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1778385925386-ba74df3a8f78?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     body: (
       <>
         <strong className="text-white font-medium">High quality</strong> every
@@ -124,7 +124,7 @@ function FeaturePill({
           onClick={handleToggle}
           transition={{ duration: 0.18, ease: "easeOut" }}
           style={{ transformOrigin: "0% 0%" }}
-          className="inline-flex min-w-[280px] items-center gap-2.5 pl-4 pr-8 py-3 rounded-[22px] cursor-pointer bg-white/20 border border-white/20 backdrop-blur-2xl"
+          className="inline-flex items-center gap-2.5 pl-4 pr-8 py-3 rounded-[22px] cursor-pointer bg-white/20 border border-white/20 backdrop-blur-2xl"
         >
           <motion.span
             variants={TEXT_VARIANTS}
@@ -136,7 +136,7 @@ function FeaturePill({
           <motion.h4
             variants={TEXT_VARIANTS}
             transition={{ delay: 0.16, duration: 0.18 }}
-            className="text-white/90 font-semibold"
+            className="text-white/90 font-semibold text-md"
           >
             {feature.label}
           </motion.h4>
@@ -158,7 +158,9 @@ function FeaturePill({
             onClick={handleToggle}
           >
             <PlusIcon className="w-4 h-4 stroke-white" />
-            <h4 className="text-white/90 font-semibold">{feature.label}</h4>
+            <h4 className="text-white/90 font-semibold text-md">
+              {feature.label}
+            </h4>
           </motion.div>
 
           <p className="px-4 pb-4 text-white/75">{feature.body}</p>
