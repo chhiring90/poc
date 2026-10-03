@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { ArrowUp } from "lucide-react";
 import { Button } from "./button";
-import { HeroMedia } from "./hero-media";
+import { GradientWave } from "./gradient-wave";
 
 const heroVariants = cva(
   "group/hero relative w-full overflow-hidden bg-card rounded-b-[2rem]",
@@ -20,7 +20,7 @@ const heroVariants = cva(
 );
 
 const contentVariants = cva(
-  "relative z-10 mx-auto flex h-full min-h-[80.5vh] w-full max-w-7xl flex-col justify-center p-6 sm:p-8 lg:px-12 lg:py-14",
+  "absolute z-10 mx-auto flex h-full min-h-[80.5vh] w-full max-w-7xl flex-col justify-center p-6 sm:p-8 lg:px-12 lg:py-14",
   {
     variants: {
       align: {
@@ -56,14 +56,11 @@ function Hero({
 }: HeroProps) {
   return (
     <section className={cn(heroVariants({ size }), className)} {...props}>
-      <HeroMedia src={imageSrc} aria-label={imageAlt} poster="/hero-bg.webp" />
-      <div
-        className={cn(
-          "absolute inset-0 bg-black/20 backdrop-blur-xs",
-          overlayClassName,
-        )}
-      />
       <HeroContent align={align}>{children}</HeroContent>
+      <GradientWave
+        speed={1}
+        className="w-full mx-auto max-w-6xl aspect-video shadow-2xl"
+      />
     </section>
   );
 }

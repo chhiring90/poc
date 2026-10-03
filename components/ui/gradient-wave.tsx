@@ -12,12 +12,19 @@ const VERTEX_SHADER = /* glsl */ `
   }
 `;
 
+// uColors layout (all 5 required):
+// [0] deepNavy   - base/background tone
+// [1] indigo     - first blend stop
+// [2] blueViolet - second blend stop
+// [3] lavender   - highlight/peak tone
+// [4] violetPop  - streak accent color
 const FRAGMENT_SHADER = /* glsl */ `
   precision highp float;
   varying vec2 vUv;
   uniform float uTime;
   uniform vec2 uResolution;
   uniform float uSpeed;
+  uniform vec3 uColors[5];
 
   // Ashima simplex noise (3D)
   vec3 mod289(vec3 x){return x - floor(x * (1.0/289.0)) * 289.0;}
@@ -115,11 +122,11 @@ const FRAGMENT_SHADER = /* glsl */ `
     float mixVal = n * 0.6 + n2 * 0.4;
     mixVal = mixVal * 0.5 + 0.5;
 
-    vec3 deepNavy   = vec3(0.02, 0.02, 0.09);
-    vec3 indigo     = vec3(0.07, 0.06, 0.32);
-    vec3 blueViolet = vec3(0.17, 0.16, 0.85);
-    vec3 lavender   = vec3(0.62, 0.58, 0.97);
-    vec3 violetPop  = vec3(0.44, 0.19, 0.85);
+    vec3 deepNavy   = uColors[0];
+    vec3 indigo     = uColors[1];
+    vec3 blueViolet = uColors[2];
+    vec3 lavender   = uColors[3];
+    vec3 violetPop  = uColors[4];
 
     vec3 color = deepNavy;
     color = mix(color, indigo, smoothstep(0.15, 0.42, mixVal));
@@ -137,15 +144,73 @@ const FRAGMENT_SHADER = /* glsl */ `
   }
 `;
 
+/** Hex string ("#rrggbb" or "rrggbb") -> [r, g, b] in 0-1 range. */
+function hexToRgb01(hex: string): [number, number, number] {
+  const clean = hex.replace("#", "");
+  const bigint = parseInt(clean, 16);
+  const r = ((bigint >> 16) & 255) / 255;
+  const g = ((bigint >> 8) & 255) / 255;
+  const b = (bigint & 255) / 255;
+  return [r, g, b];
+}
+
+/** Default palette — matches the original hardcoded look. */
+const DEFAULT_COLORS: [string, string, string, string, string] = [
+  "#050517", // deepNavy
+  "#120f52", // indigo
+  "#2b29d9", // blueViolet
+  "#9e94f7", // lavender
+  "#7030d9", // violetPop
+];
+
 type GradientWaveProps = {
   /** Overall animation speed multiplier. 1 = default. */
   speed?: number;
+  /**
+   * Five hex colors controlling the gradient, in order:
+   * [base, first blend stop, second blend stop, highlight, streak accent].
+   * Falls back to the original navy/indigo/violet palette if omitted or
+   * if fewer than 5 are provided.
+   */
+  colors?: string[];
   /** Extra Tailwind classes for the outer rounded container. */
   className?: string;
 };
 
-export function GradientWave({ speed = 1, className = "" }: GradientWaveProps) {
+export function GradientWave({
+  speed = 1,
+  colors,
+  className = "",
+}: GradientWaveProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
+  const uniformsRef = useRef<{
+    uTime: { value: number };
+    uResolution: { value: THREE.Vector2 };
+    uSpeed: { value: number };
+    uColors: { value: THREE.Vector3[] };
+  } | null>(null);
+
+  const resolvedColors =
+    colors && colors.length >= 5 ? colors.slice(0, 5) : DEFAULT_COLORS;
+
+  // Update color uniforms in place when the `colors` prop changes,
+  // without tearing down the WebGL context.
+  useEffect(() => {
+    const uniforms = uniformsRef.current;
+    if (!uniforms) return;
+    resolvedColors.forEach((hex, i) => {
+      const [r, g, b] = hexToRgb01(hex);
+      uniforms.uColors.value[i].set(r, g, b);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(resolvedColors)]);
+
+  // Keep speed uniform live too, without a full remount.
+  useEffect(() => {
+    const uniforms = uniformsRef.current;
+    if (!uniforms) return;
+    uniforms.uSpeed.value = speed;
+  }, [speed]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -164,7 +229,15 @@ export function GradientWave({ speed = 1, className = "" }: GradientWaveProps) {
       uTime: { value: 0 },
       uResolution: { value: new THREE.Vector2(1, 1) },
       uSpeed: { value: speed },
+      uColors: {
+        value: resolvedColors.map((hex) => {
+          const [r, g, b] = hexToRgb01(hex);
+          return new THREE.Vector3(r, g, b);
+        }),
+      },
     };
+    uniformsRef.current = uniforms;
+
     const material = new THREE.ShaderMaterial({
       vertexShader: VERTEX_SHADER,
       fragmentShader: FRAGMENT_SHADER,
@@ -205,8 +278,13 @@ export function GradientWave({ speed = 1, className = "" }: GradientWaveProps) {
       geometry.dispose();
       material.dispose();
       renderer.dispose();
+      uniformsRef.current = null;
     };
-  }, [speed]);
+    // Mount effect only runs once; color/speed updates are handled by the
+    // effects above so we don't tear down and rebuild the WebGL context
+    // on every prop change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <motion.div

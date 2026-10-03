@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion } from "motion/react";
 import { useWaveGradient } from "@/hooks/useWaveGradient.hook";
+import { GradientWave } from "../ui/gradient-wave";
 
 export function HeroWaveGradient() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -19,6 +20,7 @@ export function HeroWaveGradient() {
         ref={canvasRef}
         className="h-[280px] w-full sm:h-[360px] lg:h-[440px]"
       />
+      <GradientWave className="absolute inset-0 h-full w-full" />
     </motion.div>
   );
 }

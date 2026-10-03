@@ -11,11 +11,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
-      <Hero
-        align="center"
-        imageSrc="/hero.mp4"
-        className="pt-32 rounded-b-3xl overflow-hidden"
-      >
+      <Hero align="center" className="rounded-b-3xl overflow-hidden">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <svg
             aria-hidden="true"
@@ -78,9 +74,6 @@ export default function Home() {
             />
           </svg>
         </div>
-        {/* <span className="rounded-xl bg-secondary-foreground/80 backdrop-blur-3xl text-white px-4 py-2 text-sm font-medium font-mono">
-          Creative web solutions
-        </span> */}
         <HeroTitle
           size="custom"
           className="filter-[url(#goo)] mt-2 mb-6"
