@@ -1,11 +1,16 @@
 "use client";
-
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight, ChevronDown, Menu, Moon, Sun, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+interface NavProps {
+  dark: boolean;
+  toggleDark: () => void;
+  currentPage: string;
+  setPage: (p: string) => void;
+}
 
 const services = [
   { name: "Web Applications", desc: "React, Next.js, TypeScript", icon: "⬡" },
@@ -24,25 +29,12 @@ const services = [
   { name: "AI & Automation", desc: "LLM integrations, AI products", icon: "◎" },
 ];
 
-export function Header() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const pathname = usePathname();
-  const router = useRouter();
-  const dark = resolvedTheme === "dark";
-  const currentPage =
-    pathname === "/blogs" ? "blog" : pathname.slice(1) || "home";
-  const setPage = (page: string) => {
-    const routes: Record<string, string> = {
-      home: "/",
-      work: "/work",
-      about: "/about",
-      blog: "/blogs",
-      contact: "/contact",
-      services: "/services",
-    };
-    router.push(routes[page] ?? "/");
-  };
-  const toggleDark = () => setTheme(dark ? "light" : "dark");
+export default function Nav({
+  dark,
+  toggleDark,
+  currentPage,
+  setPage,
+}: NavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -54,7 +46,6 @@ export function Header() {
   }, []);
 
   const bg = scrolled ? "bg-background/95 backdrop-blur-md" : "bg-transparent";
-
   const text = "text-foreground";
   const muted = "text-muted-foreground";
 
@@ -167,23 +158,22 @@ export function Header() {
             </AnimatePresence>
           </div>
 
-          {navLinks.map((link) => (
-            <Button
-              key={link.page}
-              variant="ghost"
-              onClick={() => setPage(link.page)}
-              aria-current={currentPage === link.page ? "page" : undefined}
-              className={`relative ${currentPage === link.page ? text : muted} hover:text-foreground`}
+          {navLinks.map(({ page, label }) => (
+            <Link
+              href={page}
+              key={page}
+              aria-current={currentPage === page ? "page" : undefined}
+              className={`relative ${currentPage === page ? text : muted} hover:text-foreground`}
             >
-              {link.label}
-              {currentPage === link.page && (
+              {label}
+              {currentPage === page && (
                 <motion.span
                   layoutId="nav-active-indicator"
                   className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-primary"
                   transition={{ type: "spring", stiffness: 420, damping: 32 }}
                 />
               )}
-            </Button>
+            </Link>
           ))}
         </nav>
 

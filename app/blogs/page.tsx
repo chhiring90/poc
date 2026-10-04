@@ -45,7 +45,7 @@ const techOptions = [
   "Docker / K8s",
 ];
 
-export default function Contact() {
+export default function Blogs() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     type: "",

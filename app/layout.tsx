@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Header } from "@/components/layouts/header";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const spaceGroteskHeading = Space_Grotesk({
   subsets: ["latin"],
@@ -40,7 +42,17 @@ export default function RootLayout({
         spaceGroteskHeading.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-full flex-col bg-background text-foreground transition-colors duration-300">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header />
+          <main className="flex-1">{children}</main>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
