@@ -1,0 +1,13 @@
+export { AISection } from "./ai-section";
+export { Blog } from "./blog";
+export { ClosingCTA } from "./closing-cta";
+export { FeaturedWork } from "./featured-work";
+export { Footer } from "./footer";
+export { Header } from "./header";
+export { Hero } from "./hero";
+export { Process } from "./process";
+export { Services } from "./services";
+export { StackCarousel } from "./stack-carousel";
+export { TechStack } from "./tech-stack";
+export { Testimonial } from "./testimonial";
+export { WhoAreWe } from "./who-are-we";

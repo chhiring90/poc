@@ -194,7 +194,8 @@ export function Header() {
             onClick={toggleDark}
             aria-label="Toggle dark mode"
           >
-            {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            <Sun className="hidden size-4 dark:block" />
+            <Moon className="size-4 dark:hidden" />
           </Button>
 
           <Button
