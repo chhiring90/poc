@@ -1,13 +1,42 @@
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export function Hero() {
+export type HeroData = {
+  heading: string;
+  subheading: string | null;
+  description: string | null;
+  image:
+    | number
+    | string
+    | {
+        id: number | string;
+        url?: string | null;
+        alt?: string | null;
+      }
+    | null;
+  ctaPrimary: {
+    label: string;
+    url: string;
+  };
+  ctaSecondary: {
+    label: string;
+    url: string;
+  };
+};
+
+export async function Hero({
+  heading,
+  subheading,
+  description,
+  image,
+  ctaPrimary,
+  ctaSecondary,
+}: HeroData) {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl animate-blob" />
         <div className="absolute -bottom-40 -left-20 w-[500px] h-[500px] rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
-        {/* Grid pattern */}
         <svg
           className="absolute inset-0 h-full w-full text-foreground opacity-5"
           xmlns="http://www.w3.org/2000/svg"
@@ -33,7 +62,6 @@ export function Hero() {
 
       <div className="relative max-w-[1280px] mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
         <div className="max-w-4xl">
-          {/* Eyebrow */}
           <div className="inline-flex items-center gap-2 mb-8">
             <span className="font-mono text-sm text-primary uppercase tracking-widest">
               Hey, we're POC 👋
@@ -41,7 +69,6 @@ export function Hero() {
             <span className="w-8 h-px bg-primary" />
           </div>
 
-          {/* Headline */}
           <h1 className="font-display text-5xl md:text-7xl lg:text-[84px] font-bold leading-[1.0] tracking-tight mb-8">
             Ideas In{" "}
             <span className="relative inline-block">
@@ -88,10 +115,8 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Floating device mockups */}
         <div className="absolute right-10 top-1/2 -translate-y-1/2 hidden xl:block">
           <div className="relative">
-            {/* Laptop */}
             <div className="flex h-48 w-80 items-center justify-center rounded-xl border-4 border-border bg-card shadow-2xl">
               <div className="w-full h-full p-3 overflow-hidden rounded-lg">
                 <div className="mb-2 h-3 rounded bg-muted" />
@@ -147,6 +172,39 @@ export function Hero() {
           Scroll
         </span>
         <div className="h-8 w-px bg-border" />
+      </div>
+    </section>
+  );
+}
+
+export function HeroSkeleton() {
+  return (
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      <div className="relative max-w-[1280px] mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
+        <div className="max-w-4xl">
+          <div className="inline-flex items-center gap-2 mb-8">
+            <Skeleton className="h-4 w-44" />
+            <span className="w-8 h-px bg-primary/40" />
+          </div>
+
+          <Skeleton className="h-12 w-4/5 mb-3 md:h-[72px] lg:h-[84px]" />
+          <Skeleton className="h-12 w-2/5 mb-8 md:h-[72px] lg:h-[84px]" />
+
+          <div className="max-w-2xl mb-10 space-y-3">
+            <Skeleton className="h-5 w-full md:h-6" />
+            <Skeleton className="h-5 w-11/12 md:h-6" />
+            <Skeleton className="h-5 w-2/3 md:h-6" />
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Skeleton className="h-[46px] w-40 rounded-full" />
+            <Skeleton className="h-[46px] w-44 rounded-full" />
+          </div>
+        </div>
+
+        <div className="absolute right-10 top-1/2 -translate-y-1/2 hidden xl:block">
+          <Skeleton className="h-48 w-80 rounded-xl" />
+        </div>
       </div>
     </section>
   );
