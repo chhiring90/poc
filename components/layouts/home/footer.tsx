@@ -1,3 +1,4 @@
+import { Logo } from "@/components/ui/logo";
 import Link from "next/link";
 
 export function Footer() {
@@ -7,16 +8,7 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-16">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="font-mono text-sm font-bold text-primary-foreground">
-                  P∘C
-                </span>
-              </div>
-              <span
-                className={`font-display font-bold text-lg text-foreground`}
-              >
-                POC
-              </span>
+              <Logo compact />
             </div>
             <p className={`text-sm text-muted-foreground leading-relaxed mb-6`}>
               Proof of Concept.

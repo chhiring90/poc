@@ -1,4 +1,5 @@
 "use client";
+import { Footer } from "@/components/layouts/home";
 import { useState } from "react";
 
 const steps = [
@@ -45,7 +46,7 @@ const techOptions = [
   "Docker / K8s",
 ];
 
-export default function Blogs() {
+export default function Contact() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     type: "",
@@ -59,10 +60,6 @@ export default function Blogs() {
   });
   const [submitted, setSubmitted] = useState(false);
 
-  const bg = "bg-background";
-  const text = "text-foreground";
-  const muted = "text-muted-foreground";
-  const card = "bg-card border-border";
   const inputCls =
     "w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring";
 
@@ -398,6 +395,7 @@ export default function Blogs() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

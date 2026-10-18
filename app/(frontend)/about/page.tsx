@@ -1,5 +1,6 @@
 "use client";
 
+import { Footer } from "@/components/layouts/home";
 import { useSiteControls } from "@/hooks/use-site-controls";
 
 const team = [
@@ -208,6 +209,7 @@ export default function About() {
           </button>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }

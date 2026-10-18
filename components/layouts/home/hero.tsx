@@ -43,9 +43,9 @@ export function Hero() {
 
           {/* Headline */}
           <h1 className="font-display text-5xl md:text-7xl lg:text-[84px] font-bold leading-[1.0] tracking-tight mb-8">
-            We build apps that{" "}
+            Ideas In{" "}
             <span className="relative inline-block">
-              <span className="text-primary">prove</span>
+              <span className="text-primary">Innovation</span>
               <svg
                 className="absolute -bottom-1 left-0 w-full"
                 height="4"
@@ -55,12 +55,12 @@ export function Hero() {
                 <path
                   d="M0 3 Q25 0 50 3 Q75 6 100 3"
                   fill="none"
-                  stroke="#C8FF2E"
+                  stroke="oklch(0.6 0.23 285)"
                   strokeWidth="1.5"
                 />
               </svg>
             </span>{" "}
-            themselves.
+            out.
           </h1>
 
           <p

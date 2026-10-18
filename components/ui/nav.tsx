@@ -64,9 +64,8 @@ export default function Nav({
       className={`fixed top-0 left-0 right-0 z-50 border-b transition-colors duration-300 bg-background ${scrolled ? "border-border/70" : "border-transparent"}`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-10">
-        <Button
-          variant="ghost"
-          onClick={() => setPage("home")}
+        <Link
+          href="/"
           className={`h-auto gap-2 px-0 hover:bg-transparent text-foreground`}
         >
           <span className="flex size-8 items-center justify-center rounded-md bg-primary">
@@ -75,7 +74,7 @@ export default function Nav({
             </span>
           </span>
           <span className="font-display text-lg font-bold">POC</span>
-        </Button>
+        </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
           <div
@@ -113,45 +112,34 @@ export default function Nav({
                   </p>
                   <div className="grid grid-cols-2 gap-1">
                     {services.map((service) => (
-                      <Button
+                      <Link
+                        href="/services"
                         key={service.name}
-                        variant="ghost"
-                        onClick={() => {
-                          setPage("services");
-                          setMegaOpen(false);
-                        }}
+                        onClick={() => setMegaOpen(false)}
                         className="h-auto min-h-16 justify-start whitespace-normal rounded-md px-3 py-2 text-left hover:bg-muted"
                       >
                         <span className="text-lg text-primary">
                           {service.icon}
                         </span>
                         <span className="min-w-0">
-                          <span
-                            className={`block text-sm font-semibold text-foreground`}
-                          >
+                          <span className="block text-sm font-semibold text-foreground">
                             {service.name}
                           </span>
-                          <span
-                            className={`mt-0.5 block text-xs text-muted-foreground`}
-                          >
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
                             {service.desc}
                           </span>
                         </span>
-                      </Button>
+                      </Link>
                     ))}
                   </div>
                   <div className="mt-3 border-t border-border pt-3">
-                    <Button
-                      variant="link"
-                      size="sm"
-                      onClick={() => {
-                        setPage("services");
-                        setMegaOpen(false);
-                      }}
-                      className="h-auto px-1"
+                    <Link
+                      href="/services"
+                      onClick={() => setMegaOpen(false)}
+                      className="text-sm font-medium text-foreground hover:text-primary"
                     >
                       View all services <ArrowUpRight className="size-4" />
-                    </Button>
+                    </Link>
                   </div>
                 </motion.div>
               )}
@@ -187,12 +175,9 @@ export default function Nav({
             {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </Button>
 
-          <Button
-            onClick={() => setPage("contact")}
-            className="hidden rounded-full md:flex"
-          >
+          <Link href="/contact" className="hidden rounded-full md:flex">
             Start a project <ArrowUpRight className="size-4" />
-          </Button>
+          </Link>
 
           <Button
             variant="ghost"

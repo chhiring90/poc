@@ -1,5 +1,6 @@
 "use client";
 
+import { Footer } from "@/components/layouts/home";
 import { useSiteControls } from "@/hooks/use-site-controls";
 
 const services = [
@@ -240,6 +241,7 @@ export default function Services() {
           </button>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }

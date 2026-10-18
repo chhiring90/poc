@@ -6,6 +6,8 @@ import { useTheme } from "next-themes";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight, ChevronDown, Menu, Moon, Sun, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
+import Link from "next/link";
 
 const services = [
   { name: "Web Applications", desc: "React, Next.js, TypeScript", icon: "⬡" },
@@ -73,18 +75,12 @@ export function Header() {
       className={`fixed top-0 left-0 right-0 z-50 border-b transition-colors duration-300 bg-background ${scrolled ? "border-border/70" : "border-transparent"}`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-10">
-        <Button
-          variant="ghost"
-          onClick={() => setPage("home")}
-          className={`h-auto gap-2 px-0 hover:bg-transparent text-foreground`}
+        <Link
+          href="/"
+          className="h-auto gap-2 px-0 hover:bg-transparent text-foreground"
         >
-          <span className="flex size-8 items-center justify-center rounded-md bg-primary">
-            <span className="font-mono text-sm font-bold leading-none text-primary-foreground">
-              P∘C
-            </span>
-          </span>
-          <span className="font-display text-lg font-bold">POC</span>
-        </Button>
+          <Logo compact />
+        </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
           <div

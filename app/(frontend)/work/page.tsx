@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useSiteControls } from "@/hooks/use-site-controls";
+import { Footer } from "@/components/layouts/home";
 
 const filters = ["All", "Web", "Mobile", "SaaS", "E-commerce", "AI"];
 
@@ -294,6 +295,7 @@ export default function Work() {
           </button>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }
