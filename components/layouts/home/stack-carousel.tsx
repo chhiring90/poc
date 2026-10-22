@@ -2,30 +2,13 @@
 
 import { motion, useReducedMotion } from "motion/react";
 
-const techStack = [
-  "React",
-  "Next.js",
-  "TypeScript",
-  "Node.js",
-  "React Native",
-  "Flutter",
-  "Swift",
-  "Kotlin",
-  "Python",
-  "AWS",
-  "GCP",
-  "PostgreSQL",
-  "Docker",
-  "Kubernetes",
-  "OpenAI",
-  "LangChain",
-  "Redis",
-  "GraphQL",
-  "Prisma",
-  "Supabase",
-];
+export type iTechStack = {
+  id: number;
+  name: string;
+  logo?: string;
+};
 
-export function StackCarousel() {
+export function StackCarousel({ techStack }: { techStack: iTechStack[] }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -34,8 +17,8 @@ export function StackCarousel() {
       className="overflow-hidden border-y border-border py-5"
     >
       <ul className="sr-only">
-        {techStack.map((tech) => (
-          <li key={tech}>{tech}</li>
+        {techStack.map((tech: iTechStack) => (
+          <li key={tech.id}>{tech.name}</li>
         ))}
       </ul>
       <motion.div
@@ -50,10 +33,13 @@ export function StackCarousel() {
       >
         {[0, 1].map((copy) => (
           <div key={copy} className="flex shrink-0 items-center">
-            {techStack.map((tech) => (
-              <span key={tech} className="mx-6 inline-flex items-center gap-3">
+            {techStack.map((tech: iTechStack) => (
+              <span
+                key={tech.id}
+                className="mx-6 inline-flex items-center gap-3"
+              >
                 <span className="font-mono text-sm font-medium text-muted-foreground">
-                  {tech}
+                  {tech.name}
                 </span>
                 <span className="text-lg text-primary">◆</span>
               </span>

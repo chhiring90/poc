@@ -1,6 +1,6 @@
 import {
   AISection,
-  Blog,
+  Insights,
   ClosingCTA,
   FeaturedWork,
   Footer,
@@ -20,20 +20,27 @@ import { Suspense } from "react";
 export default async function Home() {
   const payload = await getPayload({ config });
   const home = await payload.findGlobal({ slug: "home", depth: 2 });
+  const techStack = home.techstack ?? [];
+  const [whoAreWe] = home.whoAreWe ?? [];
+  const expertise = home.expertise ?? [];
+  const process = home.process ?? [];
+  const insights = home.insights ?? [];
+
+  console.log({ insights });
 
   return (
     <div className="bg-background text-foreground transition-colors duration-300">
       <Suspense fallback={<HeroSkeleton />}>
         <Hero {...home.hero} />
       </Suspense>
-      <StackCarousel />
-      <WhoAreWe />
+      <StackCarousel techStack={techStack} />
+      {whoAreWe && <WhoAreWe {...whoAreWe} />}
       <FeaturedWork />
-      <Services />
-      <Process />
-      <TechStack />
+      {expertise && <Services expertise={expertise} />}
+      <Process process={process} />
+      {/* <TechStack techStack={techStack} /> */}
       <Testimonial />
-      <Blog />
+      <Insights {...insights} />
       <AISection />
       <ClosingCTA />
       <Footer />

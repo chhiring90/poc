@@ -1,27 +1,6 @@
-const techStack = [
-  "React",
-  "Next.js",
-  "TypeScript",
-  "Node.js",
-  "React Native",
-  "Flutter",
-  "Swift",
-  "Kotlin",
-  "Python",
-  "AWS",
-  "GCP",
-  "PostgreSQL",
-  "Docker",
-  "Kubernetes",
-  "OpenAI",
-  "LangChain",
-  "Redis",
-  "GraphQL",
-  "Prisma",
-  "Supabase",
-];
+import { iTechStack } from "@/components/layouts/home/stack-carousel";
 
-export function TechStack() {
+export function TechStack({ techStack }: { techStack: iTechStack[] }) {
   return (
     <section className="max-w-[1280px] mx-auto px-5 lg:px-10 py-28">
       <span
@@ -35,10 +14,10 @@ export function TechStack() {
       <div className="flex flex-wrap gap-3">
         {techStack.map((t) => (
           <span
-            key={t}
+            key={t.id}
             className="cursor-default rounded-full border border-border px-4 py-2 font-mono text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
           >
-            {t}
+            {t.name}
           </span>
         ))}
       </div>

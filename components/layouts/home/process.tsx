@@ -1,32 +1,36 @@
-const process = [
-  {
-    step: "01",
-    name: "Discover",
-    desc: "We dig into your problem, users and constraints.",
-  },
-  {
-    step: "02",
-    name: "Prototype",
-    desc: "We build the POC — the riskiest part, fast.",
-  },
-  {
-    step: "03",
-    name: "Build",
-    desc: "Engineering at pace on a stable foundation.",
-  },
-  {
-    step: "04",
-    name: "Launch",
-    desc: "Ship with confidence, not crossed fingers.",
-  },
-  {
-    step: "05",
-    name: "Scale",
-    desc: "Grow the product as the audience grows.",
-  },
-];
+// const process = [
+//   {
+//     step: "01",
+//     name: "Discover",
+//     desc: "We dig into your problem, users and constraints.",
+//   },
+//   {
+//     step: "02",
+//     name: "Prototype",
+//     desc: "We build the POC — the riskiest part, fast.",
+//   },
+//   {
+//     step: "03",
+//     name: "Build",
+//     desc: "Engineering at pace on a stable foundation.",
+//   },
+//   {
+//     step: "04",
+//     name: "Launch",
+//     desc: "Ship with confidence, not crossed fingers.",
+//   },
+//   {
+//     step: "05",
+//     name: "Scale",
+//     desc: "Grow the product as the audience grows.",
+//   },
+// ];
 
-export function Process() {
+export function Process({
+  process,
+}: {
+  process: { step: string; title: string; description: string }[];
+}) {
   return (
     <section className="bg-muted/40 py-28">
       <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
@@ -58,10 +62,10 @@ export function Process() {
                 <h3
                   className={`font-display text-lg font-bold text-foreground mb-2`}
                 >
-                  {p.name}
+                  {p.title}
                 </h3>
                 <p className={`text-sm text-muted-foreground leading-relaxed`}>
-                  {p.desc}
+                  {p.description}
                 </p>
               </div>
             ))}

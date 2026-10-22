@@ -3,6 +3,9 @@ import { iconField } from "../collections/fields/iconFields";
 
 export const Home: GlobalConfig = {
   slug: "home",
+  admin: {
+    preview: ({ slug }) => "/",
+  },
   access: { read: () => true },
   fields: [
     {
@@ -91,6 +94,38 @@ export const Home: GlobalConfig = {
         { name: "company", type: "text" },
         { name: "testimonial", type: "textarea", required: true },
         { name: "photo", type: "upload", relationTo: "media" },
+      ],
+    },
+    {
+      name: "insights",
+      type: "group",
+      label: "Insights",
+      fields: [
+        { name: "heading", type: "text", required: true },
+        { name: "subheading", type: "textarea" },
+        { name: "description", type: "textarea" },
+        {
+          name: "source",
+          type: "radio",
+          defaultValue: "latest",
+          options: [
+            { label: "Newest posts (automatic)", value: "latest" },
+            { label: "Pick posts manually", value: "manual" },
+          ],
+        },
+        {
+          name: "posts",
+          type: "relationship",
+          relationTo: "posts",
+          hasMany: true,
+          maxRows: 4,
+          admin: {
+            description: "Choose up to 4 posts.",
+            condition: (_, siblingData) => siblingData?.source === "manual",
+          },
+        },
+        { name: "ctaLabel", type: "text", defaultValue: "View all posts" },
+        { name: "ctaHref", type: "text", defaultValue: "/blogs" },
       ],
     },
   ],

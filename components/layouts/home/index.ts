@@ -1,5 +1,5 @@
 export { AISection } from "./ai-section";
-export { Blog } from "./blog";
+export { Insights } from "./insights";
 export { ClosingCTA } from "./closing-cta";
 export { FeaturedWork } from "./featured-work";
 export { Footer } from "./footer";

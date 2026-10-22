@@ -21,5 +21,12 @@ export const Posts: CollectionConfig = {
     },
     { name: "content", type: "richText" },
     { name: "publishedAt", type: "date", admin: { position: "sidebar" } },
+    {
+      name: "author",
+      type: "relationship",
+      relationTo: "users",
+      defaultValue: ({ user }) => user?.id,
+      admin: { position: "sidebar" },
+    },
   ],
 };
