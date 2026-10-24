@@ -10,6 +10,7 @@
     "lint:fix": "eslint --fix",
     "payload": "payload",
     "generate:types": "payload generate:types",
+    "migrate:create": "payload migrate:create",
     "generate:importmap": "payload generate:importmap"
   },
   "dependencies": {

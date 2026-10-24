@@ -86,15 +86,10 @@ export const Home: GlobalConfig = {
       ],
     },
     {
-      name: "testimonials",
-      type: "array",
-      fields: [
-        { name: "name", type: "text", required: true },
-        { name: "role", type: "text" },
-        { name: "company", type: "text" },
-        { name: "testimonial", type: "textarea", required: true },
-        { name: "photo", type: "upload", relationTo: "media" },
-      ],
+      name: "reviews",
+      type: "relationship",
+      relationTo: "testimonials",
+      hasMany: true,
     },
     {
       name: "insights",

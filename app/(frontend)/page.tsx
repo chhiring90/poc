@@ -17,7 +17,6 @@ import { getPayload } from "payload";
 import config from "@payload-config";
 import { Suspense } from "react";
 
-
 export default async function Home() {
   const payload = await getPayload({ config });
   const home = await payload.findGlobal({ slug: "home", depth: 2 });
@@ -26,6 +25,7 @@ export default async function Home() {
   const expertise = home.expertise ?? [];
   const process = home.process ?? [];
   const insights = home.insights ?? [];
+  const testimonials = home.reviews ?? [];
 
   return (
     <div className="bg-background text-foreground transition-colors duration-300">
@@ -38,7 +38,7 @@ export default async function Home() {
       {expertise && <Services expertise={expertise} />}
       <Process process={process} />
       {/* <TechStack techStack={techStack} /> */}
-      <Testimonial />
+      <Testimonial testimonials={testimonials} />
       <Insights {...insights} />
       <AISection />
       <ClosingCTA />
