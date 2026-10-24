@@ -34,8 +34,8 @@ export async function Hero({
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl animate-blob" />
-        <div className="absolute -bottom-40 -left-20 w-[500px] h-[500px] rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -top-40 -right-40 w-150 h-150 rounded-full bg-primary/10 blur-3xl animate-blob" />
+        <div className="absolute -bottom-40 -left-20 w-125 h-125 rounded-full bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
         <svg
           className="absolute inset-0 h-full w-full text-foreground opacity-5"
           xmlns="http://www.w3.org/2000/svg"
@@ -59,7 +59,7 @@ export async function Hero({
         </svg>
       </div>
 
-      <div className="relative max-w-[1280px] mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
+      <div className="relative max-w-7xl mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
         <div className="max-w-4xl">
           {subheading && (
             <div className="inline-flex items-center gap-2 mb-8">
@@ -166,7 +166,7 @@ export function HighlightedText({ text }: { text: string }) {
 
   return (
     <>
-      <h1 className="font-display text-5xl md:text-7xl lg:text-[84px] font-bold leading-[1.0] tracking-tight mb-8">
+      <h1 className="font-display text-5xl md:text-7xl lg:text-[84px] font-bold leading-none tracking-tight mb-8">
         {parts.slice(0, 1)}
         <span className="relative inline-block">
           <span className="text-primary">
@@ -199,15 +199,15 @@ export function HighlightedText({ text }: { text: string }) {
 export function HeroSkeleton() {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      <div className="relative max-w-[1280px] mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
+      <div className="relative max-w-7xl mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
         <div className="max-w-4xl">
           <div className="inline-flex items-center gap-2 mb-8">
             <Skeleton className="h-4 w-44" />
             <span className="w-8 h-px bg-primary/40" />
           </div>
 
-          <Skeleton className="h-12 w-4/5 mb-3 md:h-[72px] lg:h-[84px]" />
-          <Skeleton className="h-12 w-2/5 mb-8 md:h-[72px] lg:h-[84px]" />
+          <Skeleton className="h-12 w-4/5 mb-3 md:h-18 lg:h-21" />
+          <Skeleton className="h-12 w-2/5 mb-8 md:h-18 lg:h-21" />
 
           <div className="max-w-2xl mb-10 space-y-3">
             <Skeleton className="h-5 w-full md:h-6" />
@@ -216,8 +216,8 @@ export function HeroSkeleton() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Skeleton className="h-[46px] w-40 rounded-full" />
-            <Skeleton className="h-[46px] w-44 rounded-full" />
+            <Skeleton className="h-11.5 w-40 rounded-full" />
+            <Skeleton className="h-11.5 w-44 rounded-full" />
           </div>
         </div>
 

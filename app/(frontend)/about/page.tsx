@@ -67,15 +67,11 @@ const values = [
 
 export default function About() {
   const { setPage } = useSiteControls();
-  const bg = "bg-background";
-  const text = "text-foreground";
-  const muted = "text-muted-foreground";
-  const card = "bg-card border-border";
 
   return (
     <div className={`bg-background text-foreground min-h-screen`}>
       {/* Hero */}
-      <section className="max-w-[1280px] mx-auto px-5 lg:px-10 pt-36 pb-20 grid lg:grid-cols-2 gap-16 items-center">
+      <section className="max-w-7xl mx-auto px-5 lg:px-10 pt-36 pb-20 grid lg:grid-cols-2 gap-16 items-center">
         <div>
           <span
             className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
@@ -109,7 +105,7 @@ export default function About() {
 
       {/* Values */}
       <section className="bg-muted/40 py-24">
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+        <div className="max-w-7xl mx-auto px-5 lg:px-10">
           <span
             className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
           >
@@ -142,7 +138,7 @@ export default function About() {
       </section>
 
       {/* Team */}
-      <section className="max-w-[1280px] mx-auto px-5 lg:px-10 py-28">
+      <section className="max-w-7xl mx-auto px-5 lg:px-10 py-28">
         <span
           className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
         >
@@ -163,7 +159,7 @@ export default function About() {
                   alt={m.name}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
               </div>
               <h3 className={`font-display text-lg font-bold text-foreground`}>
                 {m.name}
@@ -197,7 +193,7 @@ export default function About() {
 
       {/* CTA */}
       <section className="bg-primary py-24">
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-10 text-center">
+        <div className="max-w-7xl mx-auto px-5 lg:px-10 text-center">
           <h2 className="mb-4 font-display text-4xl font-bold text-primary-foreground md:text-5xl">
             Let's build something together.
           </h2>

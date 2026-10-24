@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export function Insights({
+export async function Insights({
   heading,
   subheading,
   posts = [],
@@ -24,7 +24,7 @@ export function Insights({
   ctaHref: string;
 }) {
   return (
-    <section className="max-w-[1280px] mx-auto px-5 lg:px-10 py-28">
+    <section className="max-w-7xl mx-auto px-5 lg:px-10 py-28">
       <div className="flex items-end justify-between mb-12">
         <div>
           <span

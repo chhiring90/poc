@@ -111,7 +111,7 @@ export default function Services() {
   return (
     <div className={`bg-background text-foreground min-h-screen`}>
       {/* Hero */}
-      <section className="max-w-[1280px] mx-auto px-5 lg:px-10 pt-36 pb-20">
+      <section className="max-w-7xl mx-auto px-5 lg:px-10 pt-36 pb-20">
         <span
           className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
         >
@@ -131,7 +131,7 @@ export default function Services() {
       </section>
 
       {/* Service cards */}
-      <section className="max-w-[1280px] mx-auto px-5 lg:px-10 pb-28">
+      <section className="max-w-7xl mx-auto px-5 lg:px-10 pb-28">
         <div className="space-y-5">
           {services.map((s, i) => (
             <div
@@ -190,7 +190,7 @@ export default function Services() {
 
       {/* FAQ */}
       <section className="bg-muted/40 py-28">
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-10">
+        <div className="max-w-7xl mx-auto px-5 lg:px-10">
           <span
             className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
           >
@@ -226,7 +226,7 @@ export default function Services() {
 
       {/* CTA */}
       <section className="bg-primary py-24">
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-10 text-center">
+        <div className="max-w-7xl mx-auto px-5 lg:px-10 text-center">
           <h2 className="mb-4 font-display text-4xl font-bold text-primary-foreground md:text-5xl">
             Ready to build?
           </h2>

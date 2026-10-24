@@ -79,15 +79,9 @@ export default function Blog({ dark, setPage }: BlogProps) {
   const filtered =
     active === "All" ? rest : rest.filter((p) => p.tag === active);
 
-  const bg = dark ? "bg-[#0B0D12]" : "bg-[#F6F5F0]";
-  const text = dark ? "text-[#F6F5F0]" : "text-[#0B0D12]";
-  const muted = dark ? "text-[#71717A]" : "text-[#71717A]";
-  const card = dark ? "bg-[#13151C] border-white/5" : "bg-white border-black/5";
-
   return (
     <div className="bg-background text-foreground min-h-screen">
-      {/* Hero */}
-      <section className="max-w-[1280px] mx-auto px-5 lg:px-10 pt-36 pb-16">
+      <section className="max-w-7xl mx-auto px-5 lg:px-10 pt-36 pb-16">
         <span className="font-mono text-xs uppercase tracking-widest text-muted mb-4 block">
           // the lab blog
         </span>
@@ -103,7 +97,7 @@ export default function Blog({ dark, setPage }: BlogProps) {
       </section>
 
       {/* Featured */}
-      <section className="max-w-[1280px] mx-auto px-5 lg:px-10 pb-16">
+      <section className="max-w-7xl mx-auto px-5 lg:px-10 pb-16">
         <div className="group bg-background border-white/5 relative rounded-2xl overflow-hidden border cursor-pointer hover:-translate-y-1 transition-all">
           <div className="grid lg:grid-cols-2">
             <div className="h-72 lg:h-auto overflow-hidden">
@@ -152,7 +146,7 @@ export default function Blog({ dark, setPage }: BlogProps) {
       </section>
 
       {/* Filter + Grid */}
-      <section className="max-w-[1280px] mx-auto px-5 lg:px-10 pb-28">
+      <section className="max-w-7xl mx-auto px-5 lg:px-10 pb-28">
         <div className="flex flex-wrap gap-2 mb-10">
           {tags.map((t) => (
             <button

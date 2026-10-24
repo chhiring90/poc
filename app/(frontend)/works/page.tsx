@@ -98,7 +98,7 @@ export default function Work() {
   if (selected) {
     return (
       <div className={`bg-background text-foreground min-h-screen pt-20`}>
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-10 py-20">
+        <div className="max-w-7xl mx-auto px-5 lg:px-10 py-20">
           <button
             onClick={() => setSelected(null)}
             className={`flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-12`}
@@ -196,7 +196,7 @@ export default function Work() {
   return (
     <div className={`bg-background text-foreground min-h-screen`}>
       {/* Hero */}
-      <section className="max-w-[1280px] mx-auto px-5 lg:px-10 pt-36 pb-16">
+      <section className="max-w-7xl mx-auto px-5 lg:px-10 pt-36 pb-16">
         <span
           className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
         >
@@ -214,7 +214,7 @@ export default function Work() {
       </section>
 
       {/* Filter */}
-      <div className="max-w-[1280px] mx-auto px-5 lg:px-10 pb-10">
+      <div className="max-w-7xl mx-auto px-5 lg:px-10 pb-10">
         <div className="flex flex-wrap gap-2">
           {filters.map((f) => (
             <button
@@ -229,7 +229,7 @@ export default function Work() {
       </div>
 
       {/* Grid */}
-      <div className="max-w-[1280px] mx-auto px-5 lg:px-10 pb-28">
+      <div className="max-w-7xl mx-auto px-5 lg:px-10 pb-28">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((p) => (
             <button
@@ -280,7 +280,7 @@ export default function Work() {
 
       {/* CTA */}
       <section className="bg-primary py-24">
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-10 text-center">
+        <div className="max-w-7xl mx-auto px-5 lg:px-10 text-center">
           <h2 className="mb-4 font-display text-4xl font-bold text-primary-foreground md:text-5xl">
             Your project, next.
           </h2>

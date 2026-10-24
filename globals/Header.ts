@@ -7,6 +7,12 @@ export const Header: GlobalConfig = {
     {
       name: "navItems",
       type: "array",
+      admin: {
+        components: {
+          RowLabel:
+            "/components/admin/RowLabel/navItemRowLabel#NavItemRowLabel",
+        },
+      },
       fields: [
         { name: "label", type: "text", required: true },
         { name: "link", type: "text" }, // used when there is no dropdown
@@ -14,7 +20,13 @@ export const Header: GlobalConfig = {
         {
           name: "columns",
           type: "array",
-          admin: { condition: (_, siblingData) => siblingData?.hasMegaMenu },
+          admin: {
+            condition: (_, siblingData) => siblingData?.hasMegaMenu,
+            components: {
+              RowLabel:
+                "/components/admin/RowLabel/columnRowLabel#ColumnRowLabel",
+            },
+          },
           fields: [
             { name: "heading", type: "text" },
             {
@@ -26,6 +38,12 @@ export const Header: GlobalConfig = {
                 { name: "description", type: "text" },
                 { name: "icon", type: "upload", relationTo: "media" },
               ],
+              admin: {
+                components: {
+                  RowLabel:
+                    "/components/admin/RowLabel/navItemRowLabel#NavItemRowLabel",
+                },
+              },
             },
           ],
         },

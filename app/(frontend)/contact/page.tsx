@@ -96,7 +96,7 @@ export default function Contact() {
 
   return (
     <div className={`bg-background text-foreground min-h-screen`}>
-      <div className="max-w-[1280px] mx-auto px-5 lg:px-10 pt-36 pb-28">
+      <div className="max-w-7xl mx-auto px-5 lg:px-10 pt-36 pb-28">
         <div className="grid lg:grid-cols-2 gap-16">
           {/* Left */}
           <div>
@@ -164,10 +164,7 @@ export default function Contact() {
             {/* Stepper */}
             <div className="flex items-center gap-1 mb-8 overflow-x-auto pb-2">
               {steps.map((s, i) => (
-                <div
-                  key={s.id}
-                  className="flex items-center gap-1 flex-shrink-0"
-                >
+                <div key={s.id} className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => i < step && setStep(i)}
                     className={`flex items-center gap-2 rounded-full px-3 py-1.5 font-mono text-xs transition-all ${i === step ? "bg-primary font-bold text-primary-foreground" : i < step ? "border border-primary/30 text-primary" : "border border-border text-muted-foreground"}`}
