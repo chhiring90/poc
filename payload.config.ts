@@ -12,7 +12,7 @@ import {
   Work,
   WorkCategories,
 } from "./collections";
-import { Home, Header, About } from "./globals";
+import { Home, Header, About, BlogPage, WorkPage } from "./globals";
 
 export default buildConfig({
   // If you'd like to use Rich Text, pass your editor here
@@ -29,7 +29,7 @@ export default buildConfig({
     Work,
     WorkCategories,
   ],
-  globals: [Header, Home, About],
+  globals: [Header, Home, About, BlogPage, WorkPage],
 
   // Your Payload secret - should be a complex and secure string, unguessable
   secret: process.env.PAYLOAD_SECRET || "",

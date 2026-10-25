@@ -35,7 +35,7 @@ export default async function Home() {
       </Suspense>
       <StackCarousel techStack={techStack} />
       {whoAreWe && <WhoAreWe {...whoAreWe} />}
-      <FeaturedWork {...featuredWork} />
+      {featuredWork && <FeaturedWork featuredWork={featuredWork} />}
       {expertise && <Services expertise={expertise} />}
       <Process process={process} />
       {/* <TechStack techStack={techStack} /> */}

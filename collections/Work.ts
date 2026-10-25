@@ -1,7 +1,7 @@
 import type { CollectionConfig } from "payload";
 
 export const Work: CollectionConfig = {
-  slug: "work",
+  slug: "works",
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "year", "category"],

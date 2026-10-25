@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 
 const routes: Record<string, string> = {
   home: "/",
-  work: "/work",
+  work: "/works",
   about: "/about",
   blog: "/blogs",
   contact: "/contact",

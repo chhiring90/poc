@@ -69,7 +69,7 @@ export const Home: GlobalConfig = {
         {
           name: "projects",
           type: "relationship",
-          relationTo: "work",
+          relationTo: "works",
           hasMany: true,
         },
       ],
