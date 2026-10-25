@@ -131,7 +131,7 @@ export function Nav({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 5, scale: 0.98 }}
                         transition={{ duration: 0.18, ease: "easeOut" }}
-                        className="absolute left-1/2 top-full mt-2 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border border-border bg-popover p-5 text-popover-foreground shadow-xl"
+                        className="absolute left-1/2 top-full mt-2 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-none border border-border bg-popover p-5 text-popover-foreground shadow-xl"
                       >
                         <div
                           className="grid gap-6"
@@ -151,7 +151,7 @@ export function Nav({
                                   <Button
                                     key={l.id ?? l.url}
                                     variant="ghost"
-                                    className="h-auto min-h-16 justify-start whitespace-normal rounded-md px-3 py-2 text-left hover:bg-muted"
+                                    className="h-auto min-h-16 justify-start whitespace-normal rounded-none px-3 py-2 text-left hover:bg-muted"
                                   >
                                     <Link href={l.url}>
                                       {l.icon && (
@@ -192,7 +192,7 @@ export function Nav({
                         {featured?.slug && (
                           <Link
                             href={`/blogs/${featured.slug}`}
-                            className="mt-4 block rounded-md border border-border p-3 text-sm hover:bg-muted"
+                            className="mt-4 block rounded-none border border-border p-3 text-sm hover:bg-muted"
                           >
                             <span className="block text-xs font-mono uppercase text-muted-foreground">
                               Featured
@@ -232,7 +232,7 @@ export function Nav({
                   {active && (
                     <motion.span
                       layoutId="nav-active-indicator"
-                      className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-primary"
+                      className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-none bg-primary"
                       transition={{
                         type: "spring",
                         stiffness: 420,
@@ -258,7 +258,7 @@ export function Nav({
             <Moon className="size-4 dark:hidden" />
           </Button>
 
-          <Button className="hidden rounded-full md:flex">
+          <Button className="hidden rounded-none md:flex">
             <Link href={cta.href}>
               {cta.label} <ArrowUpRight className="size-4" />
             </Link>
@@ -333,7 +333,7 @@ export function Nav({
                 </motion.div>
               ))}
 
-              <Button className="mt-2 justify-between rounded-full">
+              <Button className="mt-2 justify-between rounded-none">
                 <Link href={cta.href}>
                   {cta.label} <ArrowUpRight className="size-4" />
                 </Link>

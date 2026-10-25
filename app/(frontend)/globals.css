@@ -48,6 +48,7 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 }
+
 :root {
   color-scheme: light;
   --background: oklch(0.97 0.007 95);            /* paper */

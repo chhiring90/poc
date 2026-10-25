@@ -1,9 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import type { FormEvent } from "react";
 import { ArrowUpRight, icons } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { renderAsteriskText } from "@/lib/helper/render-asterisk-text.helper";
 import type {
   ContactPageData,
@@ -14,33 +27,32 @@ type ContactExperienceProps = {
   content: ContactPageData;
 };
 
-type ContactFormValues = {
-  name: string;
-  company: string;
-  email: string;
-  message: string;
-};
+const contactFormSchema = z.object({
+  name: z.string().trim().min(1, "Please enter your name."),
+  company: z.string(),
+  email: z.string().trim().email("Enter a valid email address."),
+  message: z.string(),
+});
+
+type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 export function ContactExperience({ content }: ContactExperienceProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
-  const [form, setForm] = useState<ContactFormValues>({
-    name: "",
-    company: "",
-    email: "",
-    message: "",
+  const contactForm = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      company: "",
+      email: "",
+      message: "",
+    },
   });
   const [submitted, setSubmitted] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const totalSteps = content.steps.length + 1;
   const currentQuestion = content.steps[stepIndex];
   const isContactStep = stepIndex === content.steps.length;
-  const inputClassName =
-    "w-full rounded-2xl border border-border bg-background px-4 py-3.5 text-sm text-foreground outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/15 placeholder:text-muted-foreground";
-
-  function updateForm(field: keyof ContactFormValues, value: string) {
-    setForm((current) => ({ ...current, [field]: value }));
-  }
 
   function toggleAnswer(question: ContactQuestionStep, value: string) {
     setAnswers((current) => {
@@ -61,34 +73,33 @@ export function ContactExperience({ content }: ContactExperienceProps) {
     return !question.required || (answers[question.key]?.length ?? 0) > 0;
   }
 
-  function finishForm(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function finishForm() {
     setSubmitted(true);
   }
 
   if (submitted) {
     return (
-      <div className="flex min-h-[75vh] items-center justify-center px-5 py-24">
+      <div className="flex min-h-[80vh] items-center justify-center px-5 py-32">
         <motion.div
           initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-xl rounded-[2rem] border border-border bg-card p-8 text-center shadow-2xl shadow-black/5 md:p-14"
+          className="w-full max-w-xl border border-border bg-card p-10 text-center shadow-2xl shadow-black/5 md:p-20"
         >
           <motion.div
             initial={shouldReduceMotion ? false : { scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: shouldReduceMotion ? 0 : 0.1, type: "spring" }}
-            className="mx-auto mb-7 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl text-primary-foreground"
+            className="mx-auto mb-10 flex h-16 w-16 items-center justify-center bg-primary text-2xl text-primary-foreground"
           >
             ✓
           </motion.div>
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-primary">
+          <p className="mb-5 font-mono text-xs uppercase tracking-[0.2em] text-primary">
             {content.success.eyebrow}
           </p>
-          <h1 className="mb-4 font-display text-4xl font-bold tracking-tight md:text-5xl">
+          <h1 className="mb-6 font-display text-4xl font-bold tracking-tight md:text-5xl">
             {content.success.title}
           </h1>
-          <p className="mb-8 text-lg leading-relaxed text-muted-foreground">
+          <p className="mb-10 text-lg leading-relaxed text-muted-foreground">
             {content.success.description}
           </p>
           <p className="font-mono text-xs text-muted-foreground">
@@ -100,28 +111,28 @@ export function ContactExperience({ content }: ContactExperienceProps) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-5 pb-24 pt-32 lg:px-10 lg:pt-40">
-      <div className="grid items-start gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
+    <div className="mx-auto max-w-7xl px-5 pb-36 pt-36 lg:px-10 lg:pb-44 lg:pt-48">
+      <div className="grid items-start gap-16 lg:grid-cols-[0.85fr_1.15fr] lg:gap-28">
         <section className="lg:sticky lg:top-32">
-          <p className="mb-5 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="mb-7 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
             {`// ${content.eyebrow}`}
           </p>
-          <h1 className="mb-6 max-w-xl whitespace-pre-line font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl">
+          <h1 className="mb-8 max-w-xl whitespace-pre-line font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl">
             {renderAsteriskText(content.heading)}
           </h1>
-          <p className="mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground">
+          <p className="mb-14 max-w-lg text-lg leading-relaxed text-muted-foreground">
             {content.description}
           </p>
 
           {content.contactDetails.length > 0 && (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               {content.contactDetails.map((detail, index) => {
                 const Icon =
                   icons[detail.icon as keyof typeof icons] ?? ArrowUpRight;
                 const href = getContactDetailHref(detail);
                 const contentBlock = (
                   <>
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-lg text-primary">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center bg-primary/10 text-lg text-primary">
                       <Icon aria-hidden="true" size={20} />
                     </span>
                     <span className="min-w-0">
@@ -151,14 +162,14 @@ export function ContactExperience({ content }: ContactExperienceProps) {
                         ? undefined
                         : "noopener noreferrer"
                     }
-                    className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/60 p-4 transition-colors hover:border-primary/40"
+                    className="flex items-center gap-4 border border-border/70 bg-card/60 p-5 transition-colors hover:border-primary/40"
                   >
                     {contentBlock}
                   </a>
                 ) : (
                   <div
                     key={`${detail.title}-${index}`}
-                    className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/60 p-4"
+                    className="flex items-center gap-4 border border-border/70 bg-card/60 p-5"
                   >
                     {contentBlock}
                   </div>
@@ -168,9 +179,9 @@ export function ContactExperience({ content }: ContactExperienceProps) {
           )}
         </section>
 
-        <section className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-2xl shadow-black/5">
-          <div className="border-b border-border px-6 pb-6 pt-7 md:px-9 md:pt-9">
-            <div className="mb-5 flex items-center justify-between gap-4">
+        <section className="overflow-hidden border border-border bg-card shadow-2xl shadow-black/5">
+          <div className="border-b border-border px-8 pb-8 pt-9 md:px-12 md:pb-10 md:pt-12">
+            <div className="mb-7 flex items-center justify-between gap-6">
               <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
                 {isContactStep
                   ? content.form.stepLabel
@@ -183,7 +194,7 @@ export function ContactExperience({ content }: ContactExperienceProps) {
               </p>
             </div>
             <div
-              className="h-1.5 overflow-hidden rounded-full bg-muted"
+              className="h-1.5 overflow-hidden bg-muted"
               role="progressbar"
               aria-valuemin={0}
               aria-valuemax={totalSteps}
@@ -191,7 +202,7 @@ export function ContactExperience({ content }: ContactExperienceProps) {
               aria-label="Form progress"
             >
               <motion.div
-                className="h-full rounded-full bg-primary"
+                className="h-full bg-primary"
                 initial={false}
                 animate={{ width: `${((stepIndex + 1) / totalSteps) * 100}%` }}
                 transition={{ duration: shouldReduceMotion ? 0 : 0.35 }}
@@ -199,7 +210,7 @@ export function ContactExperience({ content }: ContactExperienceProps) {
             </div>
           </div>
 
-          <div className="p-6 md:p-9">
+          <div className="p-8 md:p-12">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={stepIndex}
@@ -217,72 +228,98 @@ export function ContactExperience({ content }: ContactExperienceProps) {
                 transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
               >
                 {isContactStep ? (
-                  <form onSubmit={finishForm}>
-                    <h2 className="mb-2 font-display text-2xl font-bold tracking-tight md:text-3xl">
-                      {content.form.question}
-                    </h2>
-                    <p className="mb-7 text-sm text-muted-foreground">
-                      {content.form.description}
-                    </p>
-                    <div className="grid gap-5 sm:grid-cols-2">
-                      <label className="space-y-2 text-sm font-medium">
-                        <span>{content.form.nameLabel}</span>
-                        <input
-                          required
-                          autoComplete="name"
-                          className={inputClassName}
-                          placeholder={content.form.namePlaceholder}
-                          value={form.name}
-                          onChange={(event) =>
-                            updateForm("name", event.target.value)
-                          }
+                  <Form {...contactForm}>
+                    <form
+                      onSubmit={contactForm.handleSubmit(() => finishForm())}
+                    >
+                      <h2 className="mb-2 font-display text-2xl font-bold tracking-tight md:text-3xl">
+                        {content.form.question}
+                      </h2>
+                      <p className="mb-7 text-sm text-muted-foreground">
+                        {content.form.description}
+                      </p>
+                      <div className="grid gap-5 sm:grid-cols-2">
+                        <FormField
+                          control={contactForm.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{content.form.nameLabel}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  autoComplete="name"
+                                  className="h-13 rounded-none"
+                                  placeholder={content.form.namePlaceholder}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </label>
-                      <label className="space-y-2 text-sm font-medium">
-                        <span>{content.form.companyLabel}</span>
-                        <input
-                          autoComplete="organization"
-                          className={inputClassName}
-                          placeholder={content.form.companyPlaceholder}
-                          value={form.company}
-                          onChange={(event) =>
-                            updateForm("company", event.target.value)
-                          }
+                        <FormField
+                          control={contactForm.control}
+                          name="company"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{content.form.companyLabel}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  autoComplete="organization"
+                                  className="h-13 rounded-none"
+                                  placeholder={content.form.companyPlaceholder}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </label>
-                      <label className="space-y-2 text-sm font-medium sm:col-span-2">
-                        <span>{content.form.emailLabel}</span>
-                        <input
-                          required
-                          type="email"
-                          autoComplete="email"
-                          className={inputClassName}
-                          placeholder={content.form.emailPlaceholder}
-                          value={form.email}
-                          onChange={(event) =>
-                            updateForm("email", event.target.value)
-                          }
+                        <FormField
+                          control={contactForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem className="sm:col-span-2">
+                              <FormLabel>{content.form.emailLabel}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="email"
+                                  autoComplete="email"
+                                  className="h-13 rounded-none"
+                                  placeholder={content.form.emailPlaceholder}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </label>
-                      <label className="space-y-2 text-sm font-medium sm:col-span-2">
-                        <span>{content.form.messageLabel}</span>
-                        <textarea
-                          className={`${inputClassName} min-h-28 resize-y`}
-                          placeholder={content.form.messagePlaceholder}
-                          value={form.message}
-                          onChange={(event) =>
-                            updateForm("message", event.target.value)
-                          }
+                        <FormField
+                          control={contactForm.control}
+                          name="message"
+                          render={({ field }) => (
+                            <FormItem className="sm:col-span-2">
+                              <FormLabel>{content.form.messageLabel}</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  className="min-h-36 resize-y rounded-none"
+                                  placeholder={content.form.messagePlaceholder}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </label>
-                    </div>
-                    <StepNavigation
-                      canContinue
-                      nextLabel={content.form.submitLabel}
-                      backLabel={content.navigation.backLabel}
-                      onBack={() => setStepIndex((current) => current - 1)}
-                    />
-                  </form>
+                      </div>
+                      <StepNavigation
+                        canContinue
+                        nextLabel={content.form.submitLabel}
+                        backLabel={content.navigation.backLabel}
+                        onBack={() => setStepIndex((current) => current - 1)}
+                      />
+                    </form>
+                  </Form>
                 ) : currentQuestion ? (
                   <QuestionStep
                     step={currentQuestion}
@@ -304,7 +341,7 @@ export function ContactExperience({ content }: ContactExperienceProps) {
           </div>
 
           {content.steps.length > 1 && (
-            <div className="flex gap-1 px-6 pb-6 md:px-9">
+            <div className="flex gap-2 px-8 pb-8 md:px-12 md:pb-10">
               {content.steps.map((step, index) => (
                 <button
                   key={step.key}
@@ -312,13 +349,13 @@ export function ContactExperience({ content }: ContactExperienceProps) {
                   onClick={() => index < stepIndex && setStepIndex(index)}
                   aria-label={`Go to ${step.label}`}
                   aria-current={index === stepIndex ? "step" : undefined}
-                  className={`h-1 flex-1 rounded-full transition-colors ${
+                  className={`h-1 flex-1 transition-colors ${
                     index <= stepIndex ? "bg-primary" : "bg-muted"
                   } ${index < stepIndex ? "cursor-pointer" : "cursor-default"}`}
                 />
               ))}
               <span
-                className={`h-1 flex-1 rounded-full ${
+                className={`h-1 flex-1 ${
                   isContactStep ? "bg-primary" : "bg-muted"
                 }`}
               />
@@ -413,7 +450,7 @@ function QuestionStep({
               whileTap={shouldReduceMotion ? undefined : { scale: 0.985 }}
               aria-pressed={isSelected}
               onClick={() => onSelect(option.value)}
-              className={`flex min-h-14 items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors ${
+              className={`flex min-h-16 items-center justify-between gap-5 border px-5 py-4 text-left text-sm font-medium transition-colors ${
                 isSelected
                   ? "border-primary/60 bg-primary/5 text-primary"
                   : "border-border bg-background text-foreground hover:border-primary/40"
@@ -422,8 +459,6 @@ function QuestionStep({
               <span>{option.label}</span>
               <span
                 className={`flex h-5 w-5 shrink-0 items-center justify-center border text-xs transition-colors ${
-                  multiple ? "rounded-md" : "rounded-full"
-                } ${
                   isSelected
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border text-transparent"
@@ -436,33 +471,35 @@ function QuestionStep({
         })}
       </div>
 
-      <div className="mt-8 flex gap-3">
+      <div className="mt-12 flex gap-4">
         {!isFirst && (
-          <button
+          <Button
             type="button"
             onClick={onBack}
-            className="flex-1 rounded-full border border-border px-5 py-3.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            variant="outline"
+            className="h-13 flex-1 rounded-none border-border bg-transparent px-6 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:bg-transparent hover:text-foreground"
           >
             {backLabel}
-          </button>
+          </Button>
         )}
         {!step.required && (
-          <button
+          <Button
             type="button"
             onClick={onSkip}
-            className="flex-1 rounded-full border border-border px-5 py-3.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            variant="outline"
+            className="h-13 flex-1 rounded-none border-border bg-transparent px-6 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:bg-transparent hover:text-foreground"
           >
             {skipLabel}
-          </button>
+          </Button>
         )}
-        <button
+        <Button
           type="button"
           onClick={onNext}
           disabled={!canContinue}
-          className="flex-1 rounded-full bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-35"
+          className="h-13 flex-1 rounded-none bg-primary px-6 text-sm font-bold text-primary-foreground transition-opacity hover:bg-primary/90 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-35"
         >
           {nextLabel} <span aria-hidden="true">→</span>
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -480,21 +517,22 @@ function StepNavigation({
   onBack: () => void;
 }) {
   return (
-    <div className="mt-8 flex gap-3">
-      <button
+    <div className="mt-12 flex gap-4">
+      <Button
         type="button"
         onClick={onBack}
-        className="flex-1 rounded-full border border-border px-5 py-3.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+        variant="outline"
+        className="h-13 flex-1 rounded-none border-border bg-transparent px-6 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:bg-transparent hover:text-foreground"
       >
         {backLabel}
-      </button>
-      <button
+      </Button>
+      <Button
         type="submit"
         disabled={!canContinue}
-        className="flex-1 rounded-full bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-35"
+        className="h-13 flex-1 rounded-none bg-primary px-6 text-sm font-bold text-primary-foreground transition-opacity hover:bg-primary/90 hover:opacity-90 disabled:opacity-35"
       >
         {nextLabel} <span aria-hidden="true">→</span>
-      </button>
+      </Button>
     </div>
   );
 }

@@ -45,7 +45,7 @@ export default async function WorkCaseStudy({
           <div>
             {category && (
               <div className="mb-4">
-                <span className="rounded-full bg-primary/10 px-3 py-1 font-mono text-xs text-primary">
+                <span className="rounded-none bg-primary/10 px-3 py-1 font-mono text-xs text-primary">
                   {category}
                 </span>
               </div>
@@ -63,7 +63,7 @@ export default async function WorkCaseStudy({
               className="mb-8 text-lg leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mb-4 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6"
             />
             {project.challenge && (
-              <section className="mb-5 rounded-2xl border border-border bg-card p-6">
+              <section className="mb-5 rounded-none border border-border bg-card p-6">
                 <h2 className="mb-2 font-mono text-xs uppercase tracking-widest text-primary">
                   Challenge
                 </h2>
@@ -74,7 +74,7 @@ export default async function WorkCaseStudy({
               </section>
             )}
             {project.result && (
-              <section className="rounded-2xl border border-border bg-card p-6">
+              <section className="rounded-none border border-border bg-card p-6">
                 <h2 className="mb-2 font-mono text-xs uppercase tracking-widest text-primary">
                   Result
                 </h2>
@@ -92,7 +92,7 @@ export default async function WorkCaseStudy({
               <img
                 src={coverImage.url}
                 alt={coverImage.alt ?? project.title}
-                className="h-80 w-full rounded-2xl object-cover"
+                className="h-80 w-full rounded-none object-cover"
               />
             )}
             {(project.technologies ?? []).length > 0 && (
@@ -104,7 +104,7 @@ export default async function WorkCaseStudy({
                   {project.technologies?.map(({ id, technology }) => (
                     <span
                       key={id ?? technology}
-                      className="rounded-full border border-border px-3 py-1.5 font-mono text-xs text-muted-foreground"
+                      className="rounded-none border border-border px-3 py-1.5 font-mono text-xs text-muted-foreground"
                     >
                       {technology}
                     </span>

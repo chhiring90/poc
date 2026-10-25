@@ -68,7 +68,7 @@ export default async function Work() {
             {workCta.button && workCta.buttonUrl && (
               <Link
                 href={workCta.buttonUrl}
-                className="inline-flex rounded-full bg-foreground px-8 py-4 text-base font-bold text-background transition-opacity hover:opacity-90"
+                className="inline-flex rounded-none bg-foreground px-8 py-4 text-base font-bold text-background transition-opacity hover:opacity-90"
               >
                 {workCta.button}
               </Link>

@@ -7,7 +7,7 @@ type LogoProps = {
 
 export function Logo({ compact = false, className }: LogoProps) {
   return (
-    <div className="grid aspect-square w-[clamp(45px,25vw,15px)] flex-none place-items-center rounded-full bg-primary">
+    <div className="grid aspect-square w-[clamp(45px,25vw,15px)] flex-none place-items-center rounded-none bg-primary">
       <div
         className={cn(
           "flex items-center font-normal bg-primary",

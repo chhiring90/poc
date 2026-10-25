@@ -63,7 +63,7 @@ export function WorkGrid({ projects }: { projects: WorkProject[] }) {
               onClick={() => selectCategory(category)}
               aria-pressed={activeCategory === category}
               whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-              className={`relative rounded-full border px-4 py-2 font-mono text-sm transition-colors ${
+              className={`relative rounded-none border px-4 py-2 font-mono text-sm transition-colors ${
                 activeCategory === category
                   ? "border-primary text-primary-foreground"
                   : "border-border text-muted-foreground hover:border-primary/50"
@@ -74,7 +74,7 @@ export function WorkGrid({ projects }: { projects: WorkProject[] }) {
                   layoutId={
                     shouldReduceMotion ? undefined : "work-filter-active"
                   }
-                  className="absolute inset-0 rounded-full bg-primary"
+                  className="absolute inset-0 rounded-none bg-primary"
                   transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                 />
               )}
@@ -111,7 +111,7 @@ export function WorkGrid({ projects }: { projects: WorkProject[] }) {
           </motion.div>
         </AnimatePresence>
       ) : (
-        <p className="rounded-2xl border border-border bg-card px-6 py-12 text-center text-muted-foreground">
+        <p className="rounded-none border border-border bg-card px-6 py-12 text-center text-muted-foreground">
           No projects are currently available.
         </p>
       )}
@@ -125,7 +125,7 @@ export function WorkGrid({ projects }: { projects: WorkProject[] }) {
             type="button"
             onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
             disabled={currentPage === 1}
-            className="rounded-full border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-none border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Previous
           </button>
@@ -141,7 +141,7 @@ export function WorkGrid({ projects }: { projects: WorkProject[] }) {
               setCurrentPage((page) => Math.min(pageCount, page + 1))
             }
             disabled={currentPage === pageCount}
-            className="rounded-full border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-none border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             Next
           </button>
@@ -157,7 +157,7 @@ function WorkCard({ project }: { project: WorkProject }) {
   return (
     <Link
       href={`/works/${project.slug}`}
-      className="group block h-full overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/20"
+      className="group block h-full overflow-hidden rounded-none border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/20"
     >
       <div className="relative h-52 overflow-hidden bg-muted">
         {image?.url ? (
@@ -172,7 +172,7 @@ function WorkCard({ project }: { project: WorkProject }) {
         )}
         <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
         {project.category?.title && (
-          <span className="absolute bottom-4 left-4 rounded-full bg-black/50 px-3 py-1 font-mono text-xs text-white backdrop-blur-sm">
+          <span className="absolute bottom-4 left-4 rounded-none bg-black/50 px-3 py-1 font-mono text-xs text-white backdrop-blur-sm">
             {project.category.title}
           </span>
         )}

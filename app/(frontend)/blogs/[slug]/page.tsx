@@ -55,7 +55,7 @@ export default async function BlogArticle({
           {categories.map((category, index) => (
             <span
               key={category.id ?? `${category.title}-${index}`}
-              className="rounded-full bg-primary/10 px-3 py-1 font-mono text-xs text-primary"
+              className="rounded-none bg-primary/10 px-3 py-1 font-mono text-xs text-primary"
             >
               {category.title}
             </span>
@@ -82,7 +82,7 @@ export default async function BlogArticle({
           <img
             src={coverImage.url}
             alt={coverImage.alt ?? post.title}
-            className="mb-10 max-h-[32rem] w-full rounded-2xl object-cover"
+            className="mb-10 max-h-[32rem] w-full rounded-none object-cover"
           />
         )}
         {post.excerpt && (

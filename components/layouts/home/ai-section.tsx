@@ -18,11 +18,11 @@ export function AISection() {
             { label: "Ask ChatGPT", color: "#10A37F" },
             { label: "Ask Claude", color: "#C8733E" },
             { label: "Ask Gemini", color: "#4285F4" },
-            { label: "Ask Grok", color: "#F6F5F0" },
+            { label: "Ask Grok", color: "#42e2e1" },
           ].map((ai) => (
             <button
               key={ai.label}
-              className={`px-5 py-2.5 rounded-full font-semibold text-sm border transition-all hover:scale-105`}
+              className={`px-5 py-2.5 rounded-none font-semibold text-sm border transition-all hover:scale-105`}
               style={{ borderColor: ai.color + "40", color: ai.color }}
             >
               {ai.label} →

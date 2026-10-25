@@ -50,7 +50,7 @@ export async function Insights({
             <Link
               key={slug}
               href={`/blogs/${slug ?? ""}`}
-              className={`group text-left rounded-2xl overflow-hidden border bg-card border-border $hover:border-primary/30 transition-all hover:-translate-y-1`}
+              className={`group text-left rounded-none overflow-hidden border bg-card border-border $hover:border-primary/30 transition-all hover:-translate-y-1`}
             >
               <div className="h-48 overflow-hidden">
                 <img
@@ -61,7 +61,7 @@ export async function Insights({
               </div>
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-mono text-xs">
+                  <span className="px-2 py-0.5 rounded-none bg-primary/10 text-primary font-mono text-xs">
                     {categories?.[0]?.title || "Uncategorized"}
                   </span>
                   <span className={`text-xs text-muted-foreground font-mono`}>
@@ -80,7 +80,7 @@ export async function Insights({
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-secondary/20 flex items-center justify-center text-xs font-bold text-white">
+                    <div className="w-6 h-6 rounded-none bg-secondary/20 flex items-center justify-center text-xs font-bold text-white">
                       {author.firstName?.[0] ?? ""}
                     </div>
                     <span className={`text-xs text-muted-foreground`}>

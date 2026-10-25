@@ -34,7 +34,7 @@ export function Services({
             <Link
               key={title}
               href={url}
-              className={`group text-left p-6 rounded-2xl border bg-card border-border $hover:border-primary/30 transition-all hover:-translate-y-1`}
+              className={`group text-left p-6 rounded-none border bg-card border-border $hover:border-primary/30 transition-all hover:-translate-y-1`}
             >
               <div className="mb-4 text-primary">
                 {Icon && <Icon aria-hidden="true" size={32} />}

@@ -20,7 +20,7 @@ export function Footer() {
                 <a
                   key={s}
                   href="#"
-                  className="flex size-8 items-center justify-center rounded-lg border border-border font-mono text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                  className="flex size-8 items-center justify-center rounded-none border border-border font-mono text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
                 >
                   {s}
                 </a>

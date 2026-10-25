@@ -103,7 +103,7 @@ function ProjectCard({ project }: { project: WorkProject }) {
   return (
     <Link
       href={`/works/${project.slug}`}
-      className="group overflow-hidden rounded-2xl border border-border bg-card text-left transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-2xl"
+      className="group overflow-hidden rounded-none border border-border bg-card text-left transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-2xl"
     >
       <div className="relative h-56 overflow-hidden bg-neutral-900">
         {image?.url && (
@@ -117,7 +117,7 @@ function ProjectCard({ project }: { project: WorkProject }) {
         <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
         {category && (
           <div className="absolute bottom-4 left-4">
-            <span className="rounded-full border border-white/10 bg-black/50 px-2 py-1 font-mono text-xs text-white backdrop-blur-sm">
+            <span className="rounded-none border border-white/10 bg-black/50 px-2 py-1 font-mono text-xs text-white backdrop-blur-sm">
               {category}
             </span>
           </div>
@@ -141,7 +141,7 @@ function ProjectCard({ project }: { project: WorkProject }) {
               {project.technologies?.map(({ id, technology }) => (
                 <li
                   key={id ?? technology}
-                  className="rounded-full border border-border px-2 py-1 font-mono text-xs text-muted-foreground"
+                  className="rounded-none border border-border px-2 py-1 font-mono text-xs text-muted-foreground"
                 >
                   {technology}
                 </li>

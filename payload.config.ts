@@ -11,6 +11,8 @@ import {
   Team,
   Work,
   WorkCategories,
+  Services,
+  FAQs,
 } from "./collections";
 import {
   Home,
@@ -19,6 +21,7 @@ import {
   BlogPage,
   ContactPage,
   WorkPage,
+  ServicesPage,
 } from "./globals";
 
 export default buildConfig({
@@ -35,8 +38,10 @@ export default buildConfig({
     Team,
     Work,
     WorkCategories,
+    Services,
+    FAQs,
   ],
-  globals: [Header, Home, About, BlogPage, ContactPage, WorkPage],
+  globals: [Header, Home, About, BlogPage, ContactPage, WorkPage, ServicesPage],
 
   // Your Payload secret - should be a complex and secure string, unguessable
   secret: process.env.PAYLOAD_SECRET || "",

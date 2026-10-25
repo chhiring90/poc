@@ -18,7 +18,7 @@ export function ClosingCTA() {
         </p>
         <Link
           href="/contact"
-          className="inline-flex items-center gap-2 rounded-full bg-foreground px-8 py-4 text-base font-bold text-background transition-opacity hover:opacity-90"
+          className="inline-flex items-center gap-2 rounded-none bg-foreground px-8 py-4 text-base font-bold text-background transition-opacity hover:opacity-90"
         >
           Start a project →
         </Link>

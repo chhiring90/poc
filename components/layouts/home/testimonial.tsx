@@ -113,7 +113,7 @@ export function Testimonial({ testimonials }: TestimonialProps) {
                   <img
                     src={photoUrl}
                     alt={photoAlt ?? activeTestimonial.name}
-                    className="size-12 rounded-full border-2 border-primary/20 object-cover"
+                    className="size-12 rounded-none border-2 border-primary/20 object-cover"
                   />
                 )}
                 <div className="text-left">

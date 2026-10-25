@@ -51,7 +51,7 @@ export function BlogListing({
                 }
                 aria-pressed={activeCategory === category.slug}
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-                className={`relative rounded-full border px-4 py-2 font-mono text-sm ${
+                className={`relative rounded-none border px-4 py-2 font-mono text-sm ${
                   activeCategory === category.slug
                     ? "border-primary text-primary-foreground"
                     : "border-border text-muted-foreground hover:border-primary/50"
@@ -62,7 +62,7 @@ export function BlogListing({
                     layoutId={
                       shouldReduceMotion ? undefined : "blog-filter-active"
                     }
-                    className="absolute inset-0 rounded-full bg-primary"
+                    className="absolute inset-0 rounded-none bg-primary"
                     transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
                   />
                 )}
@@ -85,7 +85,7 @@ export function BlogListing({
             ))}
           </motion.div>
         ) : (
-          <p className="rounded-2xl border border-border bg-card px-6 py-12 text-center text-muted-foreground">
+          <p className="rounded-none border border-border bg-card px-6 py-12 text-center text-muted-foreground">
             No posts are available in this category.
           </p>
         )}
@@ -100,7 +100,7 @@ export function BlogListing({
               scroll={false}
               aria-disabled={currentPage === 1}
               tabIndex={currentPage === 1 ? -1 : undefined}
-              className={`rounded-full border border-border px-4 py-2 text-sm text-muted-foreground hover:border-primary/50 ${
+              className={`rounded-none border border-border px-4 py-2 text-sm text-muted-foreground hover:border-primary/50 ${
                 currentPage === 1 ? "pointer-events-none opacity-40" : ""
               }`}
             >
@@ -120,7 +120,7 @@ export function BlogListing({
               scroll={false}
               aria-disabled={currentPage === totalPages}
               tabIndex={currentPage === totalPages ? -1 : undefined}
-              className={`rounded-full border border-border px-4 py-2 text-sm text-muted-foreground hover:border-primary/50 ${
+              className={`rounded-none border border-border px-4 py-2 text-sm text-muted-foreground hover:border-primary/50 ${
                 currentPage === totalPages
                   ? "pointer-events-none opacity-40"
                   : ""
@@ -148,7 +148,7 @@ function FeaturedPost({ post }: { post: BlogPostCardData }) {
     <section className="mx-auto max-w-7xl px-5 pb-16 lg:px-10">
       <Link
         href={`/blogs/${post.slug}`}
-        className="group block overflow-hidden rounded-2xl border border-border bg-card transition-transform hover:-translate-y-1"
+        className="group block overflow-hidden rounded-none border border-border bg-card transition-transform hover:-translate-y-1"
       >
         <div className="grid lg:grid-cols-2">
           <div className="h-72 overflow-hidden bg-muted lg:h-auto">
@@ -183,7 +183,7 @@ function PostCard({ post }: { post: BlogPostCardData }) {
   return (
     <Link
       href={`/blogs/${post.slug}`}
-      className="group block h-full overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/30"
+      className="group block h-full overflow-hidden rounded-none border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/30"
     >
       <div className="h-44 overflow-hidden bg-muted">
         {post.coverImage ? (
@@ -215,7 +215,7 @@ function PostMeta({ post }: { post: BlogPostCardData }) {
   return (
     <div className="mb-3 flex flex-wrap items-center gap-2">
       {post.categories[0] && (
-        <span className="rounded-full bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary">
+        <span className="rounded-none bg-primary/10 px-2 py-0.5 font-mono text-xs text-primary">
           {post.categories[0]}
         </span>
       )}
@@ -230,7 +230,7 @@ function PostByline({ post }: { post: BlogPostCardData }) {
   return (
     <div className="flex items-center justify-between gap-3">
       <div className="flex min-w-0 items-center gap-2">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-none bg-primary/10 text-xs font-bold text-primary">
           {post.author[0]?.toUpperCase() ?? "P"}
         </span>
         <span className="truncate text-xs text-muted-foreground">

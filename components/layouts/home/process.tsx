@@ -50,7 +50,7 @@ export function Process({
             {process.map((p, i) => (
               <div key={p.step} className="relative">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-full border-2 border-primary flex items-center justify-center relative z-10 bg-inherit">
+                  <div className="w-8 h-8 rounded-none border-2 border-primary flex items-center justify-center relative z-10 bg-inherit">
                     <span className="font-mono text-[10px] font-bold text-primary">
                       {p.step}
                     </span>

@@ -44,7 +44,7 @@ export default async function About() {
           <img
             src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop&auto=format"
             alt="POC team"
-            className="w-full h-80 object-cover rounded-2xl"
+            className="w-full h-80 object-cover rounded-none"
           />
         </div>
       </section>
@@ -73,7 +73,7 @@ export default async function About() {
                 return (
                   <div
                     key={v.id ?? v.title}
-                    className="rounded-2xl border border-border bg-card p-6"
+                    className="rounded-none border border-border bg-card p-6"
                   >
                     <span className="mb-4 block text-2xl text-primary">
                       {Icon && <Icon aria-hidden="true" />}
@@ -106,9 +106,9 @@ export default async function About() {
           {team.members.map((m: any) => (
             <div
               key={m.name}
-              className={`group p-6 rounded-2xl border bg-card border-border hover:border-primary/20 transition-all`}
+              className={`group p-6 rounded-none border bg-card border-border hover:border-primary/20 transition-all`}
             >
-              <div className="relative mb-4 overflow-hidden rounded-xl">
+              <div className="relative mb-4 overflow-hidden rounded-none">
                 <img
                   src={m.profile.url}
                   alt={m.name}
@@ -128,7 +128,7 @@ export default async function About() {
         </div>
 
         <div
-          className={`mt-12 p-8 rounded-2xl border bg-card border-border flex items-center justify-between`}
+          className={`mt-12 p-8 rounded-none border bg-card border-border flex items-center justify-between`}
         >
           <div>
             <h3
@@ -142,7 +142,7 @@ export default async function About() {
           </div>
           <Link
             href="/careers"
-            className="capitalize rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary/40 hover:text-primary"
+            className="capitalize rounded-none border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary/40 hover:text-primary"
           >
             View openings
           </Link>
@@ -156,7 +156,7 @@ export default async function About() {
           </h2>
           <Link
             href="/contact"
-            className="mt-2 rounded-full bg-foreground px-8 py-4 text-base font-bold text-background transition-opacity hover:opacity-90"
+            className="mt-2 rounded-none bg-foreground px-8 py-4 text-base font-bold text-background transition-opacity hover:opacity-90"
           >
             Start a project →
           </Link>

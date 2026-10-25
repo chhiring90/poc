@@ -15,7 +15,7 @@ export function TechStack({ techStack }: { techStack: iTechStack[] }) {
         {techStack.map((t) => (
           <span
             key={t.id}
-            className="cursor-default rounded-full border border-border px-4 py-2 font-mono text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            className="cursor-default rounded-none border border-border px-4 py-2 font-mono text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
           >
             {t.name}
           </span>
