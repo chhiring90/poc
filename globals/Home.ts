@@ -62,9 +62,17 @@ export const Home: GlobalConfig = {
     },
     {
       name: "featuredWork",
-      type: "relationship",
-      relationTo: "posts",
-      hasMany: true,
+      type: "group",
+      fields: [
+        { name: "subtitle", type: "text", required: true },
+        { name: "title", type: "text", required: true },
+        {
+          name: "projects",
+          type: "relationship",
+          relationTo: "work",
+          hasMany: true,
+        },
+      ],
     },
     {
       name: "expertise",

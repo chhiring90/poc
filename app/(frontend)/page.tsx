@@ -26,6 +26,7 @@ export default async function Home() {
   const process = home.process ?? [];
   const insights = home.insights ?? [];
   const testimonials = home.reviews ?? [];
+  const featuredWork = home.featuredWork;
 
   return (
     <div className="bg-background text-foreground transition-colors duration-300">
@@ -34,7 +35,7 @@ export default async function Home() {
       </Suspense>
       <StackCarousel techStack={techStack} />
       {whoAreWe && <WhoAreWe {...whoAreWe} />}
-      <FeaturedWork />
+      <FeaturedWork {...featuredWork} />
       {expertise && <Services expertise={expertise} />}
       <Process process={process} />
       {/* <TechStack techStack={techStack} /> */}

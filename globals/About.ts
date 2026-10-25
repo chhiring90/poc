@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { iconField } from "@/collections/fields";
 
 export const About: GlobalConfig = {
   slug: "about",
@@ -25,7 +26,7 @@ export const About: GlobalConfig = {
           name: "value-lists",
           type: "array",
           fields: [
-            { name: "icon", type: "text", required: true },
+            iconField("icon"),
             { name: "title", type: "text", required: true },
             { name: "description", type: "textarea", required: true },
           ],
@@ -38,6 +39,12 @@ export const About: GlobalConfig = {
       fields: [
         { name: "heading", type: "text", required: true },
         { name: "subheading", type: "text", required: true },
+        {
+          name: "members",
+          type: "relationship",
+          relationTo: "team",
+          hasMany: true,
+        },
       ],
     },
     {

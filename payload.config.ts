@@ -2,16 +2,34 @@ import sharp from "sharp";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { buildConfig } from "payload";
-import { Media, Posts, Categories, Users, Testimonial } from "./collections";
-import { Home, Header } from "./globals";
+import {
+  Media,
+  Posts,
+  Categories,
+  Users,
+  Testimonial,
+  Team,
+  Work,
+  WorkCategories,
+} from "./collections";
+import { Home, Header, About } from "./globals";
 
 export default buildConfig({
   // If you'd like to use Rich Text, pass your editor here
   editor: lexicalEditor(),
 
   // Define and configure your collections in this array
-  collections: [Media, Posts, Categories, Users, Testimonial],
-  globals: [Header, Home],
+  collections: [
+    Media,
+    Posts,
+    Categories,
+    Users,
+    Testimonial,
+    Team,
+    Work,
+    WorkCategories,
+  ],
+  globals: [Header, Home, About],
 
   // Your Payload secret - should be a complex and secure string, unguessable
   secret: process.env.PAYLOAD_SECRET || "",
