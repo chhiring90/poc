@@ -23,6 +23,8 @@ import {
   ContactPage,
   WorkPage,
   ServicesPage,
+  LegalPolicies,
+  Footer,
 } from "./globals";
 
 function requiredEnv(name: string): string {
@@ -52,15 +54,25 @@ export default buildConfig({
     Services,
     FAQs,
   ],
-  globals: [Header, Home, About, BlogPage, ContactPage, WorkPage, ServicesPage],
+  globals: [
+    Header,
+    Home,
+    About,
+    BlogPage,
+    ContactPage,
+    WorkPage,
+    ServicesPage,
+    LegalPolicies,
+    Footer,
+  ],
 
   // Your Payload secret - should be a complex and secure string, unguessable
-  secret: process.env.PAYLOAD_SECRET || "",
+  secret: requiredEnv("PAYLOAD_SECRET"),
   // Whichever Database Adapter you're using should go here
   // Mongoose is shown as an example, but you can also use Postgres
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URL,
+      connectionString: requiredEnv("DATABASE_URL"),
     },
   }),
   // If you want to resize images, crop, set focal point, etc.

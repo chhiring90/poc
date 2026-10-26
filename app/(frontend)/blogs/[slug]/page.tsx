@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import config from "@payload-config";
 import { getPayload } from "payload";
-import { RichText } from "@payloadcms/richtext-lexical/react";
 import { Footer } from "@/components/layouts/home";
+import { RichTextWithTableOfContents } from "@/components/layouts/rich-text/rich-text-with-table-of-contents";
 import { isBlogDocument } from "@/lib/helper/is-blog-document.helper";
 
 export default async function BlogArticle({
@@ -43,7 +43,7 @@ export default async function BlogArticle({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <article className="mx-auto max-w-4xl px-5 pb-24 pt-36">
+      <article className="mx-auto max-w-7xl px-5 pb-24 pt-36 lg:px-10">
         <Link
           href="/blogs"
           className="mb-10 inline-flex text-sm text-muted-foreground transition-colors hover:text-primary"
@@ -91,8 +91,8 @@ export default async function BlogArticle({
           </p>
         )}
         {post.content && (
-          <RichText
-            data={post.content}
+          <RichTextWithTableOfContents
+            content={post.content}
             className="text-base leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_h2]:mb-4 [&_h2]:mt-10 [&_h2]:font-display [&_h2]:text-3xl [&_h2]:font-bold [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:font-display [&_h3]:text-2xl [&_h3]:font-bold [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mb-5 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6"
           />
         )}

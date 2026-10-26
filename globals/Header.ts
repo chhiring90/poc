@@ -5,6 +5,33 @@ export const Header: GlobalConfig = {
   access: { read: () => true },
   fields: [
     {
+      name: "branding",
+      type: "group",
+      label: "Branding",
+      fields: [
+        {
+          name: "lightLogo",
+          type: "upload",
+          relationTo: "media",
+          label: "Logo for light theme",
+          admin: {
+            description:
+              "Used on light backgrounds. Recommended: transparent SVG or PNG, 600 x 150 px (4:1 ratio), under 1 MB. Rendered at up to 160 x 40 px. Add descriptive alt text to the media file.",
+          },
+        },
+        {
+          name: "darkLogo",
+          type: "upload",
+          relationTo: "media",
+          label: "Logo for dark theme",
+          admin: {
+            description:
+              "Used on dark backgrounds. Recommended: transparent SVG or PNG, 600 x 150 px (4:1 ratio), under 1 MB. Use the same canvas dimensions as the light-theme logo. Rendered at up to 160 x 40 px. Add descriptive alt text to the media file.",
+          },
+        },
+      ],
+    },
+    {
       name: "navItems",
       type: "array",
       admin: {
