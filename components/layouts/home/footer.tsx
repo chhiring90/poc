@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-background">
       <div className="max-w-[1280px] mx-auto px-5 lg:px-10 py-20">
-        <div className="grid md:grid-cols-4 gap-10 mb-16">
+        <div className="grid md:grid-cols-5 gap-10 mb-16">
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <Logo compact />
@@ -45,6 +45,23 @@ export function Footer() {
                 { l: "About us", p: "about" },
                 { l: "Careers", p: "about" },
                 { l: "404 test", p: "404" },
+              ],
+            },
+            {
+              title: "Legal",
+              links: [
+                {
+                  l: "Terms and Conditions",
+                  p: "terms-and-condition",
+                },
+                { l: "Privacy Policy", p: "privacy-policies" },
+                { l: "Data Protection", p: "data-protection-statement" },
+                { l: "Safe AI", p: "safe-ai" },
+                { l: "Modern Slavery", p: "modern-slavery-statement" },
+                {
+                  l: "Environmental Sustainability",
+                  p: "environmental-sustainability",
+                },
               ],
             },
             {
