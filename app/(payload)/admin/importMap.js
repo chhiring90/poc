@@ -25,6 +25,7 @@ import { NavItemRowLabel as NavItemRowLabel_18cb33d06c691f2bffcd2f148aa26322 } f
 import { ColumnRowLabel as ColumnRowLabel_f11e91147289e8d770ba6f103438b21d } from '../../../components/admin/RowLabel/columnRowLabel'
 import { IconPicker as IconPicker_318ebadee23422badc29f3e54daef5dd } from '../../../components/ui/iconPicker.admin'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 
 /** @type import('payload').ImportMap */
 export const importMap = {
@@ -54,5 +55,6 @@ export const importMap = {
   "/components/admin/RowLabel/navItemRowLabel#NavItemRowLabel": NavItemRowLabel_18cb33d06c691f2bffcd2f148aa26322,
   "/components/admin/RowLabel/columnRowLabel#ColumnRowLabel": ColumnRowLabel_f11e91147289e8d770ba6f103438b21d,
   "/components/ui/iconPicker.admin#IconPicker": IconPicker_318ebadee23422badc29f3e54daef5dd,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24
 }
