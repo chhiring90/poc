@@ -26,15 +26,15 @@ export default async function BlogArticle({
   if (!isBlogDocument(candidate)) notFound();
   const post = candidate;
   const author =
-    typeof post.author === "object" && post.author !== null ? post.author : null;
+    typeof post.author === "object" && post.author !== null
+      ? post.author
+      : null;
   const coverImage =
     typeof post.coverImage === "object" && post.coverImage !== null
       ? post.coverImage
       : null;
   const categories = (post.categories ?? []).filter(
-    (
-      category,
-    ): category is { id?: string | number; title: string } =>
+    (category): category is { id?: string | number; title: string } =>
       typeof category === "object" && category !== null,
   );
   const authorName = [author?.firstName, author?.lastName]
@@ -82,7 +82,7 @@ export default async function BlogArticle({
           <img
             src={coverImage.url}
             alt={coverImage.alt ?? post.title}
-            className="mb-10 max-h-[32rem] w-full rounded-none object-cover"
+            className="mb-10 max-h-128 w-full rounded-none object-cover"
           />
         )}
         {post.excerpt && (

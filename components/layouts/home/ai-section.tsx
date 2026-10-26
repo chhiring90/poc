@@ -1,7 +1,7 @@
 export function AISection() {
   return (
     <section className="bg-muted/40 py-20">
-      <div className="max-w-[1280px] mx-auto px-5 lg:px-10 text-center">
+      <div className="max-w-7xl mx-auto px-5 lg:px-10 text-center">
         <span
           className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
         >

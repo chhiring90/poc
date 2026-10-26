@@ -96,7 +96,10 @@ export function BlogListing({
             aria-label="Blog post pages"
           >
             <Link
-              href={getBlogPageHref(Math.max(1, currentPage - 1), activeCategory)}
+              href={getBlogPageHref(
+                Math.max(1, currentPage - 1),
+                activeCategory,
+              )}
               scroll={false}
               aria-disabled={currentPage === 1}
               tabIndex={currentPage === 1 ? -1 : undefined}
@@ -160,7 +163,7 @@ function FeaturedPost({ post }: { post: BlogPostCardData }) {
                 className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
-              <div className="h-full min-h-72 bg-gradient-to-br from-primary/20 to-muted" />
+              <div className="h-full min-h-72 bg-linear-to-br from-primary/20 to-muted" />
             )}
           </div>
           <div className="flex flex-col justify-center p-8 md:p-12">
@@ -194,7 +197,7 @@ function PostCard({ post }: { post: BlogPostCardData }) {
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="h-full bg-gradient-to-br from-primary/20 to-muted" />
+          <div className="h-full bg-linear-to-br from-primary/20 to-muted" />
         )}
       </div>
       <div className="p-5">

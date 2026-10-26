@@ -5,12 +5,21 @@ import { icons } from "lucide-react";
 
 import { Footer } from "@/components/layouts/home";
 
+type TeamMember = {
+  id?: number | string;
+  name: string;
+  role?: string | null;
+  bio?: string | null;
+  profile?: { url?: string | null } | number | string | null;
+};
+
 export default async function About() {
   const payload = await getPayload({ config });
   const about = await payload.findGlobal({ slug: "about", depth: 2 });
   const hero = about.hero;
   const values = about.values ?? [];
   const team = about.team;
+  const teamMembers = team?.members ?? [];
   const career = about.career;
 
   return (
@@ -97,34 +106,47 @@ export default async function About() {
         <span
           className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
         >
-          // {team.subheading}
+          // {team?.subheading}
         </span>
         <h2 className="font-display text-4xl font-bold tracking-tight mb-12">
-          {team.heading}
+          {team?.heading}
         </h2>
         <div className="grid md:grid-cols-3 gap-6">
-          {team.members.map((m: any) => (
-            <div
-              key={m.name}
-              className={`group p-6 rounded-none border bg-card border-border hover:border-primary/20 transition-all`}
-            >
-              <div className="relative mb-4 overflow-hidden rounded-none">
-                <img
-                  src={m.profile.url}
-                  alt={m.name}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500 object-top"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
+          {teamMembers.map((member: TeamMember) => {
+            const profile =
+              typeof member.profile === "object" ? member.profile : null;
+
+            return (
+              <div
+                key={member.id ?? member.name}
+                className="group rounded-none border border-border bg-card p-6 transition-all hover:border-primary/20"
+              >
+                {profile?.url && (
+                  <div className="relative mb-4 overflow-hidden rounded-none">
+                    <img
+                      src={profile.url}
+                      alt={member.name}
+                      className="h-48 w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
+                  </div>
+                )}
+                <h3 className="font-display text-lg font-bold text-foreground">
+                  {member.name}
+                </h3>
+                {member.role && (
+                  <p className="mb-2 font-mono text-xs text-primary">
+                    {member.role}
+                  </p>
+                )}
+                {member.bio && (
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {member.bio}
+                  </p>
+                )}
               </div>
-              <h3 className={`font-display text-lg font-bold text-foreground`}>
-                {m.name}
-              </h3>
-              <p className="text-primary font-mono text-xs mb-2">{m.role}</p>
-              <p className={`text-sm text-muted-foreground leading-relaxed`}>
-                {m.bio}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div
