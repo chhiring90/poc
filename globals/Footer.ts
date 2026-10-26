@@ -6,6 +6,16 @@ export const Footer: GlobalConfig = {
   access: { read: () => true },
   fields: [
     {
+      name: "logo",
+      type: "upload",
+      relationTo: "media",
+      label: "Footer logo",
+      admin: {
+        description:
+          "Recommended: transparent SVG or PNG, 600 x 150 px (4:1 ratio), under 1 MB. Use a version that is readable on both light and dark backgrounds. Add descriptive alt text to the media file.",
+      },
+    },
+    {
       name: "description",
       type: "textarea",
       label: "Brand description",
@@ -51,12 +61,6 @@ export const Footer: GlobalConfig = {
           ],
         },
       ],
-    },
-    {
-      name: "copyright",
-      type: "text",
-      label: "Copyright text",
-      defaultValue: "© 2026 POC Ltd. All rights reserved.",
     },
     {
       name: "backToTopLabel",

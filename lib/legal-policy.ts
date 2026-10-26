@@ -1,58 +1,79 @@
+import type { DefaultTypedEditorState } from "@payloadcms/richtext-lexical";
 import { cache } from "react";
 import config from "@payload-config";
 import { getPayload } from "payload";
+import { isRecord } from "@/lib/helper/is-record.helper";
+import { isRichText } from "@/lib/helper/is-rich-text.helper";
+import {
+  isValidPolicySlug,
+  LEGACY_LEGAL_POLICIES,
+} from "@/lib/const/legal-policies.const";
 
-export const legalPolicies = [
-  {
-    slug: "terms-and-condition",
-    key: "termsAndConditions",
-    title: "Terms and Conditions",
-  },
-  {
-    slug: "privacy-policies",
-    key: "privacyPolicy",
-    title: "Privacy Policy",
-  },
-  {
-    slug: "data-protection-statement",
-    key: "dataProtection",
-    title: "Data Protection Statement",
-  },
-  { slug: "safe-ai", key: "safeAI", title: "Safe AI" },
-  {
-    slug: "modern-slavery-statement",
-    key: "modernSlavery",
-    title: "Modern Slavery Statement",
-  },
-  {
-    slug: "environmental-sustainability",
-    key: "environmentalSustainability",
-    title: "Environmental Sustainability",
-  },
-] as const;
+export type LegalPolicy = {
+  slug: string;
+  title: string;
+  summary?: string | null;
+  content?: DefaultTypedEditorState | null;
+  lastUpdated?: string | null;
+};
 
-export type LegalPolicySlug = (typeof legalPolicies)[number]["slug"];
-export type LegalPolicyKey = (typeof legalPolicies)[number]["key"];
-
-export function isLegalPolicySlug(slug: string): slug is LegalPolicySlug {
-  return legalPolicies.some((policy) => policy.slug === slug);
-}
-
-export const getLegalPolicy = cache(async (slug: LegalPolicySlug) => {
-  const policyRoute = legalPolicies.find((policy) => policy.slug === slug);
-  if (!policyRoute) return null;
-
-  const payload = await getPayload({ config });
-  const legalPoliciesGlobal = await payload.findGlobal({
-    slug: "legalPolicies",
-  });
-  const policy = legalPoliciesGlobal.policies?.[policyRoute.key];
+function toLegalPolicy(value: unknown): LegalPolicy | null {
+  if (
+    !isRecord(value) ||
+    !isValidPolicySlug(value.slug) ||
+    typeof value.title !== "string"
+  ) {
+    return null;
+  }
 
   return {
-    ...policyRoute,
-    title: policy?.title || policyRoute.title,
-    summary: policy?.summary,
-    content: policy?.content,
-    lastUpdated: policy?.lastUpdated,
+    slug: value.slug,
+    title: value.title,
+    summary:
+      typeof value.summary === "string" || value.summary === null
+        ? value.summary
+        : null,
+    content: isRichText(value.content) ? value.content : null,
+    lastUpdated:
+      typeof value.lastUpdated === "string" || value.lastUpdated === null
+        ? value.lastUpdated
+        : null,
   };
+}
+
+export const getLegalPolicies = cache(async (): Promise<LegalPolicy[]> => {
+  const payload = await getPayload({ config });
+  const legalPolicies = await payload.findGlobal({ slug: "legalPolicies" });
+  if (legalPolicies.policyPagesMigrated === true) {
+    return Array.isArray(legalPolicies.policyPages)
+      ? legalPolicies.policyPages
+          .map(toLegalPolicy)
+          .filter((policy): policy is LegalPolicy => policy !== null)
+      : [];
+  }
+
+  const legacyPolicies = isRecord(legalPolicies.policies)
+    ? legalPolicies.policies
+    : {};
+  return LEGACY_LEGAL_POLICIES.flatMap((legacyPolicy) => {
+    const legacyValue = legacyPolicies[legacyPolicy.key];
+    const values = isRecord(legacyValue) ? legacyValue : {};
+    const policy = toLegalPolicy({
+      ...values,
+      slug: legacyPolicy.slug,
+      title:
+        typeof values.title === "string" && values.title
+          ? values.title
+          : legacyPolicy.title,
+    });
+
+    return policy ? [policy] : [];
+  });
 });
+
+export const getLegalPolicy = cache(
+  async (slug: string): Promise<LegalPolicy | null> => {
+    const policies = await getLegalPolicies();
+    return policies.find((policy) => policy.slug === slug) ?? null;
+  },
+);

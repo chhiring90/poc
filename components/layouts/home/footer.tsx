@@ -1,7 +1,10 @@
 import config from "@payload-config";
+import Image from "next/image";
+import { connection } from "next/server";
 import { getPayload } from "payload";
 import { Logo } from "@/components/ui/logo";
 import Link from "next/link";
+import { isRecord } from "@/lib/helper/is-record.helper";
 
 type FooterLink = {
   id?: string | null;
@@ -75,6 +78,7 @@ function FooterLinkItem({ link }: { link: FooterLink }) {
 }
 
 export async function Footer() {
+  await connection();
   const payload = await getPayload({ config });
   const footer = await payload.findGlobal({ slug: "footer" });
   const columns =
@@ -86,15 +90,32 @@ export async function Footer() {
     typeof footer.description === "string" && footer.description
       ? footer.description
       : "We turn ideas into proven products, fast.";
+  const logo = isRecord(footer.logo) ? footer.logo : null;
+  const logoUrl = typeof logo?.url === "string" ? logo.url : null;
+  const logoWidth =
+    typeof logo?.width === "number" && logo.width > 0 ? logo.width : 600;
+  const logoHeight =
+    typeof logo?.height === "number" && logo.height > 0 ? logo.height : 150;
 
   return (
     <footer className="border-t border-border bg-background">
       <div className="max-w-7xl mx-auto px-5 lg:px-10 py-20">
         <div className="grid gap-10 mb-16 md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
           <div className="md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <Logo compact />
-            </div>
+            {logoUrl ? (
+              <Image
+                src={logoUrl}
+                alt={typeof logo?.alt === "string" ? logo.alt : "POC"}
+                width={logoWidth}
+                height={logoHeight}
+                unoptimized
+                className="mb-4 h-10 w-auto max-w-40 object-contain object-left"
+              />
+            ) : (
+              <div className="mb-4 flex items-center gap-2">
+                <Logo compact />
+              </div>
+            )}
             <p className="mb-6 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
               {description}
             </p>
@@ -143,7 +164,7 @@ export async function Footer() {
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
           <p className="font-mono text-xs text-muted-foreground">
-            {footer.copyright || "© 2026 POC Ltd. All rights reserved."}
+            © {new Date().getFullYear()} POC Ltd. All rights reserved.
           </p>
           <Link
             href="#"

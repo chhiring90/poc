@@ -3,18 +3,17 @@
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
+import type { RichTextHeading } from "@/lib/helper/get-rich-text-headings.helper";
 
-type PolicyHeading = {
-  id: string;
-  level: number;
-  text: string;
+type SectionNavigationProps = {
+  headings: RichTextHeading[];
+  label?: string;
 };
 
-type PolicySectionNavProps = {
-  headings: PolicyHeading[];
-};
-
-export function PolicySectionNav({ headings }: PolicySectionNavProps) {
+export function SectionNavigation({
+  headings,
+  label = "On this page",
+}: SectionNavigationProps) {
   const [activeId, setActiveId] = useState(headings[0]?.id);
   const shouldReduceMotion = useReducedMotion();
 
@@ -58,11 +57,11 @@ export function PolicySectionNav({ headings }: PolicySectionNavProps) {
 
   return (
     <nav
-      aria-label="On this page"
+      aria-label={label}
       className="rounded-none border border-border bg-card p-5"
     >
       <h2 className="mb-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-        On this page
+        {label}
       </h2>
       <ol className="flex flex-col gap-1">
         {headings.map((heading) => {
@@ -93,7 +92,7 @@ export function PolicySectionNav({ headings }: PolicySectionNavProps) {
               >
                 {isActive && (
                   <motion.span
-                    layoutId="active-policy-heading"
+                    layoutId="active-rich-text-heading"
                     className="absolute inset-0 rounded bg-primary/10"
                     transition={{
                       type: "spring",

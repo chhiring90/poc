@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { connection } from "next/server";
 import config from "@payload-config";
 import { getPayload } from "payload";
-import { legalPolicies } from "@/lib/legal-policy";
+import { getLegalPolicies } from "@/lib/legal-policy";
 
 function getSiteUrl() {
   const configuredUrl =
@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const siteUrl = getSiteUrl();
   const payload = await getPayload({ config });
+  const legalPolicies = await getLegalPolicies();
   const staticRoutes = [
     "",
     "/about",
