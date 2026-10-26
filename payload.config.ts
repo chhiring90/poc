@@ -24,6 +24,7 @@ import {
   WorkPage,
   ServicesPage,
   LegalPolicies,
+  Footer,
 } from "./globals";
 
 function requiredEnv(name: string): string {
@@ -62,6 +63,7 @@ export default buildConfig({
     WorkPage,
     ServicesPage,
     LegalPolicies,
+    Footer,
   ],
 
   // Your Payload secret - should be a complex and secure string, unguessable
