@@ -1,0 +1,12 @@
+export { AISection } from "./ai-section";
+export { Insights } from "./insights";
+export { ClosingCTA } from "./closing-cta";
+export { FeaturedWork } from "./featured-work";
+export { Footer } from "./footer";
+export { Hero, HeroSkeleton } from "./hero";
+export { Process } from "./process";
+export { Services } from "./services";
+export { StackCarousel } from "./stack-carousel";
+export { TechStack } from "./tech-stack";
+export { Testimonial } from "./testimonial";
+export { WhoAreWe } from "./who-are-we";
