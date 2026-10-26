@@ -38,7 +38,40 @@ type NavItem = {
   columns?: NavColumn[] | null;
 };
 
-export type HeaderData = { navItems?: NavItem[] | null } | null;
+type LogoAsset =
+  | {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      alt?: string | null;
+    }
+  | string
+  | number
+  | null;
+
+type UploadedLogo = {
+  url: string;
+  width?: number | null;
+  height?: number | null;
+  alt?: string | null;
+};
+
+function isUploadedLogo(value: LogoAsset | undefined): value is UploadedLogo {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof value.url === "string" &&
+    value.url.length > 0
+  );
+}
+
+export type HeaderData = {
+  branding?: {
+    lightLogo?: LogoAsset;
+    darkLogo?: LogoAsset;
+  } | null;
+  navItems?: NavItem[] | null;
+} | null;
 
 type NavProps = {
   data: HeaderData;
@@ -50,10 +83,19 @@ export function Nav({
   cta = { label: "Start a project", href: "/contact" },
 }: NavProps) {
   const navItems = data?.navItems ?? [];
+  const branding = data?.branding;
   const { resolvedTheme, setTheme } = useTheme();
   const pathname = usePathname();
   const dark = resolvedTheme === "dark";
   const toggleDark = () => setTheme(dark ? "light" : "dark");
+  const lightLogo = isUploadedLogo(branding?.lightLogo)
+    ? branding.lightLogo
+    : null;
+  const darkLogo = isUploadedLogo(branding?.darkLogo)
+    ? branding.darkLogo
+    : null;
+  const lightThemeLogo = lightLogo ?? darkLogo;
+  const darkThemeLogo = darkLogo ?? lightLogo;
 
   const [scrolled, setScrolled] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null); // which mega menu is open
@@ -83,11 +125,55 @@ export function Nav({
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-10">
-        <Link href="/" className="h-auto gap-2 px-0 text-foreground">
-          <Logo compact />
+        <Link
+          href="/"
+          aria-label="POC Tech home"
+          className="inline-flex h-10 items-center px-0 text-foreground"
+        >
+          {lightThemeLogo && darkThemeLogo ? (
+            <>
+              <Image
+                src={lightThemeLogo.url}
+                alt={lightThemeLogo.alt || "POC Tech"}
+                width={
+                  typeof lightThemeLogo.width === "number" &&
+                  lightThemeLogo.width > 0
+                    ? lightThemeLogo.width
+                    : 600
+                }
+                height={
+                  typeof lightThemeLogo.height === "number" &&
+                  lightThemeLogo.height > 0
+                    ? lightThemeLogo.height
+                    : 150
+                }
+                unoptimized
+                className="h-10 w-auto max-w-40 object-contain dark:hidden"
+              />
+              <Image
+                src={darkThemeLogo.url}
+                alt={darkThemeLogo.alt || "POC Tech"}
+                width={
+                  typeof darkThemeLogo.width === "number" &&
+                  darkThemeLogo.width > 0
+                    ? darkThemeLogo.width
+                    : 600
+                }
+                height={
+                  typeof darkThemeLogo.height === "number" &&
+                  darkThemeLogo.height > 0
+                    ? darkThemeLogo.height
+                    : 150
+                }
+                unoptimized
+                className="hidden h-10 w-auto max-w-40 object-contain dark:block"
+              />
+            </>
+          ) : (
+            <Logo compact />
+          )}
         </Link>
 
-        {/* Desktop nav */}
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => {
             const { hasMegaMenu, featuredPost } = item;
@@ -246,7 +332,6 @@ export function Nav({
           })}
         </nav>
 
-        {/* Right side */}
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -256,12 +341,6 @@ export function Nav({
           >
             <Sun className="hidden size-4 dark:block" />
             <Moon className="size-4 dark:hidden" />
-          </Button>
-
-          <Button className="hidden rounded-none md:flex">
-            <Link href={cta.href}>
-              {cta.label} <ArrowUpRight className="size-4" />
-            </Link>
           </Button>
 
           <Button
