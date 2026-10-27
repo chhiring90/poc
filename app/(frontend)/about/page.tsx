@@ -1,5 +1,6 @@
 import Link from "next/link";
 import config from "@payload-config";
+import { connection } from "next/server";
 import { getPayload } from "payload";
 import { icons } from "lucide-react";
 
@@ -14,6 +15,7 @@ type TeamMember = {
 };
 
 export default async function About() {
+  await connection();
   const payload = await getPayload({ config });
   const about = await payload.findGlobal({ slug: "about", depth: 2 });
   const hero = about.hero;
