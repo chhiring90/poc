@@ -16,8 +16,10 @@ import {
 import { getPayload } from "payload";
 import config from "@payload-config";
 import { Suspense } from "react";
+import { connection } from "next/server";
 
 export default async function Home() {
+  await connection();
   const payload = await getPayload({ config });
   const home = await payload.findGlobal({ slug: "home", depth: 2 });
   const techStack = home.techstack ?? [];
