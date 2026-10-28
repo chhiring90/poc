@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GradientWave } from "@/components/ui/gradient-wave";
 
 export type HeroData = {
   heading: string;
@@ -59,8 +60,8 @@ export async function Hero({
         </svg>
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
-        <div className="max-w-4xl">
+      <div className="relative flex max-w-7xl mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
+        <div className="w-1/2">
           {subheading && (
             <div className="inline-flex items-center gap-2 mb-8">
               <span className="font-mono text-sm text-primary uppercase tracking-widest">
@@ -101,49 +102,11 @@ export async function Hero({
           )}
         </div>
 
-        <div className="absolute right-10 top-1/2 -translate-y-1/2 hidden xl:block">
-          <div className="relative">
-            <div className="flex h-48 w-80 items-center justify-center rounded-none border-4 border-border bg-card shadow-2xl">
-              <div className="w-full h-full p-3 overflow-hidden rounded-none">
-                <div className="mb-2 h-3 rounded-none bg-muted" />
-                <div className="flex gap-2 mb-2">
-                  <div className="w-2 h-2 rounded-none bg-primary" />
-                  <div className="w-2 h-2 rounded-none bg-secondary" />
-                  <div className="w-2 h-2 rounded-none bg-[#7B5CFF]" />
-                </div>
-                <div className="mb-1 h-2 w-3/4 rounded-none bg-muted" />
-                <div className="mb-1 h-2 w-1/2 rounded-none bg-muted" />
-                <div className="mb-3 h-2 w-5/6 rounded-none bg-muted" />
-                <div className="flex gap-1.5">
-                  <div className="rounded-none bg-primary px-3 py-1 font-mono text-xs font-medium text-primary-foreground">
-                    Deploy →
-                  </div>
-                  <div className="rounded-none bg-muted px-3 py-1 font-mono text-xs text-muted-foreground">
-                    v2.4.1
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mx-4 h-3 rounded-none bg-muted" />
-
-            <div className="absolute -right-12 top-4 flex h-40 w-24 flex-col rounded-none border-2 border-border bg-card p-2 shadow-2xl">
-              <div className="flex justify-center mb-2">
-                <div className="h-1 w-10 rounded-none bg-muted-foreground/30" />
-              </div>
-              <div className="flex flex-1 items-center justify-center rounded-none bg-primary/10">
-                <span className="text-primary text-xl font-mono font-bold">
-                  [POC]
-                </span>
-              </div>
-            </div>
-
-            <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-none border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5">
-              <span className="size-2 animate-pulse rounded-none bg-emerald-500" />
-              <span className="font-mono text-xs text-emerald-700 dark:text-emerald-400">
-                Deployed in production
-              </span>
-            </div>
-          </div>
+        <div className="hidden w-1/2 pl-6 xl:block">
+          <GradientWave
+            speed={1}
+            className="w-full ml-auto max-w-6xl aspect-108/79"
+          />
         </div>
       </div>
 
@@ -184,7 +147,7 @@ export function HighlightedText({ text }: { text: string }) {
             <path
               d="M0 3 Q25 0 50 3 Q75 6 100 3"
               fill="none"
-              stroke="oklch(0.6 0.23 285)"
+              stroke="oklch(0.74 0.14 52)"
               strokeWidth="1.5"
             />
           </svg>
