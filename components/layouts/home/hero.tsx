@@ -61,7 +61,7 @@ export async function Hero({
       </div>
 
       <div className="relative flex max-w-7xl mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
-        <div className="w-1/2">
+        <div className="lg:w-1/2">
           {subheading && (
             <div className="inline-flex items-center gap-2 mb-8">
               <span className="font-mono text-sm text-primary uppercase tracking-widest">
