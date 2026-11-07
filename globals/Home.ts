@@ -48,7 +48,7 @@ export const Home: GlobalConfig = {
       fields: [
         { name: "subTitle", type: "text", required: true },
         { name: "title", type: "text", required: true },
-        { name: "description", type: "textarea", required: true },
+        { name: "desc", type: "richText", required: true },
         {
           name: "stats",
           type: "array",

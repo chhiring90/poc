@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GradientWave } from "@/components/ui/gradient-wave";
+import { InteractiveGrid } from "@/components/ui/interactive-grid";
 
 export type HeroData = {
   heading: string;
@@ -37,27 +38,9 @@ export async function Hero({
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-150 h-150 rounded-none bg-primary/10 blur-3xl animate-blob" />
         <div className="absolute -bottom-40 -left-20 w-125 h-125 rounded-none bg-secondary/10 blur-3xl animate-blob animation-delay-2000" />
-        <svg
-          className="absolute inset-0 h-full w-full text-foreground opacity-5"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <pattern
-              id="grid"
-              width="40"
-              height="40"
-              patternUnits="userSpaceOnUse"
-            >
-              <path
-                d="M 40 0 L 0 0 0 40"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="0.5"
-              />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
+
+        {/* Replaces both static SVG grids: light pulses + wormhole hover warp */}
+        <InteractiveGrid gap={40} radius={230} pull={0.8} swirl={0.9} />
       </div>
 
       <div className="relative flex max-w-7xl mx-auto px-5 lg:px-10 pt-32 pb-20 w-full">
@@ -137,20 +120,6 @@ export function HighlightedText({ text }: { text: string }) {
               .filter((p) => p.startsWith("*"))
               .map((p) => p.replaceAll("*", ""))}
           </span>
-          <svg
-            className="absolute -bottom-1 left-0 w-full"
-            height="4"
-            viewBox="0 0 100 4"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M0 3 Q25 0 50 3 Q75 6 100 3"
-              fill="none"
-              stroke="oklch(0.74 0.14 52)"
-              strokeWidth="1.5"
-            />
-          </svg>
         </span>
 
         {parts.slice(-1)}

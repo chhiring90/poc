@@ -15,11 +15,11 @@ export type GradientWaveContentProps = {
 
 export function GradientWaveContent({
   eyebrow = "INTERFACE\nPOC-26.04",
-  badge = "PROTOTYPE",
+  badge = "London",
   headline = "Proof of",
   headlineAccent = "Concept.",
-  meta = "40.7128° N\n74.0060° W",
-  accentColor = "#ff7a2f",
+  meta = "51.5074 N°\n00.1278 W°",
+  accentColor = "#F07080",
 }: GradientWaveContentProps) {
   return (
     <>
