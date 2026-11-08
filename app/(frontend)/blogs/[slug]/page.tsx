@@ -85,11 +85,6 @@ export default async function BlogArticle({
             className="mb-10 max-h-128 w-full rounded-none object-cover"
           />
         )}
-        {post.excerpt && (
-          <p className="mb-8 text-xl leading-relaxed text-muted-foreground">
-            {post.excerpt}
-          </p>
-        )}
         {post.content && (
           <RichTextWithTableOfContents
             content={post.content}

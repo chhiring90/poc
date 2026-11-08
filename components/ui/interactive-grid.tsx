@@ -6,21 +6,23 @@ import {
   motion,
   useAnimationFrame,
   useInView,
-  useMotionValue,
   useReducedMotion,
-  useSpring,
 } from "motion/react";
 
 type Props = {
   gap?: number; // grid cell size (px)
-  radius?: number; // wormhole influence radius (px)
-  pull?: number; // 0..1 how hard the grid funnels into the hole
-  swirl?: number; // radians of twist at the centre
+  radius?: number; // radius of each wormhole (px)
+  wormholes?: number; // how many wormholes are alive at once (max 6)
+  pull?: number; // 0..1 how hard the grid funnels into a wormhole
+  swirl?: number; // radians of twist at a wormhole's centre
   spider?: boolean; // show the radioactive spider
   spiderScale?: number; // 1 = ~85px leg span
-  tear?: boolean; // cursor tears the web, spider repairs it
+  tear?: boolean; // wormholes tear the web, spider repairs it
+  maxTears?: number; // max torn strands at any time
   className?: string;
 };
+
+const NH = 6; // max wormholes (shader array size)
 
 const VERT = /* glsl */ `
   void main() {
@@ -28,32 +30,31 @@ const VERT = /* glsl */ `
   }
 `;
 
-// Grid, light pulses and wormhole are all drawn in one fragment shader.
+// Grid, light pulses and wormholes are all drawn in one fragment shader.
+//  - up to 6 small wormholes warp the grid (each pulls + twists it)
 //  - every grid segment (node to node) can be torn: a data texture stores a
 //    gap [a,b] (fraction along the segment) per segment. Strands taper off at
 //    the gap and pulses can't travel across it.
-//  - the spider repairs a gap by walking along it; the gap closes behind its
-//    spinnerets.
+//  - the spider's glowing abdomen lights the grid lines around it green
 const FRAG = /* glsl */ `
   precision highp float;
 
+  #define NH ${NH}
+  #define N 14
+
   uniform vec2  uRes;
-  uniform vec2  uMouse;
   uniform float uDpr;
   uniform float uTime;
   uniform float uGap;
-  uniform float uRadius;
   uniform float uPull;
   uniform float uSwirl;
-  uniform float uHole;
   uniform float uPulse;
   uniform vec3  uGridColor;
   uniform vec3  uAccent;
   uniform vec3  uSpider;     // xy: abdomen position (css px, GL space), z: glow
+  uniform vec4  uHoles[NH];  // xy: centre (css px, GL space), z: radius, w: strength
   uniform sampler2D uWeb;    // per node: RG = horizontal gap, BA = vertical gap
   uniform vec2  uWebSize;
-
-  #define N 14
 
   float hash(float n) { return fract(sin(n * 127.1) * 43758.5453123); }
 
@@ -67,19 +68,40 @@ const FRAG = /* glsl */ `
   }
 
   void main() {
-    vec2 p  = gl_FragCoord.xy / uDpr;
-    vec2 d  = p - uMouse;
-    float nd = length(d);
+    vec2 p = gl_FragCoord.xy / uDpr;
 
-    // ---- wormhole: funnel + twist ----------------------------------------
-    float t = clamp(1.0 - nd / uRadius, 0.0, 1.0);
-    float s = t * t * (3.0 - 2.0 * t) * uHole;
-    float srcD = nd * (1.0 + 4.0 * uPull * s);
-    float ang = uSwirl * s * s;
-    float c = cos(ang), sn = sin(ang);
-    vec2 dir = nd > 0.0001 ? d / nd : vec2(1.0, 0.0);
-    vec2 rd = vec2(dir.x * c - dir.y * sn, dir.x * sn + dir.y * c);
-    vec2 sp = uMouse + rd * srcD;
+    // ---- wormholes: funnel + twist, plus a glowing core and ring ----------
+    vec2 sp = p;
+    float holeE = 0.0;
+    for (int k = 0; k < NH; k++) {
+      vec4 Hh = uHoles[k];
+      if (Hh.w < 0.001) continue;
+
+      // light (in screen space)
+      float pd = length(p - Hh.xy);
+      if (pd < Hh.z * 1.6) {
+        float kk = pd / (Hh.z * 0.28);
+        float coreGlow = exp(-kk * kk) * 0.25 * Hh.w;
+        float ringR = Hh.z * 0.07 + 2.0 * sin(uTime * 3.3 + float(k));
+        float rr = (pd - ringR) / 1.2;
+        float ring = exp(-rr * rr) * 0.7 * Hh.w;
+        holeE += coreGlow + ring;
+      }
+
+      // warp (applied to the sample position)
+      vec2 dd = sp - Hh.xy;
+      float nd = length(dd);
+      if (nd < Hh.z) {
+        float tt = 1.0 - nd / Hh.z;
+        float ss = tt * tt * (3.0 - 2.0 * tt) * Hh.w;
+        float srcD = nd * (1.0 + 4.0 * uPull * ss);
+        float ang = uSwirl * ss * ss * (mod(float(k), 2.0) < 1.0 ? 1.0 : -1.0);
+        float cc = cos(ang), sn = sin(ang);
+        vec2 dir = nd > 0.0001 ? dd / nd : vec2(1.0, 0.0);
+        vec2 rd = vec2(dir.x * cc - dir.y * sn, dir.x * sn + dir.y * cc);
+        sp = Hh.xy + rd * srcD;
+      }
+    }
 
     // ---- anti-aliased grid with tearable segments -------------------------
     vec2 g  = sp / uGap;
@@ -160,14 +182,8 @@ const FRAG = /* glsl */ `
     }
 
     float pulseFade = (1.0 - smoothstep(0.35, 0.9, dens)) * uPulse;
-    float E = (Ec + Eh) * pulseFade;
+    float E = (Ec + Eh) * pulseFade + holeE;
     lit = clamp(lit * uPulse, 0.0, 1.0);
-
-    // ---- cursor core + event-horizon ring --------------------------------
-    float coreGlow = exp(-pow(nd / (uRadius * 0.28), 2.0)) * 0.25 * uHole;
-    float ringR = 7.0 + 3.0 * sin(uTime * 3.3);
-    float ring = exp(-pow((nd - ringR) / 1.2, 2.0)) * 0.7 * uHole;
-    E += coreGlow + ring;
 
     // ---- radioactive glow from the spider's abdomen ----------------------
     const vec3 SPIDER_GREEN = vec3(0.28, 1.0, 0.16);
@@ -195,12 +211,115 @@ const FRAG = /* glsl */ `
 
 const clamp = (v: number, a: number, b: number) => Math.min(Math.max(v, a), b);
 const TAU = Math.PI * 2;
+const smooth01 = (x: number) => x * x * (3 - 2 * x);
 const angDiff = (a: number, b: number) => {
   let d = (b - a) % TAU;
   if (d > Math.PI) d -= TAU;
   if (d < -Math.PI) d += TAU;
   return d;
 };
+
+/* ============================================================================
+   Wormholes: small holes that fade in, drift, and fade out on their own
+   ========================================================================= */
+type Hole = {
+  x: number; // css px, y down
+  y: number;
+  vx: number;
+  vy: number;
+  R: number;
+  age: number;
+  ttl: number;
+  s: number; // strength 0..1
+};
+
+class Wormholes {
+  holes: Hole[] = [];
+  W = 0;
+  H = 0;
+  readonly count: number;
+  readonly baseR: number;
+  readonly frozen: boolean;
+
+  constructor(count: number, baseR: number, frozen: boolean) {
+    this.count = clamp(Math.round(count), 0, NH);
+    this.baseR = baseR;
+    this.frozen = frozen;
+  }
+
+  private place(h: Hole, init: boolean) {
+    h.R = this.baseR * (0.8 + Math.random() * 0.35);
+    const m = h.R * 1.6 + 20;
+    for (let tries = 0; tries < 30; tries++) {
+      h.x = m + Math.random() * Math.max(1, this.W - 2 * m);
+      h.y = m + Math.random() * Math.max(1, this.H - 2 * m);
+      let ok = true;
+      for (const o of this.holes) {
+        if (o !== h && Math.hypot(o.x - h.x, o.y - h.y) < (o.R + h.R) * 1.6) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) break;
+    }
+    const ang = Math.random() * TAU;
+    const sp = 6 + Math.random() * 12;
+    h.vx = Math.cos(ang) * sp;
+    h.vy = Math.sin(ang) * sp;
+    h.ttl = 7 + Math.random() * 8;
+    h.age = init ? Math.random() * h.ttl : 0;
+    if (this.frozen) h.age = h.ttl * 0.4;
+    h.s = this.envelope(h);
+  }
+
+  private envelope(h: Hole) {
+    const a = clamp(h.age / 1.2, 0, 1);
+    const b = clamp((h.ttl - h.age) / 1.5, 0, 1);
+    return smooth01(a) * smooth01(b);
+  }
+
+  resize(W: number, H: number) {
+    this.W = W;
+    this.H = H;
+    if (!this.holes.length) {
+      for (let k = 0; k < this.count; k++) {
+        const h: Hole = {
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          R: this.baseR,
+          age: 0,
+          ttl: 10,
+          s: 0,
+        };
+        this.holes.push(h);
+        this.place(h, true);
+      }
+    } else {
+      for (const h of this.holes) {
+        h.x = clamp(h.x, h.R, Math.max(h.R, W - h.R));
+        h.y = clamp(h.y, h.R, Math.max(h.R, H - h.R));
+      }
+    }
+  }
+
+  update(dt: number) {
+    if (this.frozen) return;
+    for (const h of this.holes) {
+      h.age += dt;
+      h.x += h.vx * dt;
+      h.y += h.vy * dt;
+      const m = h.R * 1.2;
+      if (h.x < m || h.x > this.W - m) h.vx *= -1;
+      if (h.y < m || h.y > this.H - m) h.vy *= -1;
+      h.x = clamp(h.x, m * 0.5, this.W - m * 0.5);
+      h.y = clamp(h.y, m * 0.5, this.H - m * 0.5);
+      if (h.age >= h.ttl) this.place(h, false);
+      h.s = this.envelope(h);
+    }
+  }
+}
 
 /* ============================================================================
    Web: per-segment tear state, mirrored into a data texture for the shader
@@ -257,7 +376,7 @@ class Web {
     this.resist = new Float32Array(n);
     this.center = new Float32Array(n);
     for (let k = 0; k < n; k++) {
-      this.resist[k] = 0.8 + Math.random() * 0.6;
+      this.resist[k] = 1.2 + Math.random() * 1.6; // tougher strands: tears stay occasional
       this.center[k] = 0.5 + (Math.random() - 0.5) * 0.24;
     }
     this.data = new Uint8Array(this.TW * this.TH * 4);
@@ -296,9 +415,16 @@ class Web {
     this.dirty = true;
   }
 
-  // the cursor stresses nearby segments until they snap
-  tear(mx: number, my: number, hole: number, dt: number, radius: number) {
-    if (hole < 0.05 || dt <= 0) return;
+  // a wormhole stresses nearby segments until they snap
+  tear(
+    mx: number,
+    my: number,
+    strength: number,
+    dt: number,
+    radius: number,
+    cap: number,
+  ) {
+    if (strength < 0.05 || dt <= 0) return;
     const gap = this.gap;
     const R = radius * 0.6;
     const i0 = Math.max(0, Math.floor((mx - R) / gap) - 1);
@@ -311,12 +437,13 @@ class Web {
           if (!this.valid(i, j, o)) continue;
           const id = this.id(i, j, o);
           if (this.repairing.has(id)) continue;
+          if (!this.broken.has(id) && this.broken.size >= cap) continue;
           const cx = o === 0 ? (i + 0.5) * gap : i * gap;
           const cy = o === 0 ? j * gap : (j + 0.5) * gap;
           const d = Math.hypot(cx - mx, cy - my);
           if (d >= R) continue;
           const k = 1 - d / R;
-          this.stress[id] += (k * k * hole * dt * 1.1) / this.resist[id];
+          this.stress[id] += (k * k * strength * dt * 1.1) / this.resist[id];
           const w = clamp((this.stress[id] - 0.35) / 0.45, 0, 1) * 0.7;
           if (w > 0) {
             const c = this.center[id];
@@ -342,7 +469,7 @@ class Web {
       this.a[id] = 0;
       this.b[id] = 0;
       this.stress[id] = 0;
-      this.resist[id] = 0.8 + Math.random() * 0.6;
+      this.resist[id] = 1.2 + Math.random() * 1.6;
       this.center[id] = 0.5 + (Math.random() - 0.5) * 0.24;
       this.broken.delete(id);
       this.repairing.delete(id);
@@ -363,12 +490,14 @@ class Web {
 
 /* ============================================================================
    Radioactive spider
-   - walks along the grid lines, pausing, turning at intersections and
-     scurrying away from the cursor
-   - when the cursor has torn the web it walks to the break (routing around
+   - walks along the grid lines, pausing and turning at intersections
+   - wormholes can catch it: it gets sucked in, spinning and shrinking, and
+     pops out of a different wormhole
+   - when a wormhole has torn the web it walks to the break (routing around
      torn strands), then crosses it spinning new silk behind its spinnerets
-   - 8 legs with 2-bone IK and an alternating-tetrapod gait
-   - translucent glowing green abdomen that pulses and lights the grid
+   - 8 legs with 2-bone IK and an alternating-tetrapod gait. Each knee always
+     bends the same way (no flipping), and turning is slow enough for the feet
+     to keep up
    ========================================================================= */
 
 const L1 = 26; // upper leg segment (in body units; multiplied by scale)
@@ -377,14 +506,15 @@ const L2 = 30; // lower leg segment
 // attach offset along the body, and rest-foot position (forward, lateral)
 const LEG_DEFS = [
   { a: 5, rest: [30, 30] },
-  { a: 2, rest: [17, 42] },
-  { a: -1.5, rest: [-9, 44] },
+  { a: 2, rest: [22, 42] },
+  { a: -1.5, rest: [-12, 42] },
   { a: -4.5, rest: [-32, 36] },
 ];
 
 type Leg = {
   side: number; // -1 left, +1 right
   group: number; // gait group 0/1 (diagonal pairs move together)
+  bend: number; // which way the knee bends (+1 / -1), fixed per leg
   ai: number; // attach (forward)
   ab: number; // attach (lateral)
   ri: number; // rest (forward)
@@ -401,7 +531,6 @@ type Leg = {
   lift: number;
 };
 
-type Cursor = { x: number; y: number; active: boolean };
 type Repair = {
   id: number;
   fromEnd: 0 | 1;
@@ -410,9 +539,11 @@ type Repair = {
   dead: boolean;
 };
 type Mode = "wander" | "goto" | "repair";
+type State = "normal" | "sucked" | "hidden" | "emerge";
 
 class Spider {
-  readonly S: number;
+  readonly base: number;
+  S: number; // current scale (animated while being sucked in / popping out)
   readonly gap: number;
   readonly web: Web;
   W = 0;
@@ -420,6 +551,19 @@ class Spider {
   cols = 0;
   rows = 0;
   ready = false;
+
+  state: State = "normal";
+  tAnim = 0;
+  hideT = 0;
+  immune = 0;
+  srcHole = -1;
+  hx = 0;
+  hy = 0; // wormhole centre being sucked into
+  sx0 = 0;
+  sy0 = 0; // where we were when caught
+  ex = 0;
+  ey = 0; // wormhole centre we pop out of
+  spin = 0;
 
   // grid navigation (node indices; y index counts upward like the shader grid)
   fi = 0;
@@ -434,7 +578,6 @@ class Spider {
   plan = -1;
   rep: Repair | null = null;
   repairs: Repair[] = [];
-  cooldown = 0;
 
   // pose
   x = 0;
@@ -452,7 +595,6 @@ class Spider {
   phase = 0;
   t = 0;
   pause = 0;
-  revCd = 0;
   twitch = 2;
 
   glow = 1;
@@ -462,16 +604,52 @@ class Spider {
   legs: Leg[] = [];
   private prev: { x: number; y: number; w: number; h: number } | null = null;
 
-  constructor(S: number, gap: number, web: Web) {
-    this.S = S;
+  constructor(base: number, gap: number, web: Web) {
+    this.base = base;
+    this.S = base;
     this.gap = gap;
     this.web = web;
+
     for (let k = 0; k < LEG_DEFS.length; k++) {
       for (const side of [-1, 1]) {
         const def = LEG_DEFS[k];
+
+        // Decide once which way this knee bends, so it can never flip
+        // between the two IK solutions while the leg moves.
+        const ax = def.a;
+        const ay = side * 5;
+        const rx = def.rest[0];
+        const ry = side * def.rest[1];
+        const dx = rx - ax;
+        const dy = ry - ay;
+        const dist = Math.hypot(dx, dy);
+        const a = (L1 * L1 - L2 * L2 + dist * dist) / (2 * dist);
+        const h = Math.sqrt(Math.max(L1 * L1 - a * a, 0));
+        const ux = dx / dist;
+        const uy = dy / dist;
+        const mx = ax + ux * a;
+        const my = ay + uy * a;
+        const px = -uy;
+        const py = ux;
+        const kp = { f: mx + px * h, l: side * (my + py * h) };
+        const km = { f: mx - px * h, l: side * (my - py * h) };
+        let bend = 1;
+        if (k < 2) {
+          bend = kp.l >= km.l ? 1 : -1; // front legs: knee out, foot forward
+        } else {
+          const okp = kp.l >= 10;
+          const okm = km.l >= 10;
+          if (okp && okm)
+            bend = kp.f <= km.f ? 1 : -1; // rear legs: knee out/back
+          else if (okp) bend = 1;
+          else if (okm) bend = -1;
+          else bend = kp.l >= km.l ? 1 : -1;
+        }
+
         this.legs.push({
           side,
           group: (k + (side > 0 ? 1 : 0)) % 2,
+          bend,
           ai: def.a,
           ab: side * 5,
           ri: def.rest[0],
@@ -500,6 +678,12 @@ class Spider {
 
   resetClear() {
     this.prev = null;
+  }
+
+  // brightness handed to the shader (0 while hidden, shrinks with the spider)
+  glowOut() {
+    if (!this.ready || this.state === "hidden") return 0;
+    return this.glow * (this.S / this.base);
   }
 
   setBounds(W: number, H: number) {
@@ -533,6 +717,9 @@ class Spider {
       this.u = 0.3;
       this.updatePosition();
       this.heading = this.hd = this.abd = 0;
+      this.S = this.base;
+      this.state = "normal";
+      this.immune = 2;
       this.setFrame(this.x, this.y);
       this.placeFeet();
       this.ready = true;
@@ -574,6 +761,27 @@ class Spider {
     }
   }
 
+  // legs flailing while the spider is being flung around by a wormhole
+  private flailFeet() {
+    this.legs.forEach((leg, idx) => {
+      const j1 = Math.sin(this.t * 26 + idx * 1.7) * 4;
+      const j2 = Math.cos(this.t * 22 + idx * 2.1) * 4;
+      const r = this.world(leg.ri + j1, leg.rb + j2 * leg.side);
+      leg.fx = r.x;
+      leg.fy = r.y;
+      leg.stepping = false;
+      leg.lift = 0.5 + 0.5 * Math.sin(this.t * 30 + idx);
+    });
+  }
+
+  private updateGlowPos() {
+    const S = this.S;
+    const px = this.bx - this.cf * 8 * S;
+    const py = this.by - this.sf * 8 * S;
+    this.glowX = px - Math.cos(this.abd) * 11 * S;
+    this.glowY = py - Math.sin(this.abd) * 11 * S;
+  }
+
   // ---------------------------------------------------------------- web AI
   private edgeId(ci: number, cj: number, ni: number, nj: number) {
     if (ni === ci + 1) return this.web.id(ci, cj, 0);
@@ -597,10 +805,10 @@ class Spider {
     const cols = this.web.cols;
     const rows = this.web.rows;
     const NW = cols + 1;
-    const N = NW * (rows + 1);
-    const dist = new Int32Array(N).fill(-1);
-    const prev = new Int32Array(N).fill(-1);
-    const q = new Int32Array(N);
+    const NN = NW * (rows + 1);
+    const dist = new Int32Array(NN).fill(-1);
+    const prev = new Int32Array(NN).fill(-1);
+    const q = new Int32Array(NN);
     let qh = 0;
     let qt = 0;
     const s = sj * NW + si;
@@ -704,7 +912,7 @@ class Spider {
     web.repairing.add(this.plan);
   }
 
-  private chooseNext(cur: Cursor, flee: boolean) {
+  private chooseNext() {
     const ci = this.ti;
     const cj = this.tj;
     const pi = this.ti - this.fi;
@@ -725,12 +933,7 @@ class Spider {
         if (skipTorn && this.web.isTorn(this.edgeId(ci, cj, ni, nj))) continue;
         const straight = di === pi && dj === pj;
         const rev = di === -pi && dj === -pj;
-        let w = straight ? 0.55 : rev ? 0 : 0.225;
-        if (flee) {
-          const d = Math.hypot(this.nodeX(ni) - cur.x, this.nodeY(nj) - cur.y);
-          w = d * d * (rev ? 0.35 : 1);
-        }
-        out.push({ i: ni, j: nj, w });
+        out.push({ i: ni, j: nj, w: straight ? 0.55 : rev ? 0 : 0.225 });
       }
       return out;
     };
@@ -755,11 +958,11 @@ class Spider {
     this.ti = pick.i;
     this.tj = pick.j;
     this.speedMul = 0.75 + Math.random() * 0.5;
-    if (!flee && Math.random() < 0.18) this.pause = 0.8 + Math.random() * 2.2;
+    if (Math.random() < 0.18) this.pause = 0.8 + Math.random() * 2.2;
   }
 
   // reached a node: decide what to do next
-  private arrive(cur: Cursor, flee: boolean) {
+  private arrive() {
     const ni = this.ti;
     const nj = this.tj;
 
@@ -770,8 +973,21 @@ class Spider {
       this.plan = -1;
     }
 
-    if (!flee) {
-      if (this.mode === "goto") {
+    if (this.mode === "goto") {
+      const nxt = this.path.shift();
+      if (nxt) {
+        this.fi = ni;
+        this.fj = nj;
+        this.ti = nxt[0];
+        this.tj = nxt[1];
+      } else {
+        this.beginRepair(ni, nj);
+      }
+      return;
+    }
+    if (this.mode === "wander" && this.web.broken.size > 0) {
+      if (this.planRepair(ni, nj)) {
+        this.mode = "goto";
         const nxt = this.path.shift();
         if (nxt) {
           this.fi = ni;
@@ -783,86 +999,158 @@ class Spider {
         }
         return;
       }
-      if (
-        this.mode === "wander" &&
-        this.cooldown <= 0 &&
-        this.web.broken.size > 0
-      ) {
-        if (this.planRepair(ni, nj)) {
-          this.mode = "goto";
-          const nxt = this.path.shift();
-          if (nxt) {
-            this.fi = ni;
-            this.fj = nj;
-            this.ti = nxt[0];
-            this.tj = nxt[1];
-          } else {
-            this.beginRepair(ni, nj);
-          }
-          return;
-        }
-      }
     }
-    this.chooseNext(cur, flee);
+    this.chooseNext();
   }
 
-  update(dt: number, cur: Cursor) {
-    if (!this.ready) return;
-    const S = this.S;
-    const gap = this.gap;
-    this.t += dt;
-    this.revCd = Math.max(0, this.revCd - dt);
-    if (cur.active) this.cooldown = 1.2;
-    else this.cooldown = Math.max(0, this.cooldown - dt);
+  // ------------------------------------------------------ wormhole travel
+  private startSucked(idx: number, h: Hole) {
+    this.state = "sucked";
+    this.tAnim = 0;
+    this.srcHole = idx;
+    this.hx = h.x;
+    this.hy = h.y;
+    this.sx0 = this.bx;
+    this.sy0 = this.by;
+    this.spin = 3;
+    this.speed = 0;
+    this.abortPlan();
+  }
 
-    let x0 = this.nodeX(this.fi);
-    let y0 = this.nodeY(this.fj);
-    let x1 = this.nodeX(this.ti);
-    let y1 = this.nodeY(this.tj);
+  private updateSucked(dt: number) {
+    this.tAnim += dt;
+    const k = clamp(this.tAnim / 0.8, 0, 1);
+    const e = k * k;
+    const rx = this.sx0 - this.hx;
+    const ry = this.sy0 - this.hy;
+    const r = Math.hypot(rx, ry) * (1 - e);
+    const a = Math.atan2(ry, rx) + k * k * 7; // spirals in
+    const px = this.hx + Math.cos(a) * r;
+    const py = this.hy + Math.sin(a) * r;
+
+    this.S = this.base * Math.max(0.02, 1 - e * 0.98);
+    this.spin = 4 + 14 * k;
+    this.heading += this.spin * dt;
+    this.hd = this.heading;
+    this.abd += angDiff(this.abd, this.hd) * Math.min(1, dt * 5);
+    this.setFrame(px, py);
+    this.flailFeet();
+    this.updateGlowPos();
+    this.glow = 1.4;
+
+    if (k >= 1) {
+      this.state = "hidden";
+      this.hideT = 0.4;
+    }
+  }
+
+  private updateHidden(dt: number, holes: Hole[]) {
+    this.hideT -= dt;
+    if (this.hideT > 0) return;
+    const cand: Hole[] = [];
+    holes.forEach((h, i) => {
+      if (i !== this.srcHole && h.s > 0.5) cand.push(h);
+    });
+    if (cand.length)
+      this.startEmerge(cand[Math.floor(Math.random() * cand.length)]);
+    else this.hideT = 0.2;
+  }
+
+  private startEmerge(h: Hole) {
+    const ni = clamp(Math.round(h.x / this.gap), 1, this.cols - 1);
+    const nj = clamp(Math.round((this.H - h.y) / this.gap), 1, this.rows - 1);
+    const opts: [number, number][] = [];
+    for (const [di, dj] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]) {
+      const a = ni + di;
+      const b = nj + dj;
+      if (a >= 1 && a <= this.cols - 1 && b >= 1 && b <= this.rows - 1)
+        opts.push([a, b]);
+    }
+    const to = opts[Math.floor(Math.random() * opts.length)];
+    this.fi = ni;
+    this.fj = nj;
+    this.ti = to[0];
+    this.tj = to[1];
+    this.u = 0;
+    this.updatePosition(); // x,y = the node we'll land on
+    this.ex = h.x;
+    this.ey = h.y;
+    this.heading = Math.random() * TAU;
+    this.spin = 16;
+    this.tAnim = 0;
+    this.mode = "wander";
+    this.pause = 0;
+    this.speed = 0;
+    this.state = "emerge";
+  }
+
+  private updateEmerge(dt: number) {
+    this.tAnim += dt;
+    const k = clamp(this.tAnim / 0.9, 0, 1);
+    const e = 1 - (1 - k) * (1 - k);
+    this.S = this.base * Math.max(0.02, e);
+    const px = this.ex + (this.x - this.ex) * e;
+    const py = this.ey + (this.y - this.ey) * e;
+    this.spin *= Math.exp(-3.5 * dt);
+    this.heading += this.spin * dt;
+    this.hd = this.heading;
+    this.abd += angDiff(this.abd, this.hd) * Math.min(1, dt * 5);
+    this.setFrame(px, py);
+    this.flailFeet();
+    this.updateGlowPos();
+    this.glow = 1.4;
+
+    if (k >= 1) {
+      this.state = "normal";
+      this.S = this.base;
+      this.setFrame(this.x, this.y);
+      this.placeFeet();
+      this.immune = 4; // don't get re-caught by the wormhole we just left
+    }
+  }
+
+  // ------------------------------------------------------------------ main
+  update(dt: number, holes: Hole[]) {
+    if (!this.ready) return;
+    this.t += dt;
+
+    if (this.state === "sucked") return this.updateSucked(dt);
+    if (this.state === "hidden") return this.updateHidden(dt, holes);
+    if (this.state === "emerge") return this.updateEmerge(dt);
+
+    const S = this.base;
+    const gap = this.gap;
+    this.immune = Math.max(0, this.immune - dt);
+
+    const x0 = this.nodeX(this.fi);
+    const y0 = this.nodeY(this.fj);
+    const x1 = this.nodeX(this.ti);
+    const y1 = this.nodeY(this.tj);
     let dx = x1 - x0;
     let dy = y1 - y0;
     const len = Math.hypot(dx, dy) || 1;
     dx /= len;
     dy /= len;
 
-    // ---- scared of the cursor ----
-    let flee = false;
-    if (cur.active) {
-      const cx = cur.x - this.x;
-      const cy = cur.y - this.y;
-      const cd = Math.hypot(cx, cy);
-      if (cd < 210) {
-        flee = true;
-        this.pause = 0;
-        if (this.mode !== "wander") this.abortPlan();
-        if (cd < 150 && cx * dx + cy * dy > 0 && this.revCd === 0) {
-          // cursor is ahead: turn back along the same strand
-          [this.fi, this.ti] = [this.ti, this.fi];
-          [this.fj, this.tj] = [this.tj, this.fj];
-          this.u = 1 - this.u;
-          dx = -dx;
-          dy = -dy;
-          this.revCd = 0.6;
-        }
-      }
-    }
-
-    // ---- speed + steering ----
+    // ---- speed + steering (slow, deliberate turns so the legs can keep up) ----
     const target =
       this.pause > 0
         ? 0
-        : flee
-          ? 230 * S
-          : this.mode === "repair"
-            ? 48 * S
-            : this.mode === "goto"
-              ? 105 * S
-              : 70 * S * this.speedMul;
-    this.speed += (target - this.speed) * Math.min(1, dt * (flee ? 9 : 3.5));
+        : this.mode === "repair"
+          ? 48 * S
+          : this.mode === "goto"
+            ? 105 * S
+            : 70 * S * this.speedMul;
+    this.speed += (target - this.speed) * Math.min(1, dt * 3.5);
     if (this.pause > 0) this.pause -= dt;
 
     const desired = Math.atan2(dy, dx);
-    const turnRate = flee ? 10 : 4.5;
+    const turnRate = 2.6;
     const err0 = angDiff(this.heading, desired);
     this.heading += clamp(err0, -turnRate * dt, turnRate * dt);
     const err = angDiff(this.heading, desired);
@@ -872,14 +1160,10 @@ class Spider {
     this.u += (eff * dt) / len;
     if (this.u >= 1) {
       const carry = this.u - 1;
-      this.arrive(cur, flee);
+      this.arrive();
       this.u = carry;
     }
     this.updatePosition();
-    void x0;
-    void y0;
-    void x1;
-    void y1;
 
     // ---- spinning silk behind the spinnerets ----
     if (this.mode === "repair" && this.rep) {
@@ -899,7 +1183,7 @@ class Spider {
     const walk = clamp(eff / (70 * S), 0, 1.6);
     this.phase += (eff * dt) / (7 * S);
     this.hd =
-      this.heading + 0.045 * Math.sin(this.phase + 1) * Math.min(walk, 1);
+      this.heading + 0.03 * Math.sin(this.phase + 1) * Math.min(walk, 1);
     const cf = Math.cos(this.hd);
     const sf = Math.sin(this.hd);
     const sway = Math.sin(this.phase) * 0.9 * S * Math.min(walk, 1);
@@ -911,13 +1195,24 @@ class Spider {
     this.updateLegs(dt, dx * eff, dy * eff, eff);
 
     // glow position + pulse (brighter while spinning silk)
-    const px = this.bx - this.cf * 8 * S;
-    const py = this.by - this.sf * 8 * S;
-    this.glowX = px - Math.cos(this.abd) * 11 * S;
-    this.glowY = py - Math.sin(this.abd) * 11 * S;
+    this.updateGlowPos();
     this.glow =
-      (flee ? 1.15 : this.mode === "repair" ? 1.2 : 1) *
+      (this.mode === "repair" ? 1.2 : 1) *
       (0.88 + 0.12 * Math.sin(this.t * 2.3) + 0.04 * Math.sin(this.t * 19));
+
+    // ---- caught by a wormhole? ----
+    if (this.immune <= 0 && dt > 0) {
+      for (let k = 0; k < holes.length; k++) {
+        const h = holes[k];
+        if (
+          h.s > 0.45 &&
+          Math.hypot(this.bx - h.x, this.by - h.y) < h.R * 0.42
+        ) {
+          this.startSucked(k, h);
+          break;
+        }
+      }
+    }
   }
 
   private startStep(
@@ -953,7 +1248,7 @@ class Spider {
     const maxReach = (L1 + L2) * S * 0.97;
     const stepping = [false, false];
     for (const l of this.legs) if (l.stepping) stepping[l.group] = true;
-    const dur = clamp((12.6 * S) / (speed + 1), 0.08, 0.3);
+    const dur = clamp((12.6 * S) / (speed + 1), 0.1, 0.3);
 
     for (const leg of this.legs) {
       if (leg.stepping) {
@@ -990,10 +1285,18 @@ class Spider {
     }
   }
 
+  // clear whatever we drew last frame (used while hidden inside a wormhole)
+  drawHidden(ctx: CanvasRenderingContext2D) {
+    if (this.prev) {
+      ctx.clearRect(this.prev.x, this.prev.y, this.prev.w, this.prev.h);
+      this.prev = null;
+    }
+  }
+
   draw(ctx: CanvasRenderingContext2D) {
     if (!this.ready) return;
     const S = this.S;
-    const m = 135 * S;
+    const m = 135 * this.base;
 
     // clear only where the spider was and is now
     if (this.prev)
@@ -1096,16 +1399,11 @@ class Spider {
       const px = -uy;
       const py = ux;
 
-      // knee bends outward (and a little forward on front legs, back on rear)
-      const sgnA = leg.ri >= 0 ? 1 : -1;
-      let ox = -this.sf * leg.side + this.cf * 0.3 * sgnA;
-      let oy = this.cf * leg.side + this.sf * 0.3 * sgnA;
-      const ol = Math.hypot(ox, oy) || 1;
-      ox /= ol;
-      oy /= ol;
-      const s = px * ox + py * oy >= 0 ? 1 : -1;
-      const kx = mx + px * h * s + ox * leg.lift * 4 * S;
-      const ky = my + py * h * s + oy * leg.lift * 4 * S;
+      // the knee always bends the same way for this leg; lifted legs arch outward
+      const ox = -this.sf * leg.side;
+      const oy = this.cf * leg.side;
+      const kx = mx + px * h * leg.bend + ox * leg.lift * 4 * S;
+      const ky = my + py * h * leg.bend + oy * leg.lift * 4 * S;
 
       pts.push({
         ax: att.x,
@@ -1312,18 +1610,22 @@ type GL = {
   camera: THREE.OrthographicCamera;
   uniforms: Record<string, THREE.IUniform>;
   web: Web;
+  wh: Wormholes;
   spider: Spider | null;
   octx: CanvasRenderingContext2D | null;
+  Hs: number; // grid height (px) used to flip y between screen and GL space
 };
 
 export function InteractiveGrid({
   gap = 40,
-  radius = 150,
-  pull = 0.9,
-  swirl = 0.1,
+  radius = 20,
+  wormholes = 3,
+  pull = 0.8,
+  swirl = 0.9,
   spider = true,
-  spiderScale = 0.45,
-  tear = false,
+  spiderScale = 0.6,
+  tear = true,
+  maxTears = 12,
   className = "",
 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -1334,14 +1636,6 @@ export function InteractiveGrid({
 
   const reduced = useReducedMotion();
   const inView = useInView(wrapRef);
-
-  // Motion drives the smoothing: raw pointer -> springs -> uniforms
-  const mx = useMotionValue(-9999);
-  const my = useMotionValue(-9999);
-  const holeTarget = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 140, damping: 22, mass: 0.4 });
-  const sy = useSpring(my, { stiffness: 140, damping: 22, mass: 0.4 });
-  const hole = useSpring(holeTarget, { stiffness: 90, damping: 20 });
 
   useEffect(() => {
     const wrap = wrapRef.current!;
@@ -1379,21 +1673,22 @@ export function InteractiveGrid({
     };
 
     const web = new Web(gap);
+    const wh = new Wormholes(wormholes, radius, !!reduced);
 
     const uniforms: Record<string, THREE.IUniform> = {
       uRes: { value: new THREE.Vector2(1, 1) },
-      uMouse: { value: new THREE.Vector2(-9999, -9999) },
       uDpr: { value: dpr },
       uTime: { value: 0 },
       uGap: { value: gap },
-      uRadius: { value: radius },
       uPull: { value: pull },
       uSwirl: { value: swirl },
-      uHole: { value: 0 },
       uPulse: { value: reduced ? 0 : 1 },
       uGridColor: { value: new THREE.Vector3(0.5, 0.5, 0.5) },
       uAccent: { value: new THREE.Vector3(0.4, 0.8, 1) },
       uSpider: { value: new THREE.Vector3(0, 0, 0) },
+      uHoles: {
+        value: Array.from({ length: NH }, () => new THREE.Vector4(0, 0, 1, 0)),
+      },
       uWeb: { value: web.tex },
       uWebSize: { value: new THREE.Vector2(web.TW, web.TH) },
     };
@@ -1416,7 +1711,6 @@ export function InteractiveGrid({
     const spiderObj = spider && oc ? new Spider(spiderScale, gap, web) : null;
     const octx = spiderObj && oc ? oc.getContext("2d") : null;
 
-    let h = 1;
     const readColors = () => {
       cssToVec(getComputedStyle(wrap).color, uniforms.uGridColor.value);
       if (primaryRef.current)
@@ -1427,12 +1721,13 @@ export function InteractiveGrid({
     };
     const resize = () => {
       const r = wrap.getBoundingClientRect();
-      h = r.height;
       renderer.setSize(r.width, r.height, false);
       uniforms.uRes.value.set(r.width, r.height);
 
       // grid origin in the shader is the bottom of the *drawing buffer*
       const Hs = Math.floor(r.height * dpr) / dpr;
+      if (gl.current) gl.current.Hs = Hs;
+      wh.resize(r.width, Hs);
       if (web.resize(r.width, Hs)) {
         uniforms.uWeb.value = web.tex;
         (uniforms.uWebSize.value as THREE.Vector2).set(web.TW, web.TH);
@@ -1455,8 +1750,10 @@ export function InteractiveGrid({
       camera,
       uniforms,
       web,
+      wh,
       spider: spiderObj,
       octx,
+      Hs: 1,
     };
     readColors();
     resize();
@@ -1469,49 +1766,7 @@ export function InteractiveGrid({
       attributeFilter: ["class", "data-theme"],
     });
 
-    // spring outputs -> shader uniforms
-    const unsubs = [
-      sx.on("change", (v) => (uniforms.uMouse.value.x = v)),
-      sy.on("change", (v) => (uniforms.uMouse.value.y = h - v)), // flip to GL space
-      hole.on(
-        "change",
-        (v) => (uniforms.uHole.value = Math.min(Math.max(v, 0), 1)),
-      ),
-    ];
-
-    let active = false;
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType === "touch" || reduced) return;
-      const r = wrap.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
-      const inside = x >= 0 && y >= 0 && x <= r.width && y <= r.height;
-      if (!inside) {
-        active = false;
-        holeTarget.set(0);
-        return;
-      }
-      if (!active) {
-        sx.jump(x); // don't streak in from wherever the cursor last was
-        sy.jump(y);
-        active = true;
-      }
-      mx.set(x);
-      my.set(y);
-      holeTarget.set(1);
-    };
-    const onLeave = () => {
-      active = false;
-      holeTarget.set(0);
-    };
-
-    window.addEventListener("pointermove", onMove, { passive: true });
-    document.documentElement.addEventListener("pointerleave", onLeave);
-
     return () => {
-      window.removeEventListener("pointermove", onMove);
-      document.documentElement.removeEventListener("pointerleave", onLeave);
-      unsubs.forEach((u) => u());
       ro.disconnect();
       mo.disconnect();
       geometry.dispose();
@@ -1520,21 +1775,7 @@ export function InteractiveGrid({
       renderer.dispose();
       gl.current = null;
     };
-  }, [
-    gap,
-    radius,
-    pull,
-    swirl,
-    spider,
-    spiderScale,
-    reduced,
-    mx,
-    my,
-    sx,
-    sy,
-    holeTarget,
-    hole,
-  ]);
+  }, [gap, radius, wormholes, pull, swirl, spider, spiderScale, reduced]);
 
   // Motion's frame loop: renders only while the hero is on screen
   useAnimationFrame((t, delta) => {
@@ -1542,25 +1783,33 @@ export function InteractiveGrid({
     if (!g || !inView) return;
     g.uniforms.uTime.value = reduced ? 0 : t / 1000;
     const dt = reduced ? 0 : Math.min(delta / 1000, 0.05);
-    const hv = g.uniforms.uHole.value as number;
 
-    // the cursor tears the web where it bends it hardest
+    // wormholes appear, drift and vanish on their own
+    g.wh.update(dt);
+    const holeU = g.uniforms.uHoles.value as THREE.Vector4[];
+    for (let k = 0; k < NH; k++) {
+      const h = g.wh.holes[k];
+      if (h)
+        holeU[k].set(h.x, g.Hs - h.y, h.R, h.s); // screen (y down) -> GL (y up)
+      else holeU[k].set(0, 0, 1, 0);
+    }
+
+    // they tear the web where they pinch it hardest
     if (tear && !reduced) {
-      const m = g.uniforms.uMouse.value as THREE.Vector2;
-      g.web.tear(m.x, m.y, hv, dt, radius);
+      for (const h of g.wh.holes) {
+        if (h.s > 0.6)
+          g.web.tear(h.x, g.Hs - h.y, h.s, dt, h.R * 1.2, maxTears);
+      }
     }
 
     if (g.spider && g.octx) {
-      g.spider.update(dt, {
-        x: sx.get(),
-        y: sy.get(),
-        active: hv > 0.05 && !reduced,
-      });
-      g.spider.draw(g.octx);
+      g.spider.update(dt, g.wh.holes);
+      if (g.spider.state === "hidden") g.spider.drawHidden(g.octx);
+      else g.spider.draw(g.octx);
       g.uniforms.uSpider.value.set(
         g.spider.glowX,
         g.spider.H - g.spider.glowY, // screen (y down) -> GL (y up)
-        g.spider.ready ? g.spider.glow : 0,
+        g.spider.glowOut(),
       );
     }
 
