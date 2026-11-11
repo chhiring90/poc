@@ -80,7 +80,7 @@ export async function Insights({
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-none bg-secondary/20 flex items-center justify-center text-xs font-bold text-white">
+                    <div className="w-6 h-6 rounded-none bg-primary flex items-center justify-center text-xs font-bold text-white">
                       {author.firstName?.[0] ?? ""}
                     </div>
                     <span className={`text-xs text-muted-foreground`}>
