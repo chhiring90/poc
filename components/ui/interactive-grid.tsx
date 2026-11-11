@@ -1618,7 +1618,7 @@ type GL = {
 
 export function InteractiveGrid({
   gap = 40,
-  radius = 20,
+  radius = 10,
   wormholes = 3,
   pull = 0.8,
   swirl = 0.9,
