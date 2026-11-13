@@ -1,15 +1,11 @@
 import Link from "next/link";
 import { icons } from "lucide-react";
+import type { HomeExpertiseItem } from "@/lib/type/service.type";
 
 export function Services({
   expertise,
 }: {
-  expertise: {
-    title: string;
-    description: string;
-    icon: string;
-    url: string;
-  }[];
+  expertise: HomeExpertiseItem[];
 }) {
   return (
     <section className="max-w-7xl mx-auto px-5 lg:px-10 py-28">
@@ -35,7 +31,7 @@ export function Services({
           return (
             <Link
               key={title}
-              href={url}
+              href={`/services${url}`}
               className={`group text-left p-6 rounded-none border bg-card border-border $hover:border-primary/30 transition-all hover:-translate-y-1`}
             >
               <div className="mb-4 text-primary">

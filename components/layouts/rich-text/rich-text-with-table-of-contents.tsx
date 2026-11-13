@@ -42,8 +42,8 @@ export function RichTextWithTableOfContents({
   > = ({ defaultConverters }) => ({
     ...defaultConverters,
     table: ({ node, nodesToJSX }) => (
-      <div className="my-8 border-2 border-border">
-        <Table>
+      <div className="my-8 overflow-hidden border-2 border-border">
+        <Table className="[&_p]:!my-0 [&_p]:!leading-normal">
           <TableBody>{nodesToJSX({ nodes: node.children })}</TableBody>
         </Table>
       </div>
@@ -53,7 +53,7 @@ export function RichTextWithTableOfContents({
         return (
           <TableHead
             scope={node.headerState === 1 ? "row" : "col"}
-            className="whitespace-normal border-b border-border bg-muted font-bold [&_p]:mb-0"
+            className="whitespace-normal border-r border-border bg-primary px-4 py-3 font-mono text-xs font-bold uppercase tracking-wider text-primary-foreground last:border-r-0 [&_p]:!my-0 [&_p]:!leading-normal"
           >
             {nodesToJSX({ nodes: node.children })}
           </TableHead>
@@ -61,13 +61,13 @@ export function RichTextWithTableOfContents({
       }
 
       return (
-        <TableCell className="whitespace-normal [&_p]:mb-0">
+        <TableCell className="whitespace-normal border-r border-border px-4 py-3 last:border-r-0 [&_p]:!my-0 [&_p]:!leading-normal">
           {nodesToJSX({ nodes: node.children })}
         </TableCell>
       );
     },
     tablerow: ({ node, nodesToJSX }) => (
-      <TableRow className="even:bg-muted">
+      <TableRow className="border-b border-border even:bg-muted hover:bg-accent/40">
         {nodesToJSX({ nodes: node.children })}
       </TableRow>
     ),

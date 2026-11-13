@@ -59,11 +59,13 @@ export const Services: CollectionConfig = {
     {
       name: "technologies",
       type: "array",
+      admin: { initCollapsed: false },
       fields: [{ name: "technology", type: "text", required: true }],
     },
     {
       name: "deliverables",
       type: "array",
+      admin: { initCollapsed: false },
       fields: [{ name: "deliverable", type: "text", required: true }],
     },
     {

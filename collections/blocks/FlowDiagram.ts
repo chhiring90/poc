@@ -23,6 +23,7 @@ export const FlowDiagram: Block = {
       type: "array",
       minRows: 2,
       maxRows: 8,
+      admin: { initCollapsed: false },
       labels: {
         singular: "Step",
         plural: "Steps",
