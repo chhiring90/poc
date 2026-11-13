@@ -2,13 +2,30 @@ import {
   RichText,
   type JSXConvertersFunction,
 } from "@payloadcms/richtext-lexical/react";
-import type { DefaultTypedEditorState } from "@payloadcms/richtext-lexical";
+import type {
+  DefaultNodeTypes,
+  DefaultTypedEditorState,
+  SerializedBlockNode,
+} from "@payloadcms/richtext-lexical";
 import { SectionNavigation } from "@/components/layouts/rich-text/section-navigation";
+import {
+  CodeBlockRenderer,
+  FlowDiagramBlock,
+} from "@/components/layouts/rich-text/structured-blocks";
+import { ChartBlock } from "@/components/layouts/rich-text/chart-block";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@/components/ui/table";
 import { getRichTextHeadings } from "@/lib/helper/get-rich-text-headings.helper";
 
 type RichTextWithTableOfContentsProps = {
   content: DefaultTypedEditorState;
   className?: string;
+  showTableOfContents?: boolean;
 };
 
 const defaultClassName =
@@ -17,10 +34,43 @@ const defaultClassName =
 export function RichTextWithTableOfContents({
   content,
   className = defaultClassName,
+  showTableOfContents = true,
 }: RichTextWithTableOfContentsProps) {
   const { headings, headingIds } = getRichTextHeadings(content);
-  const converters: JSXConvertersFunction = ({ defaultConverters }) => ({
+  const converters: JSXConvertersFunction<
+    DefaultNodeTypes | SerializedBlockNode<{ blockType: string }>
+  > = ({ defaultConverters }) => ({
     ...defaultConverters,
+    table: ({ node, nodesToJSX }) => (
+      <div className="my-8 border-2 border-border">
+        <Table>
+          <TableBody>{nodesToJSX({ nodes: node.children })}</TableBody>
+        </Table>
+      </div>
+    ),
+    tablecell: ({ node, nodesToJSX }) => {
+      if (node.headerState > 0) {
+        return (
+          <TableHead
+            scope={node.headerState === 1 ? "row" : "col"}
+            className="whitespace-normal border-b border-border bg-muted font-bold [&_p]:mb-0"
+          >
+            {nodesToJSX({ nodes: node.children })}
+          </TableHead>
+        );
+      }
+
+      return (
+        <TableCell className="whitespace-normal [&_p]:mb-0">
+          {nodesToJSX({ nodes: node.children })}
+        </TableCell>
+      );
+    },
+    tablerow: ({ node, nodesToJSX }) => (
+      <TableRow className="even:bg-muted">
+        {nodesToJSX({ nodes: node.children })}
+      </TableRow>
+    ),
     heading: ({ node, nodesToJSX }) => {
       const Tag = node.tag;
 
@@ -30,17 +80,23 @@ export function RichTextWithTableOfContents({
         </Tag>
       );
     },
+    blocks: {
+      ...defaultConverters.blocks,
+      Code: ({ node }) => <CodeBlockRenderer node={node} />,
+      chart: ({ node }) => <ChartBlock node={node} />,
+      flowDiagram: ({ node }) => <FlowDiagramBlock node={node} />,
+    },
   });
 
   return (
     <div
       className={
-        headings.length > 0
+        showTableOfContents && headings.length > 0
           ? "flex flex-col gap-10 lg:flex-row-reverse lg:items-start lg:gap-16"
           : ""
       }
     >
-      {headings.length > 0 && (
+      {showTableOfContents && headings.length > 0 && (
         <aside className="w-full shrink-0 lg:sticky lg:top-28 lg:w-64">
           <SectionNavigation headings={headings} />
         </aside>

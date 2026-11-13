@@ -5,12 +5,13 @@ import { RichText } from "@payloadcms/richtext-lexical/react";
 import type { DefaultTypedEditorState } from "@payloadcms/richtext-lexical";
 import config from "@payload-config";
 import { Footer } from "@/components/layouts/home";
+import { RichTextWithTableOfContents } from "@/components/layouts/rich-text/rich-text-with-table-of-contents";
 
 type ServiceItem = {
   id: number | string;
   name: string;
   icon?: string | null;
-  description: string;
+  descriptionRichText: DefaultTypedEditorState;
   technologies?: { id?: string | null; technology: string }[] | null;
   deliverables?: { id?: string | null; deliverable: string }[] | null;
 };
@@ -84,9 +85,11 @@ export default async function Services() {
                       <h3 className="mb-3 font-display text-2xl font-bold text-foreground">
                         {item.name}
                       </h3>
-                      <p className="leading-relaxed text-muted-foreground">
-                        {item.description}
-                      </p>
+                      <RichTextWithTableOfContents
+                        content={item.descriptionRichText}
+                        showTableOfContents={false}
+                        className="leading-relaxed text-muted-foreground [&_p]:mb-3 [&_p:last-child]:mb-0 [&_a]:text-primary [&_a]:underline"
+                      />
                       {item.technologies && item.technologies.length > 0 && (
                         <div className="mt-4 flex flex-wrap gap-2">
                           {item.technologies.map(({ id, technology }) => (
