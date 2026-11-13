@@ -2,31 +2,15 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { getPayload } from "payload";
 import { RichText } from "@payloadcms/richtext-lexical/react";
-import type { DefaultTypedEditorState } from "@payloadcms/richtext-lexical";
 import config from "@payload-config";
 import { Footer } from "@/components/layouts/home";
-
-type ServiceItem = {
-  id: number | string;
-  name: string;
-  icon?: string | null;
-  description: string;
-  technologies?: { id?: string | null; technology: string }[] | null;
-  deliverables?: { id?: string | null; deliverable: string }[] | null;
-};
-
-type FAQItem = {
-  id: number | string;
-  question: string;
-  ans: DefaultTypedEditorState;
-};
-
-type ServicesPageData = {
-  heading?: string | null;
-  subheading?: string | null;
-  description?: string | null;
-  services?: ServiceItem[] | null;
-};
+import { icons } from "lucide-react";
+import { getServiceHref } from "@/lib/helper/get-service-by-slug.helper";
+import type { FAQItem } from "@/lib/type/faq.type";
+import type {
+  ServiceListItem,
+  ServicesPageData,
+} from "@/lib/type/service.type";
 
 export default async function Services() {
   await connection();
@@ -36,15 +20,16 @@ export default async function Services() {
     payload.find({ collection: "faqs", sort: "order", pagination: false }),
   ]);
   const { heading, subheading, description } = servicesPage as ServicesPageData;
-  const services = (servicesPage.services ?? []) as ServiceItem[];
+  const services = (servicesPage.services ?? []) as ServiceListItem[];
 
   return (
     <div className={`bg-background text-foreground min-h-screen`}>
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-5 lg:px-10 pt-36 pb-20">
         {subheading && (
-          <p className="mb-4 uppercase font-display text-2xl font-semibold text-primary">
-            // {subheading}
+          <p className="font-mono text-xs uppercase tracking-widest ${muted} mb-4 block">
+            {"// "}
+            {subheading}
           </p>
         )}
         <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-6">
@@ -62,68 +47,90 @@ export default async function Services() {
       {services.length > 0 && (
         <section className="max-w-7xl mx-auto px-5 lg:px-10 pb-28">
           <div className="space-y-5">
-            {services.map((service, i) => {
-              const item = service as ServiceItem;
-              return (
-                <div
-                  key={item.id}
-                  className="group rounded-none border border-border bg-card p-8 transition-all hover:border-primary/20"
-                >
-                  <div className="grid gap-8 md:grid-cols-3">
-                    <div className="md:col-span-2">
-                      <div className="mb-4 flex items-center gap-3">
-                        {item.icon && (
-                          <span className="text-2xl text-primary">
-                            {item.icon}
-                          </span>
-                        )}
-                        <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                      </div>
-                      <h3 className="mb-3 font-display text-2xl font-bold text-foreground">
-                        {item.name}
-                      </h3>
-                      <p className="leading-relaxed text-muted-foreground">
-                        {item.description}
-                      </p>
-                      {item.technologies && item.technologies.length > 0 && (
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {item.technologies.map(({ id, technology }) => (
-                            <span
-                              key={id ?? technology}
-                              className="rounded-none border border-border px-3 py-1 font-mono text-xs text-muted-foreground"
-                            >
-                              {technology}
+            {services.map(
+              ({
+                id,
+                name,
+                slug,
+                icon,
+                subtitle,
+                eyebrow,
+                technologies,
+                deliverables,
+              }) => {
+                const Icon = icons[icon as keyof typeof icons];
+                return (
+                  <div
+                    key={id}
+                    className="group rounded-none border border-border bg-card p-8 transition-all hover:border-primary/20"
+                  >
+                    <div className="grid gap-8 md:grid-cols-3">
+                      <div className="md:col-span-2">
+                        <div className="mb-4 flex items-center gap-3">
+                          {Icon && (
+                            <span className="text-2xl text-primary">
+                              <Icon />
                             </span>
-                          ))}
+                          )}
+                          {eyebrow && (
+                            <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                              {eyebrow}
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="mb-3 font-display text-2xl font-bold text-foreground">
+                          <Link
+                            href={getServiceHref(slug)}
+                            className="underline-offset-4 hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          >
+                            {name}
+                          </Link>
+                        </h3>
+                        {subtitle && (
+                          <p className="mb-3 text-lg text-muted-foreground">
+                            {subtitle}
+                          </p>
+                        )}
+
+                        {technologies && technologies.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {technologies.map(({ id, technology }) => (
+                              <span
+                                key={id ?? technology}
+                                className="rounded-none border border-border px-3 py-1 font-mono text-xs text-muted-foreground"
+                              >
+                                {technology}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {deliverables && deliverables.length > 0 && (
+                        <div>
+                          <p className="mb-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                            Deliverables
+                          </p>
+                          <ul className="space-y-2">
+                            {deliverables.map(({ id, deliverable }) => (
+                              <li
+                                key={id ?? deliverable}
+                                className="flex items-center gap-2 text-sm"
+                              >
+                                <span className="h-1 w-1 rounded-none bg-primary" />
+                                <span className="text-muted-foreground">
+                                  {deliverable}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       )}
                     </div>
-                    {item.deliverables && item.deliverables.length > 0 && (
-                      <div>
-                        <p className="mb-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                          Deliverables
-                        </p>
-                        <ul className="space-y-2">
-                          {item.deliverables.map(({ id, deliverable }) => (
-                            <li
-                              key={id ?? deliverable}
-                              className="flex items-center gap-2 text-sm"
-                            >
-                              <span className="h-1 w-1 rounded-none bg-primary" />
-                              <span className="text-muted-foreground">
-                                {deliverable}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                   </div>
-                </div>
-              );
-            })}
+                );
+              },
+            )}
           </div>
         </section>
       )}

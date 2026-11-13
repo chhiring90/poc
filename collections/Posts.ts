@@ -1,4 +1,12 @@
 import type { CollectionConfig } from "payload";
+import {
+  BlocksFeature,
+  CodeBlock,
+  EXPERIMENTAL_TableFeature,
+  lexicalEditor,
+} from "@payloadcms/richtext-lexical";
+import { Chart } from "./blocks/Chart";
+import { FlowDiagram } from "./blocks/FlowDiagram";
 
 export const Posts: CollectionConfig = {
   slug: "posts",
@@ -19,7 +27,19 @@ export const Posts: CollectionConfig = {
       relationTo: "categories",
       hasMany: true,
     },
-    { name: "content", type: "richText" },
+    {
+      name: "content",
+      type: "richText",
+      editor: lexicalEditor({
+        features: ({ defaultFeatures }) => [
+          ...defaultFeatures,
+          EXPERIMENTAL_TableFeature(),
+          BlocksFeature({
+            blocks: [CodeBlock(), Chart, FlowDiagram],
+          }),
+        ],
+      }),
+    },
     { name: "publishedAt", type: "date", admin: { position: "sidebar" } },
     {
       name: "author",
