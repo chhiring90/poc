@@ -19,11 +19,13 @@ export function Services({
         {"// expertise"}
       </span>
       <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-4">
-        Our expertise
+        Design and technology that help your business move forward with
+        confidence
       </h2>
       <p className={`text-lg text-muted-foreground mb-14 max-w-xl`}>
-        Everything you need to go from napkin sketch to a product your users
-        love.
+        We design and build websites, apps and platforms for businesses that
+        want to grow without the guesswork. Start with a clear plan, and we take
+        it from there.
       </p>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">

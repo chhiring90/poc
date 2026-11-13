@@ -5,15 +5,18 @@ import type { TextFieldClientComponent } from "payload";
 import { icons } from "lucide-react";
 
 const allNames = Object.keys(icons);
+const PAGE_SIZE = 60;
 
 export const IconPicker: TextFieldClientComponent = ({ field, path }) => {
   const { value, setValue } = useField<string>({ path });
   const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return allNames.filter((n) => n.toLowerCase().includes(q)).slice(0, 60);
+    return allNames.filter((n) => n.toLowerCase().includes(q));
   }, [query]);
+  const visibleResults = results.slice(0, visibleCount);
 
   const Selected = value ? icons[value as keyof typeof icons] : null;
 
@@ -46,7 +49,10 @@ export const IconPicker: TextFieldClientComponent = ({ field, path }) => {
         type="search"
         placeholder="Search icons..."
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setVisibleCount(PAGE_SIZE);
+        }}
         style={{
           width: "100%",
           padding: 8,
@@ -66,7 +72,7 @@ export const IconPicker: TextFieldClientComponent = ({ field, path }) => {
           overflowY: "auto",
         }}
       >
-        {results.map((name) => {
+        {visibleResults.map((name) => {
           const Icon = icons[name as keyof typeof icons];
           const active = name === value;
           return (
@@ -94,6 +100,31 @@ export const IconPicker: TextFieldClientComponent = ({ field, path }) => {
             </button>
           );
         })}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          marginTop: 8,
+        }}
+      >
+        <span>
+          Showing {visibleResults.length} of {results.length} icons
+        </span>
+        {visibleResults.length < results.length && (
+          <button
+            type="button"
+            onClick={() =>
+              setVisibleCount((count) =>
+                Math.min(count + PAGE_SIZE, results.length),
+              )
+            }
+          >
+            Show more
+          </button>
+        )}
       </div>
     </div>
   );

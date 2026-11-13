@@ -42,14 +42,15 @@ export default async function Services() {
     <div className={`bg-background text-foreground min-h-screen`}>
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-5 lg:px-10 pt-36 pb-20">
+        {subheading && (
+          <p className="mb-4 uppercase font-display text-2xl font-semibold text-primary">
+            // {subheading}
+          </p>
+        )}
         <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-6">
           {heading}
         </h1>
-        {subheading && (
-          <p className="mb-4 font-display text-2xl font-semibold text-primary">
-            {subheading}
-          </p>
-        )}
+
         {description && (
           <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
             {description}

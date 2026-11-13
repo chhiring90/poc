@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { iconField } from "../collections/fields/iconFields";
 
 export const Services: CollectionConfig = {
   slug: "services",
@@ -9,7 +10,7 @@ export const Services: CollectionConfig = {
   access: { read: () => true },
   fields: [
     { name: "name", type: "text", required: true },
-    { name: "icon", type: "text" },
+    iconField("icon"),
     { name: "description", type: "textarea", required: true },
     {
       name: "technologies",
