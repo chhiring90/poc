@@ -13,6 +13,7 @@ type Props = {
   gap?: number; // grid cell size (px)
   radius?: number; // radius of each wormhole (px)
   wormholes?: number; // how many wormholes are alive at once (max 6)
+  lightCount?: number; // number of moving light pulses (0..32)
   pull?: number; // 0..1 how hard the grid funnels into a wormhole
   swirl?: number; // radians of twist at a wormhole's centre
   spider?: boolean; // show the radioactive spider
@@ -23,6 +24,7 @@ type Props = {
 };
 
 const NH = 6; // max wormholes (shader array size)
+const MAX_LIGHTS = 32;
 
 const VERT = /* glsl */ `
   void main() {
@@ -36,11 +38,11 @@ const VERT = /* glsl */ `
 //    gap [a,b] (fraction along the segment) per segment. Strands taper off at
 //    the gap and pulses can't travel across it.
 //  - the spider's glowing abdomen lights the grid lines around it green
-const FRAG = /* glsl */ `
+const FRAG = (lightCount: number) => /* glsl */ `
   precision highp float;
 
   #define NH ${NH}
-  #define N 14
+  #define N ${lightCount}
 
   uniform vec2  uRes;
   uniform float uDpr;
@@ -1618,16 +1620,18 @@ type GL = {
 
 export function InteractiveGrid({
   gap = 40,
-  radius = 10,
-  wormholes = 3,
+  radius = 2,
+  wormholes = 0,
+  lightCount = 14,
   pull = 0.8,
   swirl = 0.9,
-  spider = true,
+  spider = false,
   spiderScale = 0.6,
-  tear = true,
+  tear = false,
   maxTears = 12,
   className = "",
 }: Props) {
+  const safeLightCount = clamp(Math.round(lightCount), 0, MAX_LIGHTS);
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const spiderCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -1695,7 +1699,7 @@ export function InteractiveGrid({
 
     const material = new THREE.ShaderMaterial({
       vertexShader: VERT,
-      fragmentShader: FRAG,
+      fragmentShader: FRAG(safeLightCount),
       uniforms,
       transparent: true,
       blending: THREE.NoBlending,
@@ -1775,7 +1779,17 @@ export function InteractiveGrid({
       renderer.dispose();
       gl.current = null;
     };
-  }, [gap, radius, wormholes, pull, swirl, spider, spiderScale, reduced]);
+  }, [
+    gap,
+    radius,
+    wormholes,
+    safeLightCount,
+    pull,
+    swirl,
+    spider,
+    spiderScale,
+    reduced,
+  ]);
 
   // Motion's frame loop: renders only while the hero is on screen
   useAnimationFrame((t, delta) => {

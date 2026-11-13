@@ -217,7 +217,7 @@ export function Nav({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 5, scale: 0.98 }}
                         transition={{ duration: 0.18, ease: "easeOut" }}
-                        className="absolute left-1/2 top-full mt-2 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-none border border-border bg-popover p-5 text-popover-foreground shadow-xl"
+                        className="absolute left-1/2 top-full mt-2 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-none border-[length:var(--border-width-default)] border-border bg-popover p-5 text-popover-foreground shadow-[var(--shadow-card)]"
                       >
                         <div
                           className="grid gap-6"

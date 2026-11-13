@@ -6,7 +6,6 @@ export async function Insights({
   posts = [],
   ctaLabel,
   ctaHref,
-  categories,
 }: {
   heading: string;
   subheading: string;
@@ -19,7 +18,6 @@ export async function Insights({
     author: { firstName: string; lastName: string };
     publishedAt: string;
   }[];
-  categories: { title: string }[];
   ctaLabel: string;
   ctaHref: string;
 }) {
@@ -46,7 +44,15 @@ export async function Insights({
 
       <div className="grid md:grid-cols-3 gap-6">
         {posts.map(
-          ({ title, slug, excerpt, coverImage, author, publishedAt }) => (
+          ({
+            title,
+            slug,
+            excerpt,
+            categories,
+            coverImage,
+            author,
+            publishedAt,
+          }) => (
             <Link
               key={slug}
               href={`/blogs/${slug ?? ""}`}
@@ -61,9 +67,20 @@ export async function Insights({
               </div>
               <div className="p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="px-2 py-0.5 rounded-none bg-primary/10 text-primary font-mono text-xs">
-                    {categories?.[0]?.title || "Uncategorized"}
-                  </span>
+                  {categories.length > 0 ? (
+                    categories.map((category) => (
+                      <span
+                        key={category.title}
+                        className="px-2 py-0.5 rounded-none bg-primary/10 text-primary font-mono text-xs"
+                      >
+                        {category.title}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-none bg-primary/10 text-primary font-mono text-xs">
+                      Uncategorized
+                    </span>
+                  )}
                   <span className={`text-xs text-muted-foreground font-mono`}>
                     5min read
                   </span>
