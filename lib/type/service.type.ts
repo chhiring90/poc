@@ -1,5 +1,5 @@
 import type { DefaultTypedEditorState } from "@payloadcms/richtext-lexical";
-import type { FAQGroupReference, FAQItem } from "@/lib/type/faq.type";
+import type { FAQGroupReference } from "@/lib/type/faq.type";
 import type { PackageReference } from "@/lib/type/package.type";
 
 export type ServiceListItem = {
@@ -14,11 +14,30 @@ export type ServiceListItem = {
   deliverables?: { id?: string | null; deliverable: string }[] | null;
 };
 
+export type ServiceTitledItem = {
+  id?: string | null;
+  title: string;
+  description?: string | null;
+  note?: string | null;
+};
+
+export type ServiceLink = { label?: string | null; url?: string | null };
+
 export type ServiceDocument = ServiceListItem & {
-  ctaButton?: { label?: string | null; url?: string | null } | null;
+  headline?: string | null;
+  reassurance?: string | null;
+  whyItMatters?: string | null;
+  startHere?: ServiceTitledItem[] | null;
+  process?: ServiceTitledItem[] | null;
+  capabilities?: ServiceTitledItem[] | null;
+  proof?: { client?: string | null; result?: string | null } | null;
+  closing?: {
+    heading?: string | null;
+    secondaryLink?: ServiceLink | null;
+  } | null;
+  ctaButton?: ServiceLink | null;
   package?: PackageReference;
   faqGroup?: FAQGroupReference;
-  faq?: FAQItem | number | string | null;
 };
 
 export type HomeExpertiseItem = {
