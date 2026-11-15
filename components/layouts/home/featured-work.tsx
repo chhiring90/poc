@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getRichTextPlainText } from "@/lib/helper/get-rich-text-plain-text.helper";
+import { isRecord } from "@/lib/helper/is-record.helper";
+import { SectionHeading, SectionLink } from "./section-heading";
 
 type WorkCategory = {
   title?: string | null;
@@ -36,10 +38,6 @@ type FeaturedWorkProps = {
   featuredWork?: FeaturedWorkData | null;
 };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
 function isWorkProject(value: unknown): value is WorkProject {
   return (
     isRecord(value) &&
@@ -56,30 +54,15 @@ export function FeaturedWork({ featuredWork }: FeaturedWorkProps) {
   if (!featuredWork || projects.length === 0) return null;
 
   return (
-    <section className="bg-muted/40 py-28">
-      <div className="mx-auto max-w-7xl px-5 lg:px-10">
-        <div className="mb-12 flex items-end justify-between gap-6">
-          <div>
-            {featuredWork.subtitle && (
-              <span className="mb-3 block font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                {featuredWork.subtitle}
-              </span>
-            )}
-            {featuredWork.title && (
-              <h2 className="font-display text-4xl font-bold tracking-tight md:text-5xl">
-                {featuredWork.title}
-              </h2>
-            )}
-          </div>
-          <Link
-            href="/works"
-            className="hidden items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary md:flex"
-          >
-            View all work →
-          </Link>
-        </div>
+    <section className="border-y-2 border-border bg-muted">
+      <div className="mx-auto max-w-7xl px-5 py-24 lg:px-10 lg:py-32">
+        <SectionHeading
+          label={featuredWork.subtitle}
+          title={featuredWork.title}
+          action={<SectionLink href="/works">View all work</SectionLink>}
+        />
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-2">
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}
@@ -99,56 +82,56 @@ function ProjectCard({ project }: { project: WorkProject }) {
       ? project.category.title
       : null;
   const description = getRichTextPlainText(project.description);
+  const technologies = project.technologies ?? [];
 
   return (
     <Link
       href={`/works/${project.slug}`}
-      className="group overflow-hidden rounded-none border border-border bg-card text-left transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-2xl"
+      className="group flex flex-col border-2 border-border bg-card shadow-[var(--shadow-card)] transition-[transform,box-shadow] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0_var(--color-shadow)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
     >
-      <div className="relative h-56 overflow-hidden bg-neutral-900">
+      <div className="relative aspect-[16/10] overflow-hidden border-b-2 border-border bg-secondary">
         {image?.url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={image.url}
             alt={image.alt ?? project.title}
-            className="h-full w-full object-cover opacity-80 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
           />
         )}
-        <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
         {category && (
-          <div className="absolute bottom-4 left-4">
-            <span className="rounded-none border border-white/10 bg-black/50 px-2 py-1 font-mono text-xs text-white backdrop-blur-sm">
-              {category}
-            </span>
-          </div>
+          <span className="absolute left-4 top-4 border-2 border-border bg-background px-2 py-0.5 font-mono text-xs font-medium text-foreground">
+            {category}
+          </span>
         )}
       </div>
-      <div className="flex items-start justify-between gap-4 p-5">
-        <div>
-          {project.year && (
-            <p className="mb-1 font-mono text-xs text-muted-foreground">
-              {project.year}
-            </p>
-          )}
-          <h3 className="mb-1 font-display text-xl font-bold text-foreground">
+      <div className="flex flex-1 flex-col p-6">
+        <div className="flex items-baseline justify-between gap-4">
+          <h3 className="font-display text-2xl font-bold text-foreground">
             {project.title}
           </h3>
-          {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
-          )}
-          {(project.technologies ?? []).length > 0 && (
-            <ul className="mt-3 flex flex-wrap gap-2">
-              {project.technologies?.map(({ id, technology }) => (
-                <li
-                  key={id ?? technology}
-                  className="rounded-none border border-border px-2 py-1 font-mono text-xs text-muted-foreground"
-                >
-                  {technology}
-                </li>
-              ))}
-            </ul>
+          {project.year && (
+            <span className="font-mono text-sm text-muted-foreground">
+              {project.year}
+            </span>
           )}
         </div>
+        {description && (
+          <p className="mt-2 line-clamp-3 leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+        )}
+        {technologies.length > 0 && (
+          <ul className="mt-auto flex flex-wrap gap-2 pt-5">
+            {technologies.map(({ id, technology }) => (
+              <li
+                key={id ?? technology}
+                className="border border-border bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground"
+              >
+                {technology}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </Link>
   );

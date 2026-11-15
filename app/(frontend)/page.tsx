@@ -31,14 +31,14 @@ export default async function Home() {
   const featuredWork = home.featuredWork;
 
   return (
-    <div className="bg-background text-foreground transition-colors duration-300">
+    <div className="bg-background text-foreground">
       <Suspense fallback={<HeroSkeleton />}>
         <Hero {...home.hero} />
       </Suspense>
       <StackCarousel techStack={techStack} />
       {whoAreWe && <WhoAreWe {...whoAreWe} />}
       {featuredWork && <FeaturedWork featuredWork={featuredWork} />}
-      {expertise && <Services expertise={expertise} />}
+      <Services expertise={expertise} />
       <Process process={process} />
       {/* <TechStack techStack={techStack} /> */}
       <Testimonial testimonials={testimonials} />

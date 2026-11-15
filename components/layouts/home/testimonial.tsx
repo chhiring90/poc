@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 type Testimonial = {
   id: number | string;
@@ -54,10 +55,41 @@ export function Testimonial({ testimonials }: TestimonialProps) {
     <section
       aria-label="Testimonials"
       aria-roledescription="carousel"
-      className="overflow-hidden bg-card py-28"
+      className="overflow-hidden border-y-2 border-border bg-card"
     >
-      <div className="mx-auto max-w-7xl px-5 lg:px-10">
-        <div className="mx-auto max-w-3xl text-center">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] lg:gap-16 lg:px-10 lg:py-32">
+        <div className="flex items-start justify-between gap-6 lg:flex-col lg:justify-between">
+          <span
+            aria-hidden="true"
+            className="flex size-16 items-center justify-center border-2 border-border bg-primary pt-4 font-display text-6xl font-bold leading-none text-primary-foreground shadow-[var(--shadow-control)]"
+          >
+            &ldquo;
+          </span>
+          {testimonials.length > 1 && (
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => goToAdjacent(-1)}
+                aria-label="Previous testimonial"
+                className="flex size-11 items-center justify-center border-2 border-border bg-background shadow-[var(--shadow-control)] transition-[background-color,transform,box-shadow] hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+              >
+                <ArrowLeft aria-hidden="true" className="size-5" />
+              </button>
+              <span className="min-w-12 text-center font-mono text-sm tabular-nums text-muted-foreground">
+                {activeIndex + 1}/{testimonials.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => goToAdjacent(1)}
+                aria-label="Next testimonial"
+                className="flex size-11 items-center justify-center border-2 border-border bg-background shadow-[var(--shadow-control)] transition-[background-color,transform,box-shadow] hover:bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+              >
+                <ArrowRight aria-hidden="true" className="size-5" />
+              </button>
+            </div>
+          )}
+        </div>
+        <div>
           <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
               key={activeTestimonial.id}
@@ -101,23 +133,20 @@ export function Testimonial({ testimonials }: TestimonialProps) {
               aria-roledescription="slide"
               aria-label={`${activeIndex + 1} of ${testimonials.length}`}
             >
-              <div className="mb-8 font-mono text-4xl text-primary">
-                &ldquo;
-              </div>
-              <blockquote className="mb-10 font-display text-2xl font-medium leading-tight text-foreground md:text-3xl">
+              <blockquote className="mb-10 max-w-[34ch] text-balance font-display text-3xl font-bold leading-[1.15] tracking-tight text-foreground md:text-5xl">
                 {activeTestimonial.testimonial}
               </blockquote>
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center gap-4 border-t-2 border-border pt-6">
                 {photoUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={photoUrl}
                     alt={photoAlt ?? activeTestimonial.name}
-                    className="size-12 rounded-none border-2 border-primary/20 object-cover"
+                    className="size-12 border-2 border-border object-cover"
                   />
                 )}
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-foreground">
+                  <p className="font-semibold text-foreground">
                     {activeTestimonial.name}
                   </p>
                   <p className="font-mono text-sm text-muted-foreground">
