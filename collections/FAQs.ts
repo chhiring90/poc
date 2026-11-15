@@ -11,6 +11,12 @@ export const FAQs: CollectionConfig = {
     { name: "question", type: "text", required: true },
     { name: "ans", type: "richText", required: true },
     {
+      name: "group",
+      type: "relationship",
+      relationTo: "faq-groups",
+      admin: { position: "sidebar" },
+    },
+    {
       name: "order",
       type: "number",
       defaultValue: 0,

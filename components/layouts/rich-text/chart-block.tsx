@@ -46,6 +46,7 @@ type ChartSeries = {
   key: string;
   label: string;
   color: string;
+  pointColors: Record<string, string>;
 };
 type ChartRow = {
   label: string;
@@ -77,15 +78,51 @@ const pieColors = [
   "var(--chart-5)",
 ];
 
+const pointColorValues: Record<string, string> = {
+  auto: "",
+  chart1: pieColors[0],
+  chart2: pieColors[1],
+  chart3: pieColors[2],
+  chart4: pieColors[3],
+  chart5: pieColors[4],
+  primary: "var(--color-primary)",
+  accent: "var(--color-accent)",
+  info: "var(--color-info)",
+  success: "var(--color-success)",
+};
+
+type ChartPoint = {
+  label: string;
+  value: number;
+  color?: string;
+};
+
 function getString(value: unknown): string {
   return typeof value === "string" ? value : "";
+}
+
+function getColor(value: unknown): string | undefined {
+  let color = getString(value).trim();
+  if (color in pointColorValues) {
+    return pointColorValues[color] || undefined;
+  }
+  const hslVariable = color.match(/^hsl\(var\((--[\w-]+)\)\)$/i);
+  if (hslVariable) color = `var(${hslVariable[1]})`;
+  if (
+    /^#[\da-f]{3,8}$/i.test(color) ||
+    /^var\(--[\w-]+\)$/i.test(color) ||
+    /^(?:rgb|rgba|hsl|hsla)\([\d.%\s,/-]+\)$/i.test(color)
+  ) {
+    return color;
+  }
+  return undefined;
 }
 
 function getBoolean(value: unknown, fallback: boolean): boolean {
   return typeof value === "boolean" ? value : fallback;
 }
 
-function getPoints(value: unknown): { label: string; value: number }[] {
+function getPoints(value: unknown): ChartPoint[] {
   if (!Array.isArray(value)) return [];
 
   return value
@@ -96,6 +133,7 @@ function getPoints(value: unknown): { label: string; value: number }[] {
         typeof point.value === "number" && Number.isFinite(point.value)
           ? point.value
           : 0,
+      color: getColor(point.color),
     }))
     .filter((point) => point.label);
 }
@@ -117,6 +155,11 @@ function getChartData(
         color:
           seriesColors[getString(item.color)] ??
           pieColors[index % pieColors.length],
+        pointColors: Object.fromEntries(
+          points.flatMap((point) =>
+            point.color ? [[point.label, point.color]] : [],
+          ),
+        ),
         points,
       };
     })
@@ -127,7 +170,18 @@ function getChartData(
     const points = getPoints(fields.data);
     if (points.length === 0) return { series: [], rows: [] };
     return {
-      series: [{ key: "value", label: valueLabel, color: fallbackColor }],
+      series: [
+        {
+          key: "value",
+          label: valueLabel,
+          color: fallbackColor,
+          pointColors: Object.fromEntries(
+            points.flatMap((point) =>
+              point.color ? [[point.label, point.color]] : [],
+            ),
+          ),
+        },
+      ],
       rows: points.map(({ label, value }) => ({ label, value })),
     };
   }
@@ -184,6 +238,8 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
   const fields = node.fields;
   const title = getString(fields.title);
   const description = getString(fields.description);
+  const source = getString(fields.source);
+
   const requestedChartType = getString(fields.chartType);
   const chartType: ChartType = [
     "line",
@@ -213,8 +269,7 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
     Number.isInteger(fields.decimalPlaces)
       ? Math.min(6, Math.max(0, fields.decimalPlaces))
       : 2;
-  const color =
-    singleColors[getString(fields.color)] ?? singleColors.primary;
+  const color = singleColors[getString(fields.color)] ?? singleColors.primary;
   const showGrid = getBoolean(fields.showGrid, true);
   const showLegend = getBoolean(fields.showLegend, true);
   const showDataTable = getBoolean(fields.showDataTable, true);
@@ -233,41 +288,42 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
             typeof row[pieSeries.key] === "number"
               ? (row[pieSeries.key] as number)
               : 0,
-          fill: pieColors[index % pieColors.length],
+          fill:
+            pieSeries.pointColors[row.label] ??
+            pieColors[index % pieColors.length],
         }))
         .filter((point) => point.value >= 0)
     : [];
-  const radialRows: ChartRow[] = rows.map((row): ChartRow => ({
-    label: row.label,
-    ...Object.fromEntries(
-      series.flatMap((item) => {
-        const value = row[item.key];
-        return typeof value === "number" && value >= 0
-          ? [[item.key, value]]
-          : [];
-      }),
-    ),
-  }));
+  const radialRows: ChartRow[] = rows.map(
+    (row): ChartRow => ({
+      label: row.label,
+      ...Object.fromEntries(
+        series.flatMap((item) => {
+          const value = row[item.key];
+          return typeof value === "number" && value >= 0
+            ? [[item.key, value]]
+            : [];
+        }),
+      ),
+    }),
+  );
   const canRenderChart =
     rows.length > 0 &&
     (chartType === "pie" || chartType === "donut"
       ? piePoints.some((point) => point.value > 0)
       : chartType === "radialBar"
         ? series.some((item) =>
-          radialRows.some((row) => {
-            const value = row[item.key];
-            return typeof value === "number" && value > 0;
-          }),
+            radialRows.some((row) => {
+              const value = row[item.key];
+              return typeof value === "number" && value > 0;
+            }),
           )
         : true);
 
   if (!title || rows.length === 0 || series.length === 0) return null;
 
   const chartConfig = Object.fromEntries(
-    series.map((item) => [
-      item.key,
-      { label: item.label, color: item.color },
-    ]),
+    series.map((item) => [item.key, { label: item.label, color: item.color }]),
   ) satisfies ChartConfig;
   const tooltipFormatter = (value: unknown) =>
     formatValue(value, format, currencyCode, prefix, suffix, decimalPlaces);
@@ -275,11 +331,7 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
     <Tooltip
       content={
         <ChartTooltipContent
-          nameKey={
-            ["pie", "donut"].includes(chartType)
-              ? "label"
-              : undefined
-          }
+          nameKey={["pie", "donut"].includes(chartType) ? "label" : undefined}
           formatter={(value) => tooltipFormatter(value)}
         />
       }
@@ -308,6 +360,9 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
         </h3>
         {description && (
           <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+        )}
+        {source && (
+          <p className="mt-2 text-xs text-muted-foreground">{source}</p>
         )}
       </figcaption>
 
@@ -346,7 +401,11 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
               startAngle={90}
               endAngle={-270}
             >
-              <PolarAngleAxis type="number" domain={[0, "dataMax"]} tick={false} />
+              <PolarAngleAxis
+                type="number"
+                domain={[0, "dataMax"]}
+                tick={false}
+              />
               {showTooltip && tooltip}
               {series.map((item) => (
                 <RadialBar
@@ -360,21 +419,33 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
                     rows.map((row, index) => (
                       <Cell
                         key={`${row.label}-${index}`}
-                        fill={pieColors[index % pieColors.length]}
+                        fill={
+                          item.pointColors[row.label] ??
+                          pieColors[index % pieColors.length]
+                        }
+                      />
+                    ))}
+                  {series.length > 1 &&
+                    rows.map((row, index) => (
+                      <Cell
+                        key={`${row.label}-${index}`}
+                        fill={item.pointColors[row.label] ?? item.color}
                       />
                     ))}
                 </RadialBar>
               ))}
               {showLegend && series.length > 1 && (
                 <Legend
-                  content={
-                    <ChartLegendContent className="text-foreground" />
-                  }
+                  content={<ChartLegendContent className="text-foreground" />}
                 />
               )}
             </RadialBarChart>
           ) : chartType === "line" ? (
-            <LineChart accessibilityLayer data={rows}>
+            <LineChart
+              accessibilityLayer
+              data={rows}
+              margin={{ bottom: xAxisLabel ? 16 : 0 }}
+            >
               {showGrid && <CartesianGrid vertical={false} />}
               <XAxis
                 dataKey="label"
@@ -411,9 +482,7 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
               {showTooltip && tooltip}
               {showLegend && (
                 <Legend
-                  content={
-                    <ChartLegendContent className="text-foreground" />
-                  }
+                  content={<ChartLegendContent className="text-foreground" />}
                 />
               )}
               {series.map((item) => (
@@ -430,7 +499,11 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
               ))}
             </LineChart>
           ) : chartType === "area" ? (
-            <AreaChart accessibilityLayer data={rows}>
+            <AreaChart
+              accessibilityLayer
+              data={rows}
+              margin={{ bottom: xAxisLabel ? 16 : 0 }}
+            >
               <defs>
                 {series.map((item) => (
                   <linearGradient
@@ -441,8 +514,16 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor={item.color} stopOpacity={0.4} />
-                    <stop offset="95%" stopColor={item.color} stopOpacity={0.04} />
+                    <stop
+                      offset="5%"
+                      stopColor={item.color}
+                      stopOpacity={0.4}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={item.color}
+                      stopOpacity={0.04}
+                    />
                   </linearGradient>
                 ))}
               </defs>
@@ -482,9 +563,7 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
               {showTooltip && tooltip}
               {showLegend && (
                 <Legend
-                  content={
-                    <ChartLegendContent className="text-foreground" />
-                  }
+                  content={<ChartLegendContent className="text-foreground" />}
                 />
               )}
               {series.map((item) => (
@@ -501,7 +580,11 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
               ))}
             </AreaChart>
           ) : (
-            <BarChart accessibilityLayer data={rows}>
+            <BarChart
+              accessibilityLayer
+              data={rows}
+              margin={{ bottom: xAxisLabel ? 16 : 0 }}
+            >
               {showGrid && <CartesianGrid vertical={false} />}
               <XAxis
                 dataKey="label"
@@ -538,9 +621,7 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
               {showTooltip && tooltip}
               {showLegend && (
                 <Legend
-                  content={
-                    <ChartLegendContent className="text-foreground" />
-                  }
+                  content={<ChartLegendContent className="text-foreground" />}
                 />
               )}
               {series.map((item) => (
@@ -552,6 +633,12 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
                   radius={0}
                   stackId={stacked ? "stacked" : undefined}
                 >
+                  {rows.map((row, index) => (
+                    <Cell
+                      key={`${row.label}-${index}`}
+                      fill={item.pointColors[row.label] ?? item.color}
+                    />
+                  ))}
                   {showDataLabels && (
                     <LabelList
                       dataKey={item.key}
@@ -615,15 +702,10 @@ export function ChartBlock({ node }: { node: ChartBlockNode }) {
             {rows.map((row, index) => (
               <TableRow key={`${row.label}-${index}`}>
                 <TableCell>
-                  <span className="flex items-center gap-2">
-                    {row.label}
-                  </span>
+                  <span className="flex items-center gap-2">{row.label}</span>
                 </TableCell>
                 {series.map((item) => (
-                  <TableCell
-                    key={item.key}
-                    className="text-right tabular-nums"
-                  >
+                  <TableCell key={item.key} className="text-right tabular-nums">
                     {typeof row[item.key] === "number"
                       ? formatValue(
                           row[item.key],

@@ -14,6 +14,8 @@ import {
   WorkCategories,
   Services,
   FAQs,
+  FAQGroups,
+  Packages,
 } from "./collections";
 import {
   Home,
@@ -53,6 +55,8 @@ export default buildConfig({
     WorkCategories,
     Services,
     FAQs,
+    FAQGroups,
+    Packages,
   ],
   globals: [
     Header,

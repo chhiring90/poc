@@ -1,4 +1,6 @@
 import type { DefaultTypedEditorState } from "@payloadcms/richtext-lexical";
+import type { FAQGroupReference, FAQItem } from "@/lib/type/faq.type";
+import type { PackageReference } from "@/lib/type/package.type";
 
 export type ServiceListItem = {
   id: number | string;
@@ -14,6 +16,9 @@ export type ServiceListItem = {
 
 export type ServiceDocument = ServiceListItem & {
   ctaButton?: { label?: string | null; url?: string | null } | null;
+  package?: PackageReference;
+  faqGroup?: FAQGroupReference;
+  faq?: FAQItem | number | string | null;
 };
 
 export type HomeExpertiseItem = {

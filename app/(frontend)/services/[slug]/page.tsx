@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { getPayload } from "payload";
 import { icons } from "lucide-react";
+import { RichText } from "@payloadcms/richtext-lexical/react";
 import config from "@payload-config";
 import { Footer } from "@/components/layouts/home";
 import { RichTextWithTableOfContents } from "@/components/layouts/rich-text/rich-text-with-table-of-contents";
@@ -66,6 +67,51 @@ export default async function ServiceDetail({
           </article>
 
           <aside className="space-y-6">
+            {service.package && typeof service.package === "object" && (
+              <Card className="rounded-none border-2 border-border py-0 shadow-[var(--shadow-card)] ring-0">
+                <CardHeader className="border-b-2 border-border px-5 py-4">
+                  <CardTitle className="font-mono text-xs font-bold uppercase tracking-widest text-foreground">
+                    Package
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 px-5 py-5">
+                  <div>
+                    <h2 className="font-display text-xl font-bold">
+                      {service.package.name}
+                    </h2>
+                    {service.package.description && (
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {service.package.description}
+                      </p>
+                    )}
+                  </div>
+                  {service.package.price && (
+                    <p className="border-y-2 border-border py-3 font-mono text-lg font-bold text-primary">
+                      {service.package.price}
+                    </p>
+                  )}
+                  {service.package.features &&
+                    service.package.features.length > 0 && (
+                      <ul className="space-y-2">
+                        {service.package.features.map(
+                          ({ id, feature }, index) => (
+                            <li
+                              key={id ?? `${feature}-${index}`}
+                              className="flex gap-2 text-sm text-muted-foreground"
+                            >
+                              <span aria-hidden="true" className="text-primary">
+                                +
+                              </span>
+                              <span>{feature}</span>
+                            </li>
+                          ),
+                        )}
+                      </ul>
+                    )}
+                </CardContent>
+              </Card>
+            )}
+
             {service.deliverables && service.deliverables.length > 0 && (
               <Card className="rounded-none border-2 border-border py-0 shadow-[var(--shadow-card)] ring-0">
                 <CardHeader className="border-b-2 border-border px-5 py-4">
@@ -107,6 +153,24 @@ export default async function ServiceDetail({
                       {technology}
                     </Badge>
                   ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {service.faq && typeof service.faq === "object" && (
+              <Card className="rounded-none border-2 border-border py-0 shadow-[var(--shadow-card)] ring-0">
+                <CardHeader className="border-b-2 border-border px-5 py-4">
+                  <CardTitle className="font-mono text-xs font-bold uppercase tracking-widest text-foreground">
+                    FAQ
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 px-5 py-5">
+                  <h2 className="font-semibold leading-snug text-foreground">
+                    {service.faq.question}
+                  </h2>
+                  <div className="text-sm leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-3 [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-5">
+                    <RichText data={service.faq.ans} />
+                  </div>
                 </CardContent>
               </Card>
             )}
