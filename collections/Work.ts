@@ -1,3 +1,4 @@
+import { seoField } from "./fields/seo";
 import type { CollectionConfig } from "payload";
 
 export const Work: CollectionConfig = {
@@ -26,5 +27,6 @@ export const Work: CollectionConfig = {
       type: "array",
       fields: [{ name: "technology", type: "text", required: true }],
     },
+    seoField(),
   ],
 };

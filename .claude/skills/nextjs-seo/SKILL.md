@@ -13,6 +13,22 @@ This is **Next.js 16** (App Router). Its APIs differ from older versions: `param
 
 Public routes live in `app/(frontend)/`. The Payload admin is in `app/(payload)/` and must never be indexed.
 
+## Already built: use these, don't rebuild them
+
+| Piece | Where | Use |
+|---|---|---|
+| SEO fields in the CMS | `collections/fields/seo.ts` | `seoField()` (group) or `seoTab()` (for tabbed configs). Gives editors title, description, share image and "hide from search". Add it to every new collection or global that has a public page. |
+| Site-wide settings | `globals/SiteSettings.ts` → `getSiteSettings()` in `lib/seo/get-site-settings.ts` | Site name, default description and image, locale, X handle, organization details, indexing switch, verification codes. Request-cached. |
+| Page metadata | `buildPageMetadata()` in `lib/seo/build-metadata.ts` | Order of precedence: CMS `seo` group, then page content, then site defaults. Sets canonical, Open Graph, Twitter and noindex. Pass `article` for posts and `noIndex: true` for drafts. |
+| Global-backed pages | `buildGlobalPageMetadata()` in `lib/seo/global-page-metadata.ts` | For listing pages whose content is a global. Give it the global slug, path, title and description fields, and a `fallbackTitle`. |
+| Parsing helpers | `lib/seo/parse.ts` | `parseSeo`, `parseMedia`, `toPlainText` (strips `*highlight*`), `truncate` (word boundary). |
+| Site URL | `lib/seo/site-url.ts` | `getSiteUrl()`, `absoluteUrl(path)`. |
+| Fallback share image | `app/og/route.tsx` | `/og?title=…`. `buildPageMetadata` uses it automatically when no image exists. |
+| Structured data | `lib/seo/json-ld.ts` + `<JsonLd>` in `components/seo/json-ld.tsx` | Organization, WebSite, Service, FAQPage, BlogPosting, CreativeWork, BreadcrumbList. |
+| robots / sitemap | `app/robots.ts`, `app/sitemap.ts` | Respect the CMS indexing switch, `VERCEL_ENV`, drafts and per-page `noIndex`. Add new collections to `COLLECTION_PAGES` or `STATIC_PAGES` in the sitemap. |
+
+The rest of this skill explains the rules these pieces follow.
+
 ## 1. Site-wide defaults (root layout)
 
 `app/(frontend)/layout.tsx` should export this. Check that it does before adding per-page metadata.

@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { iconField } from "@/collections/fields";
 
 export const Header: GlobalConfig = {
   slug: "header",
@@ -63,7 +64,14 @@ export const Header: GlobalConfig = {
                 { name: "label", type: "text", required: true },
                 { name: "url", type: "text", required: true },
                 { name: "description", type: "text" },
-                { name: "icon", type: "upload", relationTo: "media" },
+                {
+                  ...iconField("icon"),
+                  admin: {
+                    ...iconField("icon").admin,
+                    description:
+                      "Shown beside the link in the dropdown. Pick from the icon library.",
+                  },
+                },
               ],
               admin: {
                 components: {

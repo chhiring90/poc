@@ -7,3 +7,4 @@ export { Home } from "./Home";
 export { ServicesPage } from "./Services";
 export { LegalPolicies } from "./LegalPolicies";
 export { Footer } from "./Footer";
+export { SiteSettings } from "./SiteSettings";

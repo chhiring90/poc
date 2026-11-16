@@ -1,3 +1,4 @@
+import { seoField } from "@/collections/fields/seo";
 import type { GlobalConfig } from "payload";
 import { iconField } from "@/collections/fields";
 
@@ -63,5 +64,6 @@ export const About: GlobalConfig = {
         },
       ],
     },
+    seoField(),
   ],
 };

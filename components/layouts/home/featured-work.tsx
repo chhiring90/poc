@@ -95,7 +95,7 @@ function ProjectCard({ project }: { project: WorkProject }) {
           <img
             src={image.url}
             alt={image.alt ?? project.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
           />
         )}
         {category && (

@@ -1,3 +1,4 @@
+import { seoField } from "@/collections/fields/seo";
 import { iconField } from "@/collections/fields";
 import type { GlobalConfig } from "payload";
 
@@ -114,5 +115,6 @@ export const ContactPage: GlobalConfig = {
         { name: "signature", type: "text" },
       ],
     },
+    seoField(),
   ],
 };

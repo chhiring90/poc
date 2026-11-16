@@ -38,6 +38,8 @@ export type ServiceDocument = ServiceListItem & {
   ctaButton?: ServiceLink | null;
   package?: PackageReference;
   faqGroup?: FAQGroupReference;
+  /** Raw `seo` group; read with parseSeo(). */
+  seo?: unknown;
 };
 
 export type HomeExpertiseItem = {

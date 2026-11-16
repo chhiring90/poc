@@ -9,6 +9,8 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layouts/home/header";
 import { ThemeProvider } from "@/components/theme-provider";
+import { getSiteSettings, isIndexingAllowed } from "@/lib/seo/get-site-settings";
+import { getSiteUrl } from "@/lib/seo/site-url";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -30,10 +32,48 @@ const jetBrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "POC Tech",
-  description: "Web Agency",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  const indexable = isIndexingAllowed(settings);
+  const homeTitle = settings.defaultTitle ?? settings.siteName;
+
+  return {
+    metadataBase: new URL(getSiteUrl()),
+    applicationName: settings.siteName,
+    title: { default: homeTitle, template: `%s | ${settings.siteName}` },
+    description: settings.defaultDescription ?? undefined,
+    openGraph: {
+      type: "website",
+      siteName: settings.siteName,
+      locale: settings.locale,
+    },
+    twitter: {
+      card: "summary_large_image",
+      ...(settings.twitterHandle
+        ? { site: settings.twitterHandle, creator: settings.twitterHandle }
+        : {}),
+    },
+    robots: indexable
+      ? {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+            "max-video-preview": -1,
+          },
+        }
+      : { index: false, follow: false },
+    verification: {
+      google: settings.verification.google ?? undefined,
+      ...(settings.verification.bing
+        ? { other: { "msvalidate.01": settings.verification.bing } }
+        : {}),
+    },
+  };
+}
 
 export default function RootLayout({
   children,
@@ -42,7 +82,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="en-GB"
       suppressHydrationWarning
       className={cn(
         "h-full",

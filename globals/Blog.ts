@@ -1,3 +1,4 @@
+import { seoField } from "@/collections/fields/seo";
 import type { GlobalConfig } from "payload";
 
 export const BlogPage: GlobalConfig = {
@@ -48,5 +49,6 @@ export const BlogPage: GlobalConfig = {
         },
       ],
     },
+    seoField(),
   ],
 };

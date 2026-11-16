@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
 import Link from "next/link";
 import { connection } from "next/server";
 import config from "@payload-config";
@@ -16,6 +18,16 @@ type BlogPageProps = {
 };
 
 const POSTS_PER_PAGE = 7;
+
+export function generateMetadata(): Promise<Metadata> {
+  return buildGlobalPageMetadata({
+    global: "blogPage",
+    path: "/blogs",
+    titleFields: ["heading"],
+    descriptionFields: ["description", "subheading"],
+    fallbackTitle: "Blog",
+  });
+}
 
 export default async function Blog({ searchParams }: BlogPageProps) {
   await connection();

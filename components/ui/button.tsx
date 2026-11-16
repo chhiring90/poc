@@ -9,11 +9,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "border-[length:var(--border-width-default)] border-foreground bg-primary text-primary-foreground shadow-[var(--shadow-control)] hover:bg-primary/90 active:translate-x-[3px] active:translate-y-[3px] active:shadow-none",
+          "border-[length:var(--border-width-default)] border-foreground bg-primary text-primary-foreground shadow-[var(--shadow-control)] hover:bg-primary/90 active:translate-x-[3px] active:translate-y-[3px] active:shadow-none active:duration-0",
         secondary:
-          "border-[length:var(--border-width-default)] border-foreground bg-secondary text-secondary-foreground shadow-[var(--shadow-control)] hover:bg-secondary/80 active:translate-x-[3px] active:translate-y-[3px] active:shadow-none",
+          "border-[length:var(--border-width-default)] border-foreground bg-secondary text-secondary-foreground shadow-[var(--shadow-control)] hover:bg-secondary/80 active:translate-x-[3px] active:translate-y-[3px] active:shadow-none active:duration-0",
         outline:
-          "border-[length:var(--border-width-default)] border-border bg-background shadow-[var(--shadow-control)] hover:bg-accent hover:text-accent-foreground active:translate-x-[3px] active:translate-y-[3px] active:shadow-none",
+          "border-[length:var(--border-width-default)] border-border bg-background shadow-[var(--shadow-control)] hover:bg-accent hover:text-accent-foreground active:translate-x-[3px] active:translate-y-[3px] active:shadow-none active:duration-0",
         ghost:
           "border-[length:var(--border-width-default)] border-transparent hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",

@@ -15,6 +15,8 @@ export type LegalPolicy = {
   summary?: string | null;
   content?: DefaultTypedEditorState | null;
   lastUpdated?: string | null;
+  /** Raw `seo` group; read with parseSeo(). */
+  seo?: unknown;
 };
 
 function toLegalPolicy(value: unknown): LegalPolicy | null {
@@ -38,6 +40,7 @@ function toLegalPolicy(value: unknown): LegalPolicy | null {
       typeof value.lastUpdated === "string" || value.lastUpdated === null
         ? value.lastUpdated
         : null,
+    seo: value.seo,
   };
 }
 

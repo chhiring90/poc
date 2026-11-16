@@ -1,3 +1,4 @@
+import { seoField } from "@/collections/fields/seo";
 import type { GlobalConfig } from "payload";
 
 export const WorkPage: GlobalConfig = {
@@ -39,5 +40,6 @@ export const WorkPage: GlobalConfig = {
         { name: "buttonUrl", type: "text", required: true },
       ],
     },
+    seoField(),
   ],
 };

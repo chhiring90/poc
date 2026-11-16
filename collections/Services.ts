@@ -6,6 +6,7 @@ import {
   lexicalEditor,
 } from "@payloadcms/richtext-lexical";
 import { iconField } from "../collections/fields/iconFields";
+import { seoTab } from "./fields/seo";
 import { Chart } from "./blocks/Chart";
 import { FlowDiagram } from "./blocks/FlowDiagram";
 
@@ -37,7 +38,7 @@ export const Services: CollectionConfig = {
   slug: "services",
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "order", "updatedAt"],
+    defaultColumns: ["name", "updatedAt", "eyebrow"],
   },
   access: { read: () => true },
   fields: [
@@ -85,7 +86,10 @@ export const Services: CollectionConfig = {
               name: "eyebrow",
               type: "text",
               required: true,
-              admin: { description: 'Small line above the headline, e.g. "Strategy and Roadmap".' },
+              admin: {
+                description:
+                  'Small line above the headline, e.g. "Strategy and Roadmap".',
+              },
             },
             {
               name: "headline",
@@ -100,13 +104,17 @@ export const Services: CollectionConfig = {
               label: "Plain line",
               type: "text",
               required: true,
-              admin: { description: "One plain sentence saying what the client gets." },
+              admin: {
+                description: "One plain sentence saying what the client gets.",
+              },
             },
             {
               name: "ctaButton",
               label: "Main button",
               type: "group",
-              admin: { description: "Used in the hero and the closing section." },
+              admin: {
+                description: "Used in the hero and the closing section.",
+              },
               fields: [
                 { name: "label", type: "text", required: true },
                 { name: "url", type: "text", required: true },
@@ -140,7 +148,8 @@ export const Services: CollectionConfig = {
                   name: "note",
                   type: "text",
                   admin: {
-                    description: 'Optional detail, e.g. "About one to two weeks".',
+                    description:
+                      'Optional detail, e.g. "About one to two weeks".',
                   },
                 },
               ],
@@ -235,6 +244,7 @@ export const Services: CollectionConfig = {
             },
           ],
         },
+        seoTab(),
       ],
     },
   ],

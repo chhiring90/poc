@@ -1,3 +1,4 @@
+import { seoField } from "./fields/seo";
 import type { CollectionConfig } from "payload";
 import {
   BlocksFeature,
@@ -48,5 +49,6 @@ export const Posts: CollectionConfig = {
       defaultValue: ({ user }) => user?.id,
       admin: { position: "sidebar" },
     },
+    seoField(),
   ],
 };

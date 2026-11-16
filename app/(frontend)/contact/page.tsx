@@ -1,9 +1,21 @@
+import type { Metadata } from "next";
+import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
 import { connection } from "next/server";
 import config from "@payload-config";
 import { getPayload } from "payload";
 import { Footer } from "@/components/layouts/home";
 import { ContactExperience } from "@/components/layouts/contact/contact-experience";
 import { getContactPageData } from "@/lib/helper/get-contact-page-data.helper";
+
+export function generateMetadata(): Promise<Metadata> {
+  return buildGlobalPageMetadata({
+    global: "contactPage",
+    path: "/contact",
+    titleFields: ["heading"],
+    descriptionFields: ["description"],
+    fallbackTitle: "Contact us",
+  });
+}
 
 export default async function Contact() {
   await connection();

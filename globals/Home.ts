@@ -1,3 +1,4 @@
+import { seoField } from "../collections/fields/seo";
 import type { GlobalConfig } from "payload";
 import { iconField } from "../collections/fields/iconFields";
 
@@ -131,5 +132,6 @@ export const Home: GlobalConfig = {
         { name: "ctaHref", type: "text", defaultValue: "/blogs" },
       ],
     },
+    seoField(),
   ],
 };

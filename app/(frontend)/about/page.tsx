@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
 import Link from "next/link";
 import config from "@payload-config";
 import { connection } from "next/server";
@@ -13,6 +15,17 @@ type TeamMember = {
   bio?: string | null;
   profile?: { url?: string | null } | number | string | null;
 };
+
+export function generateMetadata(): Promise<Metadata> {
+  return buildGlobalPageMetadata({
+    global: "about",
+    path: "/about",
+    titleFields: ["hero.heading"],
+    descriptionFields: ["hero.description"],
+    fallbackTitle: "About us",
+    imageField: "hero.image",
+  });
+}
 
 export default async function About() {
   await connection();
@@ -121,14 +134,14 @@ export default async function About() {
             return (
               <div
                 key={member.id ?? member.name}
-                className="group rounded-none border border-border bg-card p-6 transition-all hover:border-primary/20"
+                className="group rounded-none border border-border bg-card p-6 transition-colors hover:border-primary/20"
               >
                 {profile?.url && (
                   <div className="relative mb-4 overflow-hidden rounded-none">
                     <img
                       src={profile.url}
                       alt={member.name}
-                      className="h-48 w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                      className="h-48 w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
                   </div>
@@ -166,7 +179,7 @@ export default async function About() {
           </div>
           <Link
             href="/careers"
-            className="capitalize rounded-none border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary/40 hover:text-primary"
+            className="capitalize rounded-none border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:text-primary"
           >
             View openings
           </Link>

@@ -157,7 +157,7 @@ function WorkCard({ project }: { project: WorkProject }) {
   return (
     <Link
       href={`/works/${project.slug}`}
-      className="group block h-full overflow-hidden rounded-none border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/20"
+      className="group block h-full overflow-hidden rounded-none border border-border bg-card transition-[transform,border-color] hover:-translate-y-1 hover:border-primary/20"
     >
       <div className="relative h-52 overflow-hidden bg-muted">
         {image?.url ? (
@@ -165,7 +165,7 @@ function WorkCard({ project }: { project: WorkProject }) {
           <img
             src={image.url}
             alt={image.alt ?? project.title}
-            className="h-full w-full object-cover opacity-90 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
+            className="h-full w-full object-cover opacity-90 transition-[transform,opacity] duration-300 group-hover:scale-105 group-hover:opacity-100"
           />
         ) : (
           <div className="h-full w-full bg-linear-to-br from-primary/20 to-muted" />

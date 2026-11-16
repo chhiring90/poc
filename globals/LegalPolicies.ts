@@ -1,3 +1,4 @@
+import { seoField } from "@/collections/fields/seo";
 import type { GlobalConfig } from "payload";
 import {
   isValidPolicySlug,
@@ -110,6 +111,7 @@ export const LegalPolicies: GlobalConfig = {
         { name: "summary", type: "textarea" },
         { name: "content", type: "richText" },
         { name: "lastUpdated", type: "date" },
+        seoField(),
       ],
     },
     {

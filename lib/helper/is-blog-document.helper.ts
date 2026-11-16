@@ -26,6 +26,10 @@ export type BlogDocument = {
   coverImage?: BlogCoverImage | string | number | null;
   author?: BlogAuthor | string | number | null;
   categories?: (BlogCategory | string | number)[] | null;
+  /** Raw fields used for SEO; read `seo` with parseSeo(). */
+  seo?: unknown;
+  updatedAt?: string | null;
+  _status?: "draft" | "published" | null;
 };
 
 export function isBlogDocument(value: unknown): value is BlogDocument {

@@ -1,19 +1,24 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import config from "@payload-config";
 import { getPayload } from "payload";
 import { Footer } from "@/components/layouts/home";
 import { RichTextWithTableOfContents } from "@/components/layouts/rich-text/rich-text-with-table-of-contents";
+import { JsonLd } from "@/components/seo/json-ld";
+import { getRichTextPlainText } from "@/lib/helper/get-rich-text-plain-text.helper";
 import { isBlogDocument } from "@/lib/helper/is-blog-document.helper";
+import { isRecord } from "@/lib/helper/is-record.helper";
+import { buildPageMetadata } from "@/lib/seo/build-metadata";
+import { blogPostingJsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { parseMedia, parseSeo, truncate } from "@/lib/seo/parse";
 
-export default async function BlogArticle({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  await connection();
-  const { slug } = await params;
+type BlogPageProps = { params: Promise<{ slug: string }> };
+
+/** Raw post document, shared by generateMetadata and the page in one request. */
+const getPostBySlug = cache(async (slug: string) => {
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "posts",
@@ -21,10 +26,85 @@ export default async function BlogArticle({
     limit: 1,
     depth: 2,
   });
-  const candidate: unknown = docs[0];
+  const doc: unknown = docs[0];
+  return isRecord(doc) ? doc : null;
+});
 
-  if (!isBlogDocument(candidate)) notFound();
-  const post = candidate;
+function getPostSeoData(raw: Record<string, unknown>) {
+  if (!isBlogDocument(raw)) return null;
+  const author = isRecord(raw.author) ? raw.author : null;
+  const authorName = [author?.firstName, author?.lastName]
+    .filter((name): name is string => typeof name === "string" && !!name)
+    .join(" ");
+  const categories = (raw.categories ?? []).flatMap((category) =>
+    isRecord(category) && typeof category.title === "string"
+      ? [category.title]
+      : [],
+  );
+  const description =
+    raw.excerpt || truncate(getRichTextPlainText(raw.content), 300);
+
+  return {
+    post: raw,
+    authorName,
+    categories,
+    description,
+    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : null,
+    isDraft: raw._status === "draft",
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: BlogPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const raw = await getPostBySlug(slug);
+  const data = raw ? getPostSeoData(raw) : null;
+  if (!data) return {};
+
+  return buildPageMetadata({
+    path: `/blogs/${slug}`,
+    seo: data.post.seo,
+    title: data.post.title,
+    description: data.description,
+    image: data.post.coverImage,
+    noIndex: data.isDraft,
+    article: {
+      publishedTime: data.post.publishedAt,
+      modifiedTime: data.updatedAt,
+      authors: data.authorName ? [data.authorName] : undefined,
+      section: data.categories[0],
+      tags: data.categories,
+    },
+  });
+}
+
+export default async function BlogArticle({ params }: BlogPageProps) {
+  await connection();
+  const { slug } = await params;
+  const raw = await getPostBySlug(slug);
+  const seoData = raw ? getPostSeoData(raw) : null;
+
+  if (!seoData) notFound();
+  const post = seoData.post;
+  const path = `/blogs/${slug}`;
+  const jsonLd = [
+    blogPostingJsonLd({
+      title: post.title,
+      description: parseSeo(post.seo).description ?? seoData.description,
+      path,
+      image: parseMedia(post.coverImage)?.url,
+      publishedTime: post.publishedAt,
+      modifiedTime: seoData.updatedAt,
+      authorName: seoData.authorName,
+      section: seoData.categories[0],
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Blog", path: "/blogs" },
+      { name: post.title, path },
+    ]),
+  ];
   const author =
     typeof post.author === "object" && post.author !== null
       ? post.author
@@ -43,6 +123,7 @@ export default async function BlogArticle({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <JsonLd data={jsonLd} />
       <article className="mx-auto max-w-7xl px-5 pb-24 pt-36 lg:px-10">
         <Link
           href="/blogs"
@@ -68,7 +149,7 @@ export default async function BlogArticle({
           {authorName && <span>{authorName}</span>}
           {post.publishedAt && (
             <time dateTime={post.publishedAt}>
-              {new Date(post.publishedAt).toLocaleDateString("en-US", {
+              {new Date(post.publishedAt).toLocaleDateString("en-GB", {
                 month: "long",
                 day: "numeric",
                 year: "numeric",

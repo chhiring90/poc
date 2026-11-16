@@ -1,17 +1,24 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import config from "@payload-config";
+import { connection } from "next/server";
 import { getPayload } from "payload";
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import { Footer } from "@/components/layouts/home";
+import { JsonLd } from "@/components/seo/json-ld";
+import { getRichTextPlainText } from "@/lib/helper/get-rich-text-plain-text.helper";
+import { isRecord } from "@/lib/helper/is-record.helper";
 import { isWorkDocument } from "@/lib/helper/is-work-document.helper";
+import { buildPageMetadata } from "@/lib/seo/build-metadata";
+import { breadcrumbJsonLd, creativeWorkJsonLd } from "@/lib/seo/json-ld";
+import { parseMedia, parseSeo, truncate } from "@/lib/seo/parse";
 
-export default async function WorkCaseStudy({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+type WorkPageProps = { params: Promise<{ slug: string }> };
+
+/** Raw case study, shared by generateMetadata and the page in one request. */
+const getWorkBySlug = cache(async (slug: string) => {
   const payload = await getPayload({ config });
   const { docs } = await payload.find({
     collection: "works",
@@ -19,10 +26,58 @@ export default async function WorkCaseStudy({
     limit: 1,
     depth: 1,
   });
-  const candidate: unknown = docs[0];
+  const doc: unknown = docs[0];
+  return isRecord(doc) && isWorkDocument(doc) ? doc : null;
+});
 
-  if (!isWorkDocument(candidate)) notFound();
-  const project = candidate;
+function getCategoryTitle(category: unknown) {
+  return isRecord(category) && typeof category.title === "string"
+    ? category.title
+    : null;
+}
+
+export async function generateMetadata({
+  params,
+}: WorkPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getWorkBySlug(slug);
+  if (!project) return {};
+
+  return buildPageMetadata({
+    path: `/works/${slug}`,
+    seo: project.seo,
+    title: project.title,
+    description: truncate(getRichTextPlainText(project.description), 300),
+    image: project.coverImage,
+    noIndex: project._status === "draft",
+  });
+}
+
+export default async function WorkCaseStudy({ params }: WorkPageProps) {
+  await connection();
+  const { slug } = await params;
+  const project = await getWorkBySlug(slug);
+
+  if (!project) notFound();
+  const path = `/works/${slug}`;
+  const jsonLd = [
+    creativeWorkJsonLd({
+      title: project.title,
+      description:
+        parseSeo(project.seo).description ??
+        truncate(getRichTextPlainText(project.description), 300),
+      path,
+      image: parseMedia(project.coverImage)?.url,
+      year: project.year,
+      genre: getCategoryTitle(project.category),
+      keywords: (project.technologies ?? []).map(({ technology }) => technology),
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Work", path: "/works" },
+      { name: project.title, path },
+    ]),
+  ];
 
   const coverImage =
     typeof project.coverImage === "object" ? project.coverImage : null;
@@ -33,7 +88,8 @@ export default async function WorkCaseStudy({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto max-w-7xl px-5 pb-24 pt-36 lg:px-10">
+      <JsonLd data={jsonLd} />
+      <article className="mx-auto max-w-7xl px-5 pb-24 pt-36 lg:px-10">
         <Link
           href="/works"
           className="mb-10 inline-flex text-sm text-muted-foreground transition-colors hover:text-primary"
@@ -114,7 +170,7 @@ export default async function WorkCaseStudy({
             )}
           </div>
         </div>
-      </section>
+      </article>
       <Footer />
     </div>
   );

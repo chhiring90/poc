@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
 import Link from "next/link";
 import { connection } from "next/server";
 import config from "@payload-config";
@@ -17,6 +19,16 @@ type WorkProject = {
   description: string;
   coverImage?: { url?: string | null; alt?: string | null } | null;
 };
+
+export function generateMetadata(): Promise<Metadata> {
+  return buildGlobalPageMetadata({
+    global: "workPage",
+    path: "/works",
+    titleFields: ["heading"],
+    descriptionFields: ["description", "subheading"],
+    fallbackTitle: "Our work",
+  });
+}
 
 export default async function Work() {
   await connection();

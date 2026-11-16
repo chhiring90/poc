@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { getPayload } from "payload";
@@ -16,26 +17,83 @@ import { ServiceScope } from "@/components/layouts/service/service-scope";
 import { ServiceWhy } from "@/components/layouts/service/service-why";
 import { getFAQsByGroup } from "@/lib/helper/get-faqs-by-group.helper";
 import { getRichTextPlainText } from "@/lib/helper/get-rich-text-plain-text.helper";
-import { getServiceBySlug } from "@/lib/helper/get-service-by-slug.helper";
+import { getCachedServiceBySlug } from "@/lib/helper/get-service-by-slug.helper";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildPageMetadata } from "@/lib/seo/build-metadata";
+import { getSiteSettings } from "@/lib/seo/get-site-settings";
+import {
+  breadcrumbJsonLd,
+  faqPageJsonLd,
+  serviceJsonLd,
+} from "@/lib/seo/json-ld";
+import { parseSeo, truncate } from "@/lib/seo/parse";
 
-export default async function ServiceDetail({
+type ServicePageProps = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+}: ServicePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const service = await getCachedServiceBySlug(slug);
+  if (!service) return {};
+
+  return buildPageMetadata({
+    path: `/services/${slug}`,
+    seo: service.seo,
+    title: service.name,
+    description:
+      service.subtitle ||
+      getRichTextPlainText(service.descriptionRichText) ||
+      service.whyItMatters,
+  });
+}
+
+export default async function ServiceDetail({ params }: ServicePageProps) {
   await connection();
   const { slug } = await params;
-  const payload = await getPayload({ config });
-  const service = await getServiceBySlug(payload, slug);
+  const service = await getCachedServiceBySlug(slug);
   if (!service) notFound();
 
-  const faqs = await getFAQsByGroup(payload, service.faqGroup);
+  const payload = await getPayload({ config });
+  const [faqs, settings] = await Promise.all([
+    getFAQsByGroup(payload, service.faqGroup),
+    getSiteSettings(),
+  ]);
+  const path = `/services/${slug}`;
+  const pkg =
+    service.package && typeof service.package === "object"
+      ? service.package
+      : null;
+  const jsonLd = [
+    serviceJsonLd({
+      name: service.name,
+      description: truncate(
+        parseSeo(service.seo).description ?? service.subtitle,
+        300,
+      ),
+      path,
+      settings,
+      offer: pkg ? { name: pkg.name, price: pkg.price } : null,
+    }),
+    faqPageJsonLd(
+      faqs.map((faq) => ({
+        question: faq.question,
+        answer: getRichTextPlainText(faq.ans),
+      })),
+    ),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Services", path: "/services" },
+      { name: service.name, path },
+    ]),
+  ];
   const hasDescription =
     getRichTextPlainText(service.descriptionRichText).trim().length > 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <main>
+      <JsonLd data={jsonLd} />
+      <div>
         <ServiceHero service={service} />
         <ServiceWhy text={service.whyItMatters} />
         <ServiceRoute steps={service.process ?? []} />
@@ -57,7 +115,7 @@ export default async function ServiceDetail({
         )}
         <ServiceFAQ faqs={faqs} cta={service.ctaButton} />
         <ServiceClosing service={service} />
-      </main>
+      </div>
       <Footer />
     </div>
   );
