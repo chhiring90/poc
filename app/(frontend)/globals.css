@@ -45,6 +45,10 @@
 }
 
 @theme inline {
+  /* Hover/press feel: start fast, settle gently. Applies to every transition-* utility. */
+  --default-transition-duration: 160ms;
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--typeface-body);

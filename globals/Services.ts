@@ -1,3 +1,4 @@
+import { seoField } from "@/collections/fields/seo";
 import type { GlobalConfig } from "payload";
 
 export const ServicesPage: GlobalConfig = {
@@ -5,7 +6,7 @@ export const ServicesPage: GlobalConfig = {
   label: "Services Page",
   access: { read: () => true },
   fields: [
-    { name: "heading", type: "text", required: true },
+    { name: "heading", type: "text" },
     { name: "subheading", type: "text" },
     { name: "description", type: "textarea" },
     {
@@ -14,8 +15,10 @@ export const ServicesPage: GlobalConfig = {
       relationTo: "services",
       hasMany: true,
       admin: {
-        description: "Choose and order the services shown on the services page.",
+        description:
+          "Choose and order the services shown on the services page.",
       },
     },
+    seoField(),
   ],
 };

@@ -1,4 +1,6 @@
-import type { Payload } from "payload";
+import { cache } from "react";
+import config from "@payload-config";
+import { getPayload, type Payload } from "payload";
 import {
   SERVICE_COLLECTION_SLUG,
   SERVICES_ROUTE,
@@ -20,6 +22,11 @@ export async function getServiceBySlug(
 
   return isServiceDocument(service) ? service : null;
 }
+
+/** Request-cached lookup, shared by generateMetadata and the page. */
+export const getCachedServiceBySlug = cache(async (slug: string) =>
+  getServiceBySlug(await getPayload({ config }), slug),
+);
 
 export function getServiceHref(slug: string): string {
   return `${SERVICES_ROUTE}/${encodeURIComponent(slug)}`;

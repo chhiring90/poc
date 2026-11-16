@@ -5,6 +5,9 @@ import { connection } from "next/server";
 import { RichTextWithTableOfContents } from "@/components/layouts/rich-text/rich-text-with-table-of-contents";
 import { Footer } from "@/components/layouts/home";
 import { getLegalPolicies, getLegalPolicy } from "@/lib/legal-policy";
+import { getRichTextPlainText } from "@/lib/helper/get-rich-text-plain-text.helper";
+import { buildPageMetadata } from "@/lib/seo/build-metadata";
+import { truncate } from "@/lib/seo/parse";
 
 type LegalPolicyPageProps = {
   params: Promise<{ slug: string }>;
@@ -18,10 +21,13 @@ export async function generateMetadata({
   const policy = await getLegalPolicy(slug);
   if (!policy) notFound();
 
-  return {
+  return buildPageMetadata({
+    path: `/${policy.slug}`,
+    seo: policy.seo,
     title: policy.title,
-    description: policy.summary || `${policy.title} for POC Tech.`,
-  };
+    description:
+      policy.summary || truncate(getRichTextPlainText(policy.content), 300),
+  });
 }
 
 export default async function LegalPolicyPage({

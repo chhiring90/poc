@@ -16,6 +16,9 @@ export type WorkDocument = {
     | number
     | { url?: string | null; alt?: string | null }
     | null;
+  /** Raw fields read with parseSeo() / for draft checks. */
+  seo?: unknown;
+  _status?: "draft" | "published" | null;
 };
 
 export function isWorkDocument(value: unknown): value is WorkDocument {

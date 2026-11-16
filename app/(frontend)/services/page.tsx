@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getPayload } from "payload";
@@ -11,6 +13,16 @@ import type {
   ServiceListItem,
   ServicesPageData,
 } from "@/lib/type/service.type";
+
+export function generateMetadata(): Promise<Metadata> {
+  return buildGlobalPageMetadata({
+    global: "servicesPage",
+    path: "/services",
+    titleFields: ["heading"],
+    descriptionFields: ["description", "subheading"],
+    fallbackTitle: "Services",
+  });
+}
 
 export default async function Services() {
   await connection();
@@ -62,7 +74,7 @@ export default async function Services() {
                 return (
                   <div
                     key={id}
-                    className="group rounded-none border border-border bg-card p-8 transition-all hover:border-primary/20"
+                    className="group rounded-none border border-border bg-card p-8 transition-colors hover:border-primary/20"
                   >
                     <div className="grid gap-8 md:grid-cols-3">
                       <div className="md:col-span-2">
