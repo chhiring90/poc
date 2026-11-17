@@ -16,6 +16,7 @@ import {
   FAQs,
   FAQGroups,
   Packages,
+  ProcessSteps,
 } from "./collections";
 import {
   Home,
@@ -25,6 +26,7 @@ import {
   ContactPage,
   WorkPage,
   ServicesPage,
+  HowWeWorkPage,
   LegalPolicies,
   Footer,
   SiteSettings,
@@ -109,6 +111,7 @@ export default buildConfig({
     FAQs,
     FAQGroups,
     Packages,
+    ProcessSteps,
   ].map(withCollectionRevalidation),
   globals: [
     Header,
@@ -118,6 +121,7 @@ export default buildConfig({
     ContactPage,
     WorkPage,
     ServicesPage,
+    HowWeWorkPage,
     LegalPolicies,
     Footer,
     SiteSettings,

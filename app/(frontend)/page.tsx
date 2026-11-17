@@ -19,6 +19,7 @@ import {
   HeroSkeleton,
 } from "@/components/layouts/home";
 import { findGlobalCached } from "@/lib/cms/cache";
+import { getProcessSteps } from "@/lib/helper/get-process-steps.helper";
 import { Suspense } from "react";
 
 export function generateMetadata(): Promise<Metadata> {
@@ -32,14 +33,16 @@ export function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const [home, settings] = await Promise.all([
+  const [home, settings, processSteps] = await Promise.all([
     findGlobalCached("home", 2),
     getSiteSettings(),
+    getProcessSteps(),
   ]);
   const techStack = home.techstack ?? [];
   const [whoAreWe] = home.whoAreWe ?? [];
   const expertise = home.expertise ?? [];
-  const process = home.process ?? [];
+  // Shared Process Steps collection; the old home.process array is used until it has entries.
+  const process = processSteps.length > 0 ? processSteps : (home.process ?? []);
   const insights = home.insights ?? [];
   const testimonials = home.reviews ?? [];
   const featuredWork = home.featuredWork;

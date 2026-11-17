@@ -15,6 +15,8 @@ export type SiteSettings = {
   organization: {
     name: string;
     legalName: string | null;
+    companyNumber: string | null;
+    registeredIn: string | null;
     logo: SeoMedia | null;
     email: string | null;
     telephone: string | null;
@@ -85,6 +87,8 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
     organization: {
       name: text(organization.name) ?? siteName,
       legalName: text(organization.legalName),
+      companyNumber: text(organization.companyNumber),
+      registeredIn: text(organization.registeredIn),
       logo: parseMedia(organization.logo),
       email: text(organization.email),
       telephone: text(organization.telephone),

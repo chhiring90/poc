@@ -1,6 +1,7 @@
 type ProcessStep = {
-  id?: string | null;
-  step: string | number;
+  id?: number | string | null;
+  /** Legacy home.process field; numbering always follows list order. */
+  step?: string | number;
   title: string;
   description?: string | null;
 };

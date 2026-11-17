@@ -88,6 +88,10 @@ export const Home: GlobalConfig = {
     {
       name: "process",
       type: "array",
+      admin: {
+        description:
+          "Deprecated: add steps in the Process Steps collection instead. This list is only shown while that collection is empty.",
+      },
       fields: [
         { name: "step", type: "number", required: true },
         { name: "title", type: "text", required: true },

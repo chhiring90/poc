@@ -18,6 +18,7 @@ const STATIC_PAGES = [
   { path: "", global: "home", priority: 1 },
   { path: "/services", global: "servicesPage", priority: 0.9 },
   { path: "/works", global: "workPage", priority: 0.8 },
+  { path: "/how-we-work", global: "howWeWorkPage", priority: 0.7 },
   { path: "/about", global: "about", priority: 0.7 },
   { path: "/blogs", global: "blogPage", priority: 0.7 },
   { path: "/contact", global: "contactPage", priority: 0.6 },

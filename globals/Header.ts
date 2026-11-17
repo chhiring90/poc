@@ -17,7 +17,7 @@ export const Header: GlobalConfig = {
           label: "Logo for light theme",
           admin: {
             description:
-              "Used on light backgrounds. Recommended: transparent SVG or PNG, 600 x 150 px (4:1 ratio), under 1 MB. Rendered at up to 160 x 40 px. Add descriptive alt text to the media file.",
+              "Used on light backgrounds. Recommended: transparent SVG or PNG, 600 x 150 px (4:1 ratio), under 1 MB. Rendered 48 px tall on desktop (40 px on mobile), up to 224 px wide. Add descriptive alt text to the media file.",
           },
         },
         {
@@ -27,7 +27,7 @@ export const Header: GlobalConfig = {
           label: "Logo for dark theme",
           admin: {
             description:
-              "Used on dark backgrounds. Recommended: transparent SVG or PNG, 600 x 150 px (4:1 ratio), under 1 MB. Use the same canvas dimensions as the light-theme logo. Rendered at up to 160 x 40 px. Add descriptive alt text to the media file.",
+              "Used on dark backgrounds. Recommended: transparent SVG or PNG, 600 x 150 px (4:1 ratio), under 1 MB. Use the same canvas dimensions as the light-theme logo. Rendered 48 px tall on desktop (40 px on mobile), up to 224 px wide. Add descriptive alt text to the media file.",
           },
         },
       ],

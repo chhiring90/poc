@@ -4,6 +4,7 @@ import { Logo } from "@/components/ui/logo";
 import Link from "next/link";
 import { isRecord } from "@/lib/helper/is-record.helper";
 import { findGlobalCached } from "@/lib/cms/cache";
+import { getSiteSettings } from "@/lib/seo/get-site-settings";
 import { CMS_CACHE_TAG } from "@/lib/cms/cache-tag";
 
 type FooterLink = {
@@ -83,7 +84,32 @@ export async function Footer() {
   // year correct, and CMS edits still revalidate it immediately via the tag.
   cacheLife("days");
   cacheTag(CMS_CACHE_TAG);
-  const footer = await findGlobalCached("footer");
+  const [footer, settings] = await Promise.all([
+    findGlobalCached("footer"),
+    getSiteSettings(),
+  ]);
+  const { legalName, companyNumber, registeredIn, address } =
+    settings.organization;
+  const registeredOffice = [
+    address.streetAddress,
+    address.locality,
+    address.postalCode,
+  ]
+    .filter(Boolean)
+    .join(", ");
+  // Company details line, e.g. "Registered in England and Wales. Company number 12345678."
+  const companyDetails = [
+    registeredIn && companyNumber
+      ? `Registered in ${registeredIn}. Company number ${companyNumber}.`
+      : companyNumber
+        ? `Company number ${companyNumber}.`
+        : null,
+    companyNumber && registeredOffice
+      ? `Registered office: ${registeredOffice}.`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
   const columns =
     footer.columns && footer.columns.length > 0
       ? (footer.columns as FooterColumn[])
@@ -166,9 +192,13 @@ export async function Footer() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
-          <p className="font-mono text-xs text-muted-foreground">
-            © {new Date().getFullYear()} POC Ltd. All rights reserved.
-          </p>
+          <div className="space-y-1 text-center font-mono text-xs text-muted-foreground md:text-left">
+            <p>
+              © {new Date().getFullYear()} {legalName ?? "POC Ltd"}. All rights
+              reserved.
+            </p>
+            {companyDetails && <p>{companyDetails}</p>}
+          </div>
           <Link
             href="#"
             className="flex items-center gap-1 font-mono text-xs text-primary transition-colors hover:text-white"

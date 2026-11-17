@@ -21,7 +21,9 @@ const nextConfig: NextConfig = {
   turbopack: { root: __dirname },
   images: {
     remotePatterns: [
-      ...(mediaHost ? [{ protocol: "https" as const, hostname: mediaHost }] : []),
+      ...(mediaHost
+        ? [{ protocol: "https" as const, hostname: mediaHost }]
+        : []),
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
