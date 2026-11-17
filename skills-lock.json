@@ -7,6 +7,12 @@
       "skillPath": "skills/next-partial-prefetching-optimizer/SKILL.md",
       "computedHash": "375524a581dd70fa1e595699b82f4a554cf2c1c25833efd32fbeabfdb24d5719"
     },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
+      "computedHash": "e14e276241805c97dbcfe40dcbea1a3035269cc7293cac4b1832dda41a835e60"
+    },
     "vercel-optimize": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
