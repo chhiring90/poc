@@ -79,6 +79,8 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: requiredEnv("DATABASE_URL"),
+      max: 3,
+      idleTimeoutMillis: 10_000,
     },
   }),
   // If you want to resize images, crop, set focal point, etc.

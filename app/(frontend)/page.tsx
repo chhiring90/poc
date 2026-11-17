@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
 import { getSiteSettings } from "@/lib/seo/get-site-settings";
+import { getSiteUrl } from "@/lib/seo/site-url";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/json-ld";
 import {
   AISection,
@@ -62,7 +63,11 @@ export default async function Home() {
       {/* <TechStack techStack={techStack} /> */}
       <Testimonial testimonials={testimonials} />
       <Insights {...insights} />
-      <AISection />
+      <AISection
+        data={home.askAi}
+        company={settings.siteName}
+        website={getSiteUrl()}
+      />
       <ClosingCTA />
       <Footer />
     </div>
