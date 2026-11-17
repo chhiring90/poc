@@ -38,6 +38,34 @@ function requiredEnv(name: string): string {
   return value;
 }
 
+// Trims stray whitespace/quotes from a pasted connection string and fails with
+// a readable (password-free) message if it still isn't a valid postgres URL.
+function databaseUrl(): string {
+  const raw = requiredEnv("DATABASE_URL");
+  const value = raw
+    .trim()
+    .replace(/^['"]|['"]$/g, "")
+    .trim();
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error(
+      `DATABASE_URL is not a valid URL (length ${raw.length}, starts with "${raw.slice(0, 12)}…"). ` +
+        `Expected postgresql://user:password@host:port/db`,
+    );
+  }
+  if (!/^postgres(ql)?:$/.test(url.protocol) || !url.hostname) {
+    throw new Error(
+      `DATABASE_URL looks wrong: protocol="${url.protocol}" host="${url.hostname}"`,
+    );
+  }
+  console.info(
+    `[db] connecting to ${url.hostname}:${url.port || 5432} as ${decodeURIComponent(url.username)}`,
+  );
+  return value;
+}
+
 const r2PublicUrl = requiredEnv("R2_PUBLIC_URL").replace(/\/+$/, "");
 
 export default buildConfig({
@@ -78,7 +106,7 @@ export default buildConfig({
   // Mongoose is shown as an example, but you can also use Postgres
   db: postgresAdapter({
     pool: {
-      connectionString: requiredEnv("DATABASE_URL"),
+      connectionString: databaseUrl(),
       max: 3,
       idleTimeoutMillis: 10_000,
     },
