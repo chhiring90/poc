@@ -29,6 +29,10 @@ import {
   Footer,
   SiteSettings,
 } from "./globals";
+import {
+  withCollectionRevalidation,
+  withGlobalRevalidation,
+} from "./lib/cms/revalidate-hooks";
 
 function requiredEnv(name: string): string {
   const value = process.env[name];
@@ -105,7 +109,7 @@ export default buildConfig({
     FAQs,
     FAQGroups,
     Packages,
-  ],
+  ].map(withCollectionRevalidation),
   globals: [
     Header,
     Home,
@@ -117,7 +121,7 @@ export default buildConfig({
     LegalPolicies,
     Footer,
     SiteSettings,
-  ],
+  ].map(withGlobalRevalidation),
 
   // Your Payload secret - should be a complex and secure string, unguessable
   secret: requiredEnv("PAYLOAD_SECRET"),

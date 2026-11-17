@@ -5,7 +5,7 @@ import { iconField } from "../collections/fields/iconFields";
 export const Home: GlobalConfig = {
   slug: "home",
   admin: {
-    preview: ({ slug }) => "/",
+    preview: () => "/",
   },
   access: { read: () => true },
   fields: [

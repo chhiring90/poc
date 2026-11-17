@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -161,11 +162,12 @@ function WorkCard({ project }: { project: WorkProject }) {
     >
       <div className="relative h-52 overflow-hidden bg-muted">
         {image?.url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={image.url}
             alt={image.alt ?? project.title}
-            className="h-full w-full object-cover opacity-90 transition-[transform,opacity] duration-300 group-hover:scale-105 group-hover:opacity-100"
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover opacity-90 transition-[transform,opacity] duration-300 group-hover:scale-105 group-hover:opacity-100"
           />
         ) : (
           <div className="h-full w-full bg-linear-to-br from-primary/20 to-muted" />

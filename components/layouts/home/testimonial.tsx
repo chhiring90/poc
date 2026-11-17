@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -138,10 +139,11 @@ export function Testimonial({ testimonials }: TestimonialProps) {
               </blockquote>
               <div className="flex items-center gap-4 border-t-2 border-border pt-6">
                 {photoUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={photoUrl}
                     alt={photoAlt ?? activeTestimonial.name}
+                    width={48}
+                    height={48}
                     className="size-12 border-2 border-border object-cover"
                   />
                 )}

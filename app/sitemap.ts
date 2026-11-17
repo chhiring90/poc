@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
-import { connection } from "next/server";
 import config from "@payload-config";
-import { getPayload, type Payload, type Where } from "payload";
+import { cacheLife, cacheTag } from "next/cache";
+import { getPayload, type Where } from "payload";
+import { findGlobalCached } from "@/lib/cms/cache";
+import { CMS_CACHE_TAG } from "@/lib/cms/cache-tag";
 import { getLegalPolicies } from "@/lib/legal-policy";
 import { isRecord } from "@/lib/helper/is-record.helper";
 import {
@@ -29,28 +31,22 @@ const COLLECTION_PAGES = [
 ] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  await connection();
-
   const settings = await getSiteSettings();
   if (!isIndexingAllowed(settings)) return [];
 
   const siteUrl = getSiteUrl();
   const toUrl = (path: string) => new URL(path, siteUrl).toString();
-  const payload = await getPayload({ config });
-
   const [globals, collections, legalPolicies] = await Promise.all([
     Promise.all(
       STATIC_PAGES.map(async (page) => ({
         page,
-        doc: await payload
-          .findGlobal({ slug: page.global, depth: 0 })
-          .catch(() => null),
+        doc: await findGlobalCached(page.global, 0).catch(() => null),
       })),
     ),
     Promise.all(
       COLLECTION_PAGES.map(async (entry) => ({
         entry,
-        docs: await getIndexableDocuments(payload, entry.collection, entry.drafts),
+        docs: await getIndexableDocuments(entry.collection, entry.drafts),
       })),
     ),
     getLegalPolicies(),
@@ -95,10 +91,13 @@ function toDate(value: unknown): Date | undefined {
 }
 
 async function getIndexableDocuments(
-  payload: Payload,
   collection: (typeof COLLECTION_PAGES)[number]["collection"],
   drafts: boolean,
 ) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CMS_CACHE_TAG);
+  const payload = await getPayload({ config });
   const where: Where | undefined = drafts
     ? { _status: { equals: "published" } }
     : undefined;

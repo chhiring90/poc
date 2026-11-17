@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "motion/react";
@@ -154,13 +155,14 @@ function FeaturedPost({ post }: { post: BlogPostCardData }) {
         className="group block overflow-hidden rounded-none border border-border bg-card transition-transform hover:-translate-y-1"
       >
         <div className="grid lg:grid-cols-2">
-          <div className="h-72 overflow-hidden bg-muted lg:h-auto">
+          <div className="relative h-72 overflow-hidden bg-muted lg:h-auto lg:min-h-72">
             {post.coverImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={post.coverImage.url}
                 alt={post.coverImage.alt}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
               <div className="h-full min-h-72 bg-linear-to-br from-primary/20 to-muted" />
@@ -188,13 +190,14 @@ function PostCard({ post }: { post: BlogPostCardData }) {
       href={`/blogs/${post.slug}`}
       className="group block h-full overflow-hidden rounded-none border border-border bg-card transition-[transform,border-color] hover:-translate-y-1 hover:border-primary/30"
     >
-      <div className="h-44 overflow-hidden bg-muted">
+      <div className="relative h-44 overflow-hidden bg-muted">
         {post.coverImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={post.coverImage.url}
             alt={post.coverImage.alt}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="h-full bg-linear-to-br from-primary/20 to-muted" />

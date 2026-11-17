@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { SectionHeading, SectionLink } from "./section-heading";
@@ -74,16 +75,17 @@ function PostCard({
     >
       <div
         className={cn(
-          "aspect-[16/10] overflow-hidden border-b-2 border-border bg-secondary",
-          featured && "lg:aspect-auto lg:border-b-0 lg:border-r-2",
+          "relative aspect-[16/10] overflow-hidden border-b-2 border-border bg-secondary",
+          featured && "lg:aspect-auto lg:min-h-80 lg:border-b-0 lg:border-r-2",
         )}
       >
         {coverImage?.url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={coverImage.url}
             alt={coverImage.alt ?? ""}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
           />
         )}
       </div>

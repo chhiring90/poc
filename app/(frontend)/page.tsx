@@ -14,15 +14,12 @@ import {
   Process,
   Services,
   StackCarousel,
-  TechStack,
   Testimonial,
   WhoAreWe,
   HeroSkeleton,
 } from "@/components/layouts/home";
-import { getPayload } from "payload";
-import config from "@payload-config";
+import { findGlobalCached } from "@/lib/cms/cache";
 import { Suspense } from "react";
-import { connection } from "next/server";
 
 export function generateMetadata(): Promise<Metadata> {
   return buildGlobalPageMetadata({
@@ -35,10 +32,8 @@ export function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  await connection();
-  const payload = await getPayload({ config });
   const [home, settings] = await Promise.all([
-    payload.findGlobal({ slug: "home", depth: 2 }),
+    findGlobalCached("home", 2),
     getSiteSettings(),
   ]);
   const techStack = home.techstack ?? [];
@@ -60,7 +55,6 @@ export default async function Home() {
       {featuredWork && <FeaturedWork featuredWork={featuredWork} />}
       <Services expertise={expertise} />
       <Process process={process} />
-      {/* <TechStack techStack={techStack} /> */}
       <Testimonial testimonials={testimonials} />
       <Insights {...insights} />
       <AISection

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
+import Image from "next/image";
 import Link from "next/link";
-import config from "@payload-config";
-import { connection } from "next/server";
-import { getPayload } from "payload";
+import { findGlobalCached } from "@/lib/cms/cache";
 import { icons } from "lucide-react";
 
 import { Footer } from "@/components/layouts/home";
@@ -28,14 +27,11 @@ export function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function About() {
-  await connection();
-  const payload = await getPayload({ config });
-  const about = await payload.findGlobal({ slug: "about", depth: 2 });
+  const about = await findGlobalCached("about", 2);
   const hero = about.hero;
   const values = about.values ?? [];
   const team = about.team;
   const teamMembers = team?.members ?? [];
-  const career = about.career;
 
   return (
     <div className={`bg-background text-foreground min-h-screen`}>
@@ -45,7 +41,8 @@ export default async function About() {
           <span
             className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
           >
-            // {hero.subheading}
+            {"// "}
+            {hero.subheading}
           </span>
           <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-6">
             {/* We're the agency
@@ -59,16 +56,19 @@ export default async function About() {
             team that shows, not tells.
           </p>
           <p className={`text-lg text-muted-foreground leading-relaxed`}>
-            Today we're 20 people across engineering, design and product —
+            Today we&apos;re 20 people across engineering, design and product —
             shipping web and mobile apps for companies at every stage, from
             seed-stage startups to listed enterprises.
           </p>
         </div>
-        <div>
-          <img
-            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop&auto=format"
+        <div className="relative h-80 w-full">
+          <Image
+            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=900&fit=crop&auto=format"
             alt="POC team"
-            className="w-full h-80 object-cover rounded-none"
+            fill
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            preload
+            className="object-cover rounded-none"
           />
         </div>
       </section>
@@ -79,7 +79,7 @@ export default async function About() {
           <span
             className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
           >
-            // values
+            {"// values"}
           </span>
           <h2 className="font-display text-4xl font-bold tracking-tight mb-12">
             How we think
@@ -121,7 +121,8 @@ export default async function About() {
         <span
           className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
         >
-          // {team?.subheading}
+          {"// "}
+          {team?.subheading}
         </span>
         <h2 className="font-display text-4xl font-bold tracking-tight mb-12">
           {team?.heading}
@@ -137,11 +138,13 @@ export default async function About() {
                 className="group rounded-none border border-border bg-card p-6 transition-colors hover:border-primary/20"
               >
                 {profile?.url && (
-                  <div className="relative mb-4 overflow-hidden rounded-none">
-                    <img
+                  <div className="relative mb-4 h-48 overflow-hidden rounded-none">
+                    <Image
                       src={profile.url}
                       alt={member.name}
-                      className="h-48 w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                      fill
+                      sizes="(min-width: 768px) 33vw, 100vw"
+                      className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/30 to-transparent" />
                   </div>
@@ -174,7 +177,7 @@ export default async function About() {
               Want to join us?
             </h3>
             <p className={`text-sm text-muted-foreground`}>
-              We're always looking for great engineers, designers and PMs.
+              We&apos;re always looking for great engineers, designers and PMs.
             </p>
           </div>
           <Link
@@ -189,7 +192,7 @@ export default async function About() {
       <section className="bg-primary py-24">
         <div className="max-w-7xl mx-auto px-5 lg:px-10 text-center">
           <h2 className="mb-12 font-display text-4xl font-bold text-primary-foreground md:text-5xl">
-            Let's build something together.
+            Let&apos;s build something together.
           </h2>
           <Link
             href="/contact"

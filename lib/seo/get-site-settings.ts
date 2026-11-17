@@ -1,6 +1,5 @@
 import { cache } from "react";
-import config from "@payload-config";
-import { getPayload } from "payload";
+import { findGlobalCached } from "@/lib/cms/cache";
 import { isRecord } from "@/lib/helper/is-record.helper";
 import { parseMedia, type SeoMedia } from "@/lib/seo/parse";
 
@@ -52,15 +51,14 @@ function urls(values: unknown, key: string): string[] {
 
 async function findGlobalSafely(slug: string, depth: number) {
   try {
-    const payload = await getPayload({ config });
-    return record(await payload.findGlobal({ slug, depth }));
+    return record(await findGlobalCached(slug, depth));
   } catch {
     // e.g. the siteSettings table has not been migrated yet; fall back to defaults.
     return {};
   }
 }
 
-/** Site-wide SEO settings with safe defaults. Cached per request. */
+/** Site-wide SEO settings with safe defaults. The CMS reads are cached across requests. */
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const [settings, footer] = await Promise.all([
     findGlobalSafely("siteSettings", 1),

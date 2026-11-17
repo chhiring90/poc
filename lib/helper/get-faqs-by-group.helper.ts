@@ -1,4 +1,4 @@
-import type { Payload } from "payload";
+import { findCached } from "@/lib/cms/cache";
 import { isRecord } from "@/lib/helper/is-record.helper";
 import { isRichText } from "@/lib/helper/is-rich-text.helper";
 import type { FAQGroupReference, FAQItem } from "@/lib/type/faq.type";
@@ -20,13 +20,12 @@ export function getFAQGroupId(
 }
 
 export async function getFAQsByGroup(
-  payload: Payload,
   group: FAQGroupReference | undefined,
 ): Promise<FAQItem[]> {
   const groupId = getFAQGroupId(group);
   if (groupId === null) return [];
 
-  const { docs } = await payload.find({
+  const { docs } = await findCached({
     collection: "faqs",
     where: { group: { equals: groupId } },
     sort: "order",

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getRichTextPlainText } from "@/lib/helper/get-rich-text-plain-text.helper";
 import { isRecord } from "@/lib/helper/is-record.helper";
@@ -91,11 +92,12 @@ function ProjectCard({ project }: { project: WorkProject }) {
     >
       <div className="relative aspect-[16/10] overflow-hidden border-b-2 border-border bg-secondary">
         {image?.url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={image.url}
             alt={image.alt ?? project.title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
+            fill
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
           />
         )}
         {category && (

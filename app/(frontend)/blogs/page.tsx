@@ -1,21 +1,20 @@
 import type { Metadata } from "next";
 import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
 import Link from "next/link";
-import { connection } from "next/server";
-import config from "@payload-config";
-import { getPayload } from "payload";
+import { Suspense } from "react";
 import type { Where } from "payload";
+import { findCached, findGlobalCached } from "@/lib/cms/cache";
 import { Footer } from "@/components/layouts/home";
 import { BlogListing } from "@/components/layouts/blog/blog-listing";
 import { renderAsteriskText } from "@/lib/helper/render-asterisk-text.helper";
 import { toBlogPost } from "@/lib/helper/to-blog-post.helper";
 
-type BlogPageProps = {
-  searchParams: Promise<{
-    page?: string | string[];
-    category?: string | string[];
-  }>;
-};
+type BlogSearchParams = Promise<{
+  page?: string | string[];
+  category?: string | string[];
+}>;
+
+type BlogPageProps = { searchParams: BlogSearchParams };
 
 const POSTS_PER_PAGE = 7;
 
@@ -29,8 +28,18 @@ export function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function Blog({ searchParams }: BlogPageProps) {
-  await connection();
+/**
+ * Post list for the current ?page / ?category. Query params are only known at
+ * request time, so this streams inside <Suspense>; the queries themselves are
+ * cached per argument set.
+ */
+async function BlogPosts({
+  searchParams,
+  selectedPosts,
+}: {
+  searchParams: BlogSearchParams;
+  selectedPosts: unknown[];
+}) {
   const query = await searchParams;
   const requestedPage = Array.isArray(query.page) ? query.page[0] : query.page;
   const requestedCategory = Array.isArray(query.category)
@@ -38,13 +47,8 @@ export default async function Blog({ searchParams }: BlogPageProps) {
     : query.category;
   const parsedPage = Number.parseInt(requestedPage ?? "1", 10);
   const page = Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-  const payload = await getPayload({ config });
-  const blogPage = await payload.findGlobal({
-    slug: "blogPage",
-    depth: 1,
-  });
 
-  const categoryResult = await payload.find({
+  const categoryResult = await findCached({
     collection: "categories",
     depth: 0,
     limit: 100,
@@ -59,7 +63,6 @@ export default async function Blog({ searchParams }: BlogPageProps) {
     (category) => category.slug === requestedCategory,
   );
 
-  const selectedPosts: unknown[] = blogPage.posts ?? [];
   const selectedPostIDs = selectedPosts
     .map((post) => {
       if (typeof post === "string" || typeof post === "number") return post;
@@ -71,9 +74,9 @@ export default async function Blog({ searchParams }: BlogPageProps) {
     })
     .filter((id): id is string | number => id !== null);
   const featuredPostID = selectedPostIDs[0];
-  let featuredResult = await payload.find({
+  let featuredResult = await findCached({
     collection: "posts",
-    depth: 2,
+    depth: 1,
     limit: 1,
     sort: "-publishedAt",
     where:
@@ -82,9 +85,9 @@ export default async function Blog({ searchParams }: BlogPageProps) {
         : undefined,
   });
   if (featuredResult.docs.length === 0 && featuredPostID !== undefined) {
-    featuredResult = await payload.find({
+    featuredResult = await findCached({
       collection: "posts",
-      depth: 2,
+      depth: 1,
       limit: 1,
       sort: "-publishedAt",
     });
@@ -102,15 +105,30 @@ export default async function Blog({ searchParams }: BlogPageProps) {
   if (activeCategory) {
     conditions.push({ categories: { in: [activeCategory.id] } });
   }
-  const result = await payload.find({
+  const result = await findCached({
     collection: "posts",
-    depth: 2,
+    depth: 1,
     limit: POSTS_PER_PAGE,
     page,
     sort: "-publishedAt",
     ...(conditions.length > 0 ? { where: { and: conditions } } : {}),
   });
   const posts = result.docs.map(toBlogPost).filter((post) => post !== null);
+
+  return (
+    <BlogListing
+      posts={posts}
+      featuredPost={featuredPost}
+      categories={categories}
+      activeCategory={activeCategory?.slug ?? ""}
+      currentPage={result.page ?? page}
+      totalPages={result.totalPages}
+    />
+  );
+}
+
+export default async function Blog({ searchParams }: BlogPageProps) {
+  const blogPage = await findGlobalCached("blogPage", 1);
   const heading =
     typeof blogPage.heading === "string" && blogPage.heading
       ? blogPage.heading
@@ -141,14 +159,19 @@ export default async function Blog({ searchParams }: BlogPageProps) {
         </div>
       </section>
 
-      <BlogListing
-        posts={posts}
-        featuredPost={featuredPost}
-        categories={categories}
-        activeCategory={activeCategory?.slug ?? ""}
-        currentPage={result.page ?? page}
-        totalPages={result.totalPages}
-      />
+      <Suspense
+        fallback={
+          <div
+            aria-busy="true"
+            className="mx-auto min-h-[60vh] max-w-7xl px-5 lg:px-10"
+          />
+        }
+      >
+        <BlogPosts
+          searchParams={searchParams}
+          selectedPosts={blogPage.posts ?? []}
+        />
+      </Suspense>
 
       {cta?.title && (
         <section className="bg-primary py-24">

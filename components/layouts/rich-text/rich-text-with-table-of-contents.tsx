@@ -12,7 +12,7 @@ import {
   CodeBlockRenderer,
   FlowDiagramBlock,
 } from "@/components/layouts/rich-text/structured-blocks";
-import { ChartBlock } from "@/components/layouts/rich-text/chart-block";
+import { ChartBlock } from "@/components/layouts/rich-text/chart-block-lazy";
 import {
   Table,
   TableBody,

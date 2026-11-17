@@ -1,4 +1,4 @@
-import { HslTuple, TimeKey, Theme } from "@/lib/type/cta.type";
+import type { HslTuple } from "@/lib/type/cta.type";
 
 export function parseHsl(str: string): HslTuple {
   const m = str.match(/hsl\(([^,]+),([^,]+)%,([^)]+)%\)/);

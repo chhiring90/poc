@@ -1,10 +1,10 @@
-import config from "@payload-config";
 import Image from "next/image";
-import { connection } from "next/server";
-import { getPayload } from "payload";
+import { cacheLife, cacheTag } from "next/cache";
 import { Logo } from "@/components/ui/logo";
 import Link from "next/link";
 import { isRecord } from "@/lib/helper/is-record.helper";
+import { findGlobalCached } from "@/lib/cms/cache";
+import { CMS_CACHE_TAG } from "@/lib/cms/cache-tag";
 
 type FooterLink = {
   id?: string | null;
@@ -78,9 +78,12 @@ function FooterLinkItem({ link }: { link: FooterLink }) {
 }
 
 export async function Footer() {
-  await connection();
-  const payload = await getPayload({ config });
-  const footer = await payload.findGlobal({ slug: "footer" });
+  "use cache";
+  // Whole component is cached (it renders the current year); "days" keeps the
+  // year correct, and CMS edits still revalidate it immediately via the tag.
+  cacheLife("days");
+  cacheTag(CMS_CACHE_TAG);
+  const footer = await findGlobalCached("footer");
   const columns =
     footer.columns && footer.columns.length > 0
       ? (footer.columns as FooterColumn[])

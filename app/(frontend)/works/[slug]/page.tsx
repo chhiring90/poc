@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { cache } from "react";
 import { notFound } from "next/navigation";
-import config from "@payload-config";
-import { connection } from "next/server";
-import { getPayload } from "payload";
+import { findCached, findSlugsCached } from "@/lib/cms/cache";
 import { RichText } from "@payloadcms/richtext-lexical/react";
 import { Footer } from "@/components/layouts/home";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -17,10 +15,9 @@ import { parseMedia, parseSeo, truncate } from "@/lib/seo/parse";
 
 type WorkPageProps = { params: Promise<{ slug: string }> };
 
-/** Raw case study, shared by generateMetadata and the page in one request. */
-const getWorkBySlug = cache(async (slug: string) => {
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
+/** Raw case study, shared by generateMetadata and the page (cached across requests). */
+async function getWorkBySlug(slug: string) {
+  const { docs } = await findCached({
     collection: "works",
     where: { slug: { equals: slug } },
     limit: 1,
@@ -28,7 +25,19 @@ const getWorkBySlug = cache(async (slug: string) => {
   });
   const doc: unknown = docs[0];
   return isRecord(doc) && isWorkDocument(doc) ? doc : null;
-});
+}
+
+/**
+ * Prerender every known slug at build time. Cache Components needs at least
+ * one entry, so an empty CMS falls back to a placeholder that 404s; slugs
+ * added later are rendered on first visit and then cached.
+ */
+export async function generateStaticParams() {
+  const slugs = await findSlugsCached("works");
+  return (slugs.length > 0 ? slugs : ["__placeholder__"]).map((slug) => ({
+    slug,
+  }));
+}
 
 function getCategoryTitle(category: unknown) {
   return isRecord(category) && typeof category.title === "string"
@@ -54,7 +63,6 @@ export async function generateMetadata({
 }
 
 export default async function WorkCaseStudy({ params }: WorkPageProps) {
-  await connection();
   const { slug } = await params;
   const project = await getWorkBySlug(slug);
 
@@ -144,12 +152,16 @@ export default async function WorkCaseStudy({ params }: WorkPageProps) {
 
           <div>
             {coverImage?.url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={coverImage.url}
-                alt={coverImage.alt ?? project.title}
-                className="h-80 w-full rounded-none object-cover"
-              />
+              <div className="relative h-80 w-full">
+                <Image
+                  src={coverImage.url}
+                  alt={coverImage.alt ?? project.title}
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  preload
+                  className="rounded-none object-cover"
+                />
+              </div>
             )}
             {(project.technologies ?? []).length > 0 && (
               <section className="mt-8">

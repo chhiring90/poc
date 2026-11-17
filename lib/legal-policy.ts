@@ -1,7 +1,6 @@
 import type { DefaultTypedEditorState } from "@payloadcms/richtext-lexical";
 import { cache } from "react";
-import config from "@payload-config";
-import { getPayload } from "payload";
+import { findGlobalCached } from "@/lib/cms/cache";
 import { isRecord } from "@/lib/helper/is-record.helper";
 import { isRichText } from "@/lib/helper/is-rich-text.helper";
 import {
@@ -45,8 +44,7 @@ function toLegalPolicy(value: unknown): LegalPolicy | null {
 }
 
 export const getLegalPolicies = cache(async (): Promise<LegalPolicy[]> => {
-  const payload = await getPayload({ config });
-  const legalPolicies = await payload.findGlobal({ slug: "legalPolicies" });
+  const legalPolicies = await findGlobalCached("legalPolicies");
   if (legalPolicies.policyPagesMigrated === true) {
     return Array.isArray(legalPolicies.policyPages)
       ? legalPolicies.policyPages

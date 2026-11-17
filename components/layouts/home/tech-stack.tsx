@@ -6,7 +6,7 @@ export function TechStack({ techStack }: { techStack: iTechStack[] }) {
       <span
         className={`font-mono text-xs uppercase tracking-widest text-muted-foreground mb-4 block`}
       >
-        // tech stack
+        {"// tech stack"}
       </span>
       <h2 className="font-display text-4xl font-bold tracking-tight mb-10">
         Tools we trust

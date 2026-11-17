@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { connection } from "next/server";
 import { notFound } from "next/navigation";
-import { getPayload } from "payload";
-import config from "@payload-config";
+import { findSlugsCached } from "@/lib/cms/cache";
+import { SERVICE_COLLECTION_SLUG } from "@/lib/const/service.const";
 import { Footer } from "@/components/layouts/home";
 import { RichTextWithTableOfContents } from "@/components/layouts/rich-text/rich-text-with-table-of-contents";
 import { ServiceClosing } from "@/components/layouts/service/service-closing";
@@ -30,6 +29,18 @@ import { parseSeo, truncate } from "@/lib/seo/parse";
 
 type ServicePageProps = { params: Promise<{ slug: string }> };
 
+/**
+ * Prerender every known slug at build time. Cache Components needs at least
+ * one entry, so an empty CMS falls back to a placeholder that 404s; slugs
+ * added later are rendered on first visit and then cached.
+ */
+export async function generateStaticParams() {
+  const slugs = await findSlugsCached(SERVICE_COLLECTION_SLUG);
+  return (slugs.length > 0 ? slugs : ["__placeholder__"]).map((slug) => ({
+    slug,
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: ServicePageProps): Promise<Metadata> {
@@ -49,14 +60,12 @@ export async function generateMetadata({
 }
 
 export default async function ServiceDetail({ params }: ServicePageProps) {
-  await connection();
   const { slug } = await params;
   const service = await getCachedServiceBySlug(slug);
   if (!service) notFound();
 
-  const payload = await getPayload({ config });
   const [faqs, settings] = await Promise.all([
-    getFAQsByGroup(payload, service.faqGroup),
+    getFAQsByGroup(service.faqGroup),
     getSiteSettings(),
   ]);
   const path = `/services/${slug}`;
