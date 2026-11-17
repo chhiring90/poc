@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
 import Link from "next/link";
-import { connection } from "next/server";
-import config from "@payload-config";
-import { getPayload } from "payload";
+import { findGlobalCached } from "@/lib/cms/cache";
 import { Footer } from "@/components/layouts/home";
 import { WorkGrid } from "@/components/layouts/work/work-grid";
 import { isRecord } from "@/lib/helper/is-record.helper";
@@ -31,12 +29,7 @@ export function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Work() {
-  await connection();
-  const payload = await getPayload({ config });
-  const workPage = await payload.findGlobal({
-    slug: "workPage",
-    depth: 2,
-  });
+  const workPage = await findGlobalCached("workPage", 2);
   const selectedWork: unknown[] = workPage.work ?? [];
   const projects = selectedWork
     .map(toWorkProject)

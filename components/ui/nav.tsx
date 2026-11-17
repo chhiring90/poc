@@ -81,9 +81,30 @@ type NavProps = {
 
 /** Each control in the bar is a full-height cell divided by a 2px rule. */
 const cellClass =
-  "inline-flex w-16 items-center justify-center border-l-2 border-border text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring";
+  "inline-flex w-16 items-center justify-center border-l-2 border-border text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring lg:w-18";
 const navLinkClass =
-  "relative inline-flex items-center px-5 text-sm font-medium transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring";
+  "relative inline-flex items-center px-4 text-[0.9375rem] font-medium transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring xl:px-5";
+const logoImageClass =
+  "h-10 w-auto max-w-44 object-contain object-left lg:h-12 lg:max-w-56";
+
+function logoSize(logo: UploadedLogo) {
+  return {
+    width: typeof logo.width === "number" && logo.width > 0 ? logo.width : 600,
+    height:
+      typeof logo.height === "number" && logo.height > 0 ? logo.height : 150,
+  };
+}
+
+/** Brick-red bar under the active top-level item. */
+function ActiveIndicator() {
+  return (
+    <motion.span
+      layoutId="nav-active-indicator"
+      className="absolute inset-x-4 -bottom-[2px] h-[3px] bg-primary xl:inset-x-5"
+      transition={{ type: "spring", stiffness: 420, damping: 32 }}
+    />
+  );
+}
 
 export function Nav({
   data,
@@ -117,6 +138,16 @@ export function Nav({
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  // Escape closes an open mega menu.
+  useEffect(() => {
+    if (!openId) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpenId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openId]);
+
   // Close any open menu when the route changes (reset during render, not in an effect).
   const [menuPath, setMenuPath] = useState(pathname);
   if (menuPath !== pathname) {
@@ -134,53 +165,32 @@ export function Nav({
         scrolled ? "shadow-[0_4px_0_var(--color-shadow)]" : ""
       }`}
     >
-      <div className="flex h-16 items-stretch">
+      <div className="flex h-16 items-stretch lg:h-18">
+        {/* Brand cell: full height and ruled off, to balance the CTA cell on the right. */}
         <Link
           href="/"
           aria-label="POC Tech home"
-          className="inline-flex items-center px-5 text-foreground focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring lg:px-10"
+          className="inline-flex shrink-0 items-center border-r-2 border-border px-5 text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring lg:px-8 xl:min-w-60 xl:px-10"
         >
           {lightThemeLogo && darkThemeLogo ? (
             <>
               <Image
                 src={lightThemeLogo.url}
                 alt={lightThemeLogo.alt || "POC Tech"}
-                width={
-                  typeof lightThemeLogo.width === "number" &&
-                  lightThemeLogo.width > 0
-                    ? lightThemeLogo.width
-                    : 600
-                }
-                height={
-                  typeof lightThemeLogo.height === "number" &&
-                  lightThemeLogo.height > 0
-                    ? lightThemeLogo.height
-                    : 150
-                }
+                {...logoSize(lightThemeLogo)}
                 unoptimized
-                className="h-9 w-auto max-w-40 object-contain dark:hidden"
+                className={`${logoImageClass} dark:hidden`}
               />
               <Image
                 src={darkThemeLogo.url}
                 alt={darkThemeLogo.alt || "POC Tech"}
-                width={
-                  typeof darkThemeLogo.width === "number" &&
-                  darkThemeLogo.width > 0
-                    ? darkThemeLogo.width
-                    : 600
-                }
-                height={
-                  typeof darkThemeLogo.height === "number" &&
-                  darkThemeLogo.height > 0
-                    ? darkThemeLogo.height
-                    : 150
-                }
+                {...logoSize(darkThemeLogo)}
                 unoptimized
-                className="hidden h-9 w-auto max-w-40 object-contain dark:block"
+                className={`${logoImageClass} hidden dark:block`}
               />
             </>
           ) : (
-            <Logo compact />
+            <Logo />
           )}
         </Link>
 
@@ -193,116 +203,143 @@ export function Nav({
             const link = item.link ?? "#";
             const columns = item.columns ?? [];
             const key = item.id ?? link;
+            const active = item.link ? isActive(item.link) : false;
 
             if (hasMegaMenu && columns.length > 0) {
               const open = openId === key;
               const featured =
-                typeof featuredPost === "object" && featuredPost
+                typeof featuredPost === "object" && featuredPost?.slug
                   ? featuredPost
                   : null;
+              const panelId = `mega-${key}`;
 
               return (
+                // `static`, so the panel is positioned against the header and spans its full width.
                 <div
                   key={key}
-                  className="relative flex"
+                  className="static flex"
                   onMouseEnter={() => setOpenId(key)}
                   onMouseLeave={() => setOpenId(null)}
                 >
                   <button
                     type="button"
                     aria-expanded={open}
-                    aria-haspopup="true"
-                    onFocus={() => setOpenId(key)}
-                    onClick={() => setOpenId(key)}
-                    className={`${navLinkClass} gap-1.5 ${open ? "text-foreground" : "text-muted-foreground"}`}
+                    aria-controls={panelId}
+                    onClick={() => setOpenId(open ? null : key)}
+                    className={`${navLinkClass} gap-1.5 ${open || active ? "text-foreground" : "text-muted-foreground"}`}
                   >
                     {item.label}
                     <ChevronDown
                       aria-hidden="true"
                       className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`}
                     />
+                    {active && <ActiveIndicator />}
                   </button>
 
                   <AnimatePresence>
                     {open && (
                       <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 5, scale: 0.98 }}
-                        transition={{ duration: 0.18, ease: "easeOut" }}
-                        className="absolute left-1/2 top-full mt-[2px] w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-none border-[length:var(--border-width-default)] border-border bg-popover p-5 text-popover-foreground shadow-[var(--shadow-card)]"
+                        id={panelId}
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.16, ease: "easeOut" }}
+                        // Sits over the header's bottom rule, so there is no gap to lose hover in.
+                        className="absolute inset-x-0 top-full border-y-2 border-border bg-popover text-popover-foreground shadow-[0_6px_0_var(--color-shadow)]"
                       >
                         <div
-                          className="grid gap-6"
-                          style={{
-                            gridTemplateColumns: `repeat(${columns.length}, minmax(220px, 1fr))`,
-                          }}
+                          className={`mx-auto grid max-w-7xl gap-10 px-5 py-10 lg:px-10 ${
+                            featured
+                              ? "grid-cols-[minmax(0,13rem)_minmax(0,1fr)_minmax(0,17rem)]"
+                              : "grid-cols-[minmax(0,13rem)_minmax(0,1fr)]"
+                          }`}
                         >
-                          {columns.map((col) => (
-                            <div key={col.id ?? col.heading}>
-                              {col.heading && (
-                                <p className="mb-3 text-xs font-mono uppercase text-muted-foreground">
-                                  {col.heading}
-                                </p>
-                              )}
-                              <div className="grid grid-cols-2 gap-1">
-                                {(col.links ?? []).map((l) => (
-                                  <Button
-                                    key={l.id ?? l.url}
-                                    asChild
-                                    variant="ghost"
-                                    className="group/link h-auto min-h-16 items-start justify-start gap-3 whitespace-normal rounded-none px-3 py-3 text-left hover:bg-muted"
-                                  >
-                                    <Link href={l.url}>
-                                      {l.iconElement && (
-                                        <span className="flex size-9 shrink-0 items-center justify-center border-2 border-border bg-background text-primary transition-colors group-hover/link:bg-primary group-hover/link:text-primary-foreground [&_svg]:size-4">
-                                          {l.iconElement}
-                                        </span>
-                                      )}
-                                      <span className="min-w-0">
-                                        <span className="block text-sm font-semibold text-foreground">
-                                          {l.label}
-                                        </span>
-                                        {l.description && (
-                                          <span className="mt-0.5 block text-xs text-muted-foreground">
-                                            {l.description}
+                          <div className="border-r-2 border-border pr-8">
+                            <p className="mb-3 font-mono text-xs uppercase tracking-widest text-primary">
+                              {`// ${item.label.toLowerCase()}`}
+                            </p>
+                            <p className="font-display text-3xl font-bold leading-tight tracking-tight">
+                              {item.label}
+                            </p>
+                            {item.link && (
+                              <Link
+                                href={item.link}
+                                className="mt-6 inline-flex items-center gap-1.5 border-b-2 border-primary pb-0.5 text-sm font-semibold capitalize transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                              >
+                                View all {item.label}
+                                <ArrowUpRight
+                                  aria-hidden="true"
+                                  className="size-4"
+                                />
+                              </Link>
+                            )}
+                          </div>
+
+                          <div
+                            className="grid gap-8"
+                            style={{
+                              gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))`,
+                            }}
+                          >
+                            {columns.map((col) => (
+                              <div key={col.id ?? col.heading}>
+                                {col.heading && (
+                                  <p className="mb-3 border-b-2 border-border pb-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                                    {col.heading}
+                                  </p>
+                                )}
+                                <ul
+                                  className={`grid gap-1 ${columns.length === 1 ? "sm:grid-cols-2" : ""}`}
+                                >
+                                  {(col.links ?? []).map((l) => (
+                                    <li key={l.id ?? l.url}>
+                                      <Link
+                                        href={l.url}
+                                        className="group/link flex items-start gap-3 px-2 py-2.5 transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+                                      >
+                                        {l.iconElement && (
+                                          <span className="flex size-10 shrink-0 items-center justify-center border-2 border-border bg-background text-primary transition-colors group-hover/link:bg-primary group-hover/link:text-primary-foreground [&_svg]:size-4">
+                                            {l.iconElement}
                                           </span>
                                         )}
-                                      </span>
-                                    </Link>
-                                  </Button>
-                                ))}
+                                        <span className="min-w-0 pt-0.5">
+                                          <span className="block text-sm font-semibold text-foreground">
+                                            {l.label}
+                                          </span>
+                                          {l.description && (
+                                            <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                                              {l.description}
+                                            </span>
+                                          )}
+                                        </span>
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
                               </div>
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
 
-                        {featured?.slug && (
-                          <Link
-                            href={`/blogs/${featured.slug}`}
-                            className="mt-4 block rounded-none border border-border p-3 text-sm hover:bg-muted"
-                          >
-                            <span className="block text-xs font-mono uppercase text-muted-foreground">
-                              Featured
-                            </span>
-                            <span className="font-semibold">
-                              {featured.title}
-                            </span>
-                          </Link>
-                        )}
-
-                        <div className="mt-3 border-t border-border pt-3">
-                          <Button
-                            asChild
-                            variant="link"
-                            size="sm"
-                            className="h-auto px-1 capitalize"
-                          >
-                            <Link href={link}>
-                              View all {item.label}
-                              <ArrowUpRight className="size-4" />
+                          {featured && (
+                            <Link
+                              href={`/blogs/${featured.slug}`}
+                              className="group/featured flex flex-col justify-between border-2 border-border bg-card p-6 shadow-[var(--shadow-control)] transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                            >
+                              <span className="font-mono text-xs uppercase tracking-widest text-primary">
+                                Featured
+                              </span>
+                              <span className="mt-6 font-display text-xl font-bold leading-snug">
+                                {featured.title}
+                              </span>
+                              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                                Read the article
+                                <ArrowUpRight
+                                  aria-hidden="true"
+                                  className="size-4 transition-transform group-hover/featured:-translate-y-0.5 group-hover/featured:translate-x-0.5"
+                                />
+                              </span>
                             </Link>
-                          </Button>
+                          )}
                         </div>
                       </motion.div>
                     )}
@@ -311,26 +348,16 @@ export function Nav({
               );
             }
 
-            const active = isActive(link);
             return (
               <Link
                 key={key}
                 href={link}
                 aria-current={active ? "page" : undefined}
+                onMouseEnter={() => setOpenId(null)}
                 className={`${navLinkClass} ${active ? "text-foreground" : "text-muted-foreground"}`}
               >
-                  {item.label}
-                  {active && (
-                    <motion.span
-                      layoutId="nav-active-indicator"
-                      className="absolute inset-x-5 -bottom-[2px] h-[3px] rounded-none bg-primary"
-                      transition={{
-                        type: "spring",
-                        stiffness: 420,
-                        damping: 32,
-                      }}
-                    />
-                  )}
+                {item.label}
+                {active && <ActiveIndicator />}
               </Link>
             );
           })}
@@ -349,7 +376,7 @@ export function Nav({
 
           <Link
             href={cta.href}
-            className="hidden items-center gap-3 border-l-2 border-border bg-foreground px-7 font-medium text-background transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring sm:inline-flex lg:px-10"
+            className="hidden items-center gap-2.5 border-l-2 border-border bg-foreground px-6 text-sm font-semibold text-background transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring sm:inline-flex lg:px-8"
           >
             {cta.label}
             <ArrowUpRight aria-hidden="true" className="size-4" />
@@ -379,10 +406,10 @@ export function Nav({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.24, ease: "easeInOut" }}
-            className="overflow-hidden border-t-2 border-border bg-background text-foreground md:hidden"
+            className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t-2 border-border bg-background text-foreground md:hidden"
             aria-label="Mobile navigation"
           >
-            <motion.div
+            <motion.ul
               initial="hidden"
               animate="show"
               variants={{
@@ -391,53 +418,67 @@ export function Nav({
                   transition: { staggerChildren: 0.045, delayChildren: 0.06 },
                 },
               }}
-              className="flex flex-col gap-1 px-5 py-5"
+              className="px-5 py-4"
             >
-              {navItems.map((item) => (
-                <motion.div
-                  key={item.id ?? item.link ?? item.label}
-                  variants={{
-                    hidden: { opacity: 0, x: -8 },
-                    show: { opacity: 1, x: 0 },
-                  }}
-                >
-                  <Button
-                    asChild
-                    variant="ghost"
-                    className="h-auto w-full justify-start rounded-none px-3 py-3 text-base text-foreground"
+              {navItems.map((item) => {
+                const active = item.link ? isActive(item.link) : false;
+                return (
+                  <motion.li
+                    key={item.id ?? item.link ?? item.label}
+                    variants={{
+                      hidden: { opacity: 0, x: -8 },
+                      show: { opacity: 1, x: 0 },
+                    }}
+                    className="border-b-2 border-border py-2 last:border-b-0"
                   >
-                    <Link href={item.link ?? "#"}>{item.label}</Link>
-                  </Button>
+                    <Link
+                      href={item.link ?? "#"}
+                      aria-current={active ? "page" : undefined}
+                      className={`flex items-center justify-between py-2.5 font-display text-2xl font-bold tracking-tight ${active ? "text-primary" : "text-foreground"}`}
+                    >
+                      {item.label}
+                      <ArrowUpRight
+                        aria-hidden="true"
+                        className="size-5 text-muted-foreground"
+                      />
+                    </Link>
 
-                  {item.hasMegaMenu &&
-                    (item.columns ?? [])
-                      .flatMap((c) => c.links ?? [])
-                      .map((l) => (
-                        <Button
-                          key={l.id ?? l.url}
-                          asChild
-                          variant="ghost"
-                          className="h-auto w-full justify-start py-2 pl-8 pr-3 text-sm text-muted-foreground"
-                        >
-                          <Link href={l.url}>
-                            {l.iconElement && (
-                              <span className="text-primary [&_svg]:size-4">
-                                {l.iconElement}
-                              </span>
-                            )}
-                            {l.label}
-                          </Link>
-                        </Button>
+                    {item.hasMegaMenu &&
+                      (item.columns ?? []).map((col) => (
+                        <div key={col.id ?? col.heading} className="pb-2">
+                          {col.heading && (
+                            <p className="mb-1 mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                              {col.heading}
+                            </p>
+                          )}
+                          {(col.links ?? []).map((l) => (
+                            <Link
+                              key={l.id ?? l.url}
+                              href={l.url}
+                              className="flex items-center gap-3 py-2 text-sm font-medium text-foreground"
+                            >
+                              {l.iconElement && (
+                                <span className="flex size-8 shrink-0 items-center justify-center border-2 border-border text-primary [&_svg]:size-4">
+                                  {l.iconElement}
+                                </span>
+                              )}
+                              {l.label}
+                            </Link>
+                          ))}
+                        </div>
                       ))}
-                </motion.div>
-              ))}
+                  </motion.li>
+                );
+              })}
+            </motion.ul>
 
-              <Button asChild className="mt-2 h-12 justify-between rounded-none sm:hidden">
+            <div className="border-t-2 border-border p-5 sm:hidden">
+              <Button asChild className="h-12 w-full justify-between">
                 <Link href={cta.href}>
                   {cta.label} <ArrowUpRight className="size-4" />
                 </Link>
               </Button>
-            </motion.div>
+            </div>
           </motion.nav>
         )}
       </AnimatePresence>

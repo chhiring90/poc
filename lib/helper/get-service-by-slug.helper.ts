@@ -1,6 +1,4 @@
-import { cache } from "react";
-import config from "@payload-config";
-import { getPayload, type Payload } from "payload";
+import { findCached } from "@/lib/cms/cache";
 import {
   SERVICE_COLLECTION_SLUG,
   SERVICES_ROUTE,
@@ -8,11 +6,11 @@ import {
 import { isServiceDocument } from "@/lib/helper/is-service-document.helper";
 import type { ServiceDocument } from "@/lib/type/service.type";
 
-export async function getServiceBySlug(
-  payload: Payload,
+/** Cached across requests; shared by generateMetadata and the page. */
+export async function getCachedServiceBySlug(
   slug: string,
 ): Promise<ServiceDocument | null> {
-  const { docs } = await payload.find({
+  const { docs } = await findCached({
     collection: SERVICE_COLLECTION_SLUG,
     where: { slug: { equals: slug } },
     limit: 1,
@@ -22,11 +20,6 @@ export async function getServiceBySlug(
 
   return isServiceDocument(service) ? service : null;
 }
-
-/** Request-cached lookup, shared by generateMetadata and the page. */
-export const getCachedServiceBySlug = cache(async (slug: string) =>
-  getServiceBySlug(await getPayload({ config }), slug),
-);
 
 export function getServiceHref(slug: string): string {
   return `${SERVICES_ROUTE}/${encodeURIComponent(slug)}`;

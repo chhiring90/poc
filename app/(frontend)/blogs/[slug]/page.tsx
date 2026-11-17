@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { cache } from "react";
 import { notFound } from "next/navigation";
-import { connection } from "next/server";
-import config from "@payload-config";
-import { getPayload } from "payload";
+import { findCached, findSlugsCached } from "@/lib/cms/cache";
 import { Footer } from "@/components/layouts/home";
 import { RichTextWithTableOfContents } from "@/components/layouts/rich-text/rich-text-with-table-of-contents";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -17,18 +15,38 @@ import { parseMedia, parseSeo, truncate } from "@/lib/seo/parse";
 
 type BlogPageProps = { params: Promise<{ slug: string }> };
 
-/** Raw post document, shared by generateMetadata and the page in one request. */
-const getPostBySlug = cache(async (slug: string) => {
-  const payload = await getPayload({ config });
-  const { docs } = await payload.find({
+/** Raw post document, shared by generateMetadata and the page (cached across requests). */
+async function getPostBySlug(slug: string) {
+  const { docs } = await findCached({
     collection: "posts",
     where: { slug: { equals: slug } },
     limit: 1,
-    depth: 2,
+    depth: 1,
   });
   const doc: unknown = docs[0];
   return isRecord(doc) ? doc : null;
-});
+}
+
+/**
+ * Prerender every known slug at build time. Cache Components needs at least
+ * one entry, so an empty CMS falls back to a placeholder that 404s; slugs
+ * added later are rendered on first visit and then cached.
+ */
+export async function generateStaticParams() {
+  const slugs = await findSlugsCached("posts");
+  return (slugs.length > 0 ? slugs : ["__placeholder__"]).map((slug) => ({
+    slug,
+  }));
+}
+
+function mediaSize(
+  media: object,
+  key: "width" | "height",
+  fallback: number,
+): number {
+  const value: unknown = (media as Record<string, unknown>)[key];
+  return typeof value === "number" && value > 0 ? value : fallback;
+}
 
 function getPostSeoData(raw: Record<string, unknown>) {
   if (!isBlogDocument(raw)) return null;
@@ -80,7 +98,6 @@ export async function generateMetadata({
 }
 
 export default async function BlogArticle({ params }: BlogPageProps) {
-  await connection();
   const { slug } = await params;
   const raw = await getPostBySlug(slug);
   const seoData = raw ? getPostSeoData(raw) : null;
@@ -159,11 +176,14 @@ export default async function BlogArticle({ params }: BlogPageProps) {
           )}
         </div>
         {coverImage?.url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={coverImage.url}
             alt={coverImage.alt ?? post.title}
-            className="mb-10 max-h-128 w-full rounded-none object-cover"
+            width={mediaSize(coverImage, "width", 1600)}
+            height={mediaSize(coverImage, "height", 900)}
+            sizes="(min-width: 1280px) 1200px, 100vw"
+            preload
+            className="mb-10 h-auto max-h-128 w-full rounded-none object-cover"
           />
         )}
         {post.content && (

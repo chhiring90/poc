@@ -16,6 +16,7 @@ import {
   FAQs,
   FAQGroups,
   Packages,
+  ProcessSteps,
 } from "./collections";
 import {
   Home,
@@ -25,10 +26,15 @@ import {
   ContactPage,
   WorkPage,
   ServicesPage,
+  HowWeWorkPage,
   LegalPolicies,
   Footer,
   SiteSettings,
 } from "./globals";
+import {
+  withCollectionRevalidation,
+  withGlobalRevalidation,
+} from "./lib/cms/revalidate-hooks";
 
 function requiredEnv(name: string): string {
   const value = process.env[name];
@@ -60,6 +66,25 @@ function databaseUrl(): string {
       `DATABASE_URL looks wrong: protocol="${url.protocol}" host="${url.hostname}"`,
     );
   }
+  // Supabase's direct host (db.<ref>.supabase.co) is IPv6-only, which Vercel
+  // functions can't reach. Serverless traffic must go through the Supavisor
+  // transaction pooler: postgres.<ref>@aws-*-<region>.pooler.supabase.com:6543
+  if (process.env.VERCEL && /^db\.[^.]+\.supabase\.co$/.test(url.hostname)) {
+    throw new Error(
+      `DATABASE_URL points at the direct Supabase host (${url.hostname}), which is IPv6-only and unreachable from Vercel. ` +
+        `Use the Transaction pooler connection string (…pooler.supabase.com:6543) from Supabase → Connect.`,
+    );
+  }
+  if (
+    url.hostname.includes("pooler.supabase") &&
+    (!/^aws-\d+-[a-z0-9-]+\.pooler\.supabase\.com$/.test(url.hostname) ||
+      !decodeURIComponent(url.username).startsWith("postgres."))
+  ) {
+    throw new Error(
+      `DATABASE_URL Supabase pooler string looks hand-edited (host="${url.hostname}", user="${decodeURIComponent(url.username)}"). ` +
+        `Expected postgres.<ref>@aws-N-<region>.pooler.supabase.com:6543 — copy it from Supabase → Connect.`,
+    );
+  }
   console.info(
     `[db] connecting to ${url.hostname}:${url.port || 5432} as ${decodeURIComponent(url.username)}`,
   );
@@ -86,7 +111,8 @@ export default buildConfig({
     FAQs,
     FAQGroups,
     Packages,
-  ],
+    ProcessSteps,
+  ].map(withCollectionRevalidation),
   globals: [
     Header,
     Home,
@@ -95,10 +121,11 @@ export default buildConfig({
     ContactPage,
     WorkPage,
     ServicesPage,
+    HowWeWorkPage,
     LegalPolicies,
     Footer,
     SiteSettings,
-  ],
+  ].map(withGlobalRevalidation),
 
   // Your Payload secret - should be a complex and secure string, unguessable
   secret: requiredEnv("PAYLOAD_SECRET"),

@@ -1,5 +1,4 @@
-import { getPayload } from "payload";
-import config from "@payload-config";
+import { findGlobalCached } from "@/lib/cms/cache";
 import { icons } from "lucide-react";
 import { Nav, type HeaderData } from "@/components/ui/nav";
 
@@ -28,8 +27,7 @@ function withIcons(header: HeaderData): HeaderData {
 }
 
 export async function Header() {
-  const payload = await getPayload({ config });
-  const header = await payload.findGlobal({ slug: "header", depth: 2 });
+  const header = await findGlobalCached("header", 2);
 
   return <Nav data={withIcons(header as HeaderData)} />;
 }

@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { buildGlobalPageMetadata } from "@/lib/seo/global-page-metadata";
 import Link from "next/link";
-import { connection } from "next/server";
-import { getPayload } from "payload";
 import { RichText } from "@payloadcms/richtext-lexical/react";
-import config from "@payload-config";
+import { findCached, findGlobalCached } from "@/lib/cms/cache";
 import { Footer } from "@/components/layouts/home";
 import { icons } from "lucide-react";
 import { getServiceHref } from "@/lib/helper/get-service-by-slug.helper";
@@ -25,11 +23,9 @@ export function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Services() {
-  await connection();
-  const payload = await getPayload({ config });
   const [servicesPage, { docs: faqs }] = await Promise.all([
-    payload.findGlobal({ slug: "servicesPage", depth: 2 }),
-    payload.find({ collection: "faqs", sort: "order", pagination: false }),
+    findGlobalCached("servicesPage", 1),
+    findCached({ collection: "faqs", sort: "order", pagination: false }),
   ]);
   const { heading, subheading, description } = servicesPage as ServicesPageData;
   const services = (servicesPage.services ?? []) as ServiceListItem[];

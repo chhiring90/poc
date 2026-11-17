@@ -8,3 +8,4 @@ export { ServicesPage } from "./Services";
 export { LegalPolicies } from "./LegalPolicies";
 export { Footer } from "./Footer";
 export { SiteSettings } from "./SiteSettings";
+export { HowWeWorkPage } from "./HowWeWork";

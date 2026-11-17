@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { connection } from "next/server";
 import { RichTextWithTableOfContents } from "@/components/layouts/rich-text/rich-text-with-table-of-contents";
 import { Footer } from "@/components/layouts/home";
 import { getLegalPolicies, getLegalPolicy } from "@/lib/legal-policy";
@@ -13,10 +12,18 @@ type LegalPolicyPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+/** Prerender every policy page; Cache Components needs at least one entry. */
+export async function generateStaticParams() {
+  const policies = await getLegalPolicies();
+  const slugs = policies.map((policy) => policy.slug);
+  return (slugs.length > 0 ? slugs : ["__placeholder__"]).map((slug) => ({
+    slug,
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: LegalPolicyPageProps): Promise<Metadata> {
-  await connection();
   const { slug } = await params;
   const policy = await getLegalPolicy(slug);
   if (!policy) notFound();
@@ -33,7 +40,6 @@ export async function generateMetadata({
 export default async function LegalPolicyPage({
   params,
 }: LegalPolicyPageProps) {
-  await connection();
   const { slug } = await params;
   const [policy, policies] = await Promise.all([
     getLegalPolicy(slug),

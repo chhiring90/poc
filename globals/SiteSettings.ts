@@ -82,7 +82,36 @@ export const SiteSettings: GlobalConfig = {
                   type: "text",
                   admin: { description: "Falls back to the site name." },
                 },
-                { name: "legalName", type: "text" },
+                {
+                  name: "legalName",
+                  type: "text",
+                  admin: {
+                    description:
+                      'Registered company name, e.g. "POC Tech Ltd". Shown in the footer.',
+                  },
+                },
+                {
+                  type: "row",
+                  fields: [
+                    {
+                      name: "companyNumber",
+                      label: "Registered company number",
+                      type: "text",
+                      admin: {
+                        width: "50%",
+                        description:
+                          "From Companies House, e.g. 12345678. Shown in the footer.",
+                      },
+                    },
+                    {
+                      name: "registeredIn",
+                      label: "Registered in",
+                      type: "text",
+                      defaultValue: "England and Wales",
+                      admin: { width: "50%" },
+                    },
+                  ],
+                },
                 { name: "logo", type: "upload", relationTo: "media" },
                 { name: "email", type: "email" },
                 { name: "telephone", type: "text" },

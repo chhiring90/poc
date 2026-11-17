@@ -10,3 +10,4 @@ export { Services } from "./Services";
 export { FAQs } from "./FAQs";
 export { FAQGroups } from "./FAQGroups";
 export { Packages } from "./Packages";
+export { ProcessSteps } from "./ProcessSteps";

@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import { cache } from "react";
-import config from "@payload-config";
-import { getPayload } from "payload";
+import { findGlobalCached } from "@/lib/cms/cache";
 import { isRecord } from "@/lib/helper/is-record.helper";
 import { buildPageMetadata } from "@/lib/seo/build-metadata";
 
 const getGlobalForSeo = cache(
   async (slug: string): Promise<Record<string, unknown>> => {
     try {
-      const payload = await getPayload({ config });
-      const doc: unknown = await payload.findGlobal({ slug, depth: 1 });
+      const doc: unknown = await findGlobalCached(slug, 1);
       return isRecord(doc) ? doc : {};
     } catch {
       return {};
@@ -46,6 +44,8 @@ export async function buildGlobalPageMetadata(options: {
   imageField?: string;
   /** Used when the CMS has no SEO title or heading, so pages never share the bare site name. */
   fallbackTitle?: string;
+  /** Used when the CMS has no SEO description and none of descriptionFields are filled. */
+  fallbackDescription?: string;
   isHome?: boolean;
 }): Promise<Metadata> {
   const doc = await getGlobalForSeo(options.global);
@@ -54,7 +54,9 @@ export async function buildGlobalPageMetadata(options: {
     path: options.path,
     seo: doc.seo,
     title: firstText(doc, options.titleFields ?? []) ?? options.fallbackTitle,
-    description: firstText(doc, options.descriptionFields ?? []),
+    description:
+      firstText(doc, options.descriptionFields ?? []) ??
+      options.fallbackDescription,
     image: options.imageField ? field(doc, options.imageField) : undefined,
     isHome: options.isHome,
   });

@@ -9,7 +9,10 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layouts/home/header";
 import { ThemeProvider } from "@/components/theme-provider";
-import { getSiteSettings, isIndexingAllowed } from "@/lib/seo/get-site-settings";
+import {
+  getSiteSettings,
+  isIndexingAllowed,
+} from "@/lib/seo/get-site-settings";
 import { getSiteUrl } from "@/lib/seo/site-url";
 
 const spaceGrotesk = Space_Grotesk({

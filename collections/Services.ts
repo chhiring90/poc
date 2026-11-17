@@ -46,6 +46,7 @@ export const Services: CollectionConfig = {
       name: "slug",
       type: "text",
       required: true,
+      index: true,
       admin: { position: "sidebar" },
     },
     {
