@@ -132,6 +132,35 @@ export const Home: GlobalConfig = {
         { name: "ctaHref", type: "text", defaultValue: "/blogs" },
       ],
     },
+    {
+      name: "askAi",
+      type: "group",
+      label: "Ask AI",
+      admin: {
+        description:
+          "The \"See what AI says about us\" band. Each button opens an AI assistant in a new tab with the question below already filled in.",
+      },
+      fields: [
+        { name: "eyebrow", type: "text", defaultValue: "// third-party validation" },
+        { name: "heading", type: "text", defaultValue: "See what AI says about us" },
+        {
+          name: "description",
+          type: "textarea",
+          defaultValue: "Don't just take our word for it. Ask the robots.",
+        },
+        {
+          name: "prompt",
+          type: "textarea",
+          label: "Question sent to the AI",
+          defaultValue:
+            "What do you know about {company} ({website})? Summarise what they do, the services they offer, how they work with clients, and why a business might choose them.",
+          admin: {
+            description:
+              "{company} is replaced with the site name from Site Settings, and {website} with the site's address.",
+          },
+        },
+      ],
+    },
     seoField(),
   ],
 };
