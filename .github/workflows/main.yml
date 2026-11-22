@@ -1,2 +1,99 @@
-- name: Claude Code Action Official
-  uses: anthropics/claude-code-action@v1
+name: Claude code review
+
+# Reviews the commits in every push with Claude and posts the result as a
+# comment on the pushed commit and in the run's job summary.
+on:
+  push:
+    branches: ["**"]
+    paths-ignore:
+      - "**/*.md"
+      - "public/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write # needed to post a commit comment
+
+concurrency:
+  group: claude-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: github.actor != 'github-actions[bot]' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Work out the commit range to review
+        id: range
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # New branches (and manual runs) have no "before" commit, so compare against master.
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            BASE=$(git merge-base origin/master HEAD 2>/dev/null || git rev-parse HEAD~1)
+          else
+            BASE="$BEFORE"
+          fi
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          FILES=$(git diff --name-only "$BASE" HEAD | wc -l | tr -d ' ')
+          echo "files=$FILES" >> "$GITHUB_OUTPUT"
+          echo "Reviewing $BASE..$GITHUB_SHA ($FILES files)"
+
+      - name: Review with Claude
+        if: steps.range.outputs.files != '0'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          claude_args: >-
+            --max-turns 30
+            --allowedTools "Read,Grep,Glob,Write,Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
+          prompt: |
+            You are reviewing a push to ${{ github.repository }} on ${{ github.ref_name }}.
+            The changes are `git diff ${{ steps.range.outputs.base }} ${{ github.sha }}`
+            (use `git log` on the same range for the commit messages).
+
+            This is a Next.js 16 + Payload CMS + Postgres site. Read AGENTS.md first:
+            this Next.js version differs from older ones, so check APIs against
+            node_modules/next/dist/docs if they are installed, and don't flag code as
+            wrong just because it differs from older Next.js conventions.
+
+            Review only the changed lines and the code they directly affect. Look for:
+            - bugs and broken logic, unhandled errors, wrong types
+            - security problems (secrets in code, unsafe input handling, access control
+              on Payload collections, SSRF, XSS via dangerouslySetInnerHTML)
+            - Payload schema changes that need a migration in migrations/
+            - server/client component mistakes and caching ("use cache", cacheTag) mistakes
+            - SEO regressions on public pages (missing metadata, broken canonical/OG tags)
+            Skip style nitpicks that ESLint or Prettier would catch.
+
+            Only report problems you are confident about. For each one give the file and
+            line, what goes wrong, and a suggested fix. Most serious first.
+
+            Write the review in GitHub markdown to the file `claude-review.md` in the
+            repository root, starting with a one-line verdict. If you find nothing worth
+            reporting, write "No issues found." followed by one line on what you checked.
+            Do not edit any other file.
+
+      - name: Publish the review
+        if: steps.range.outputs.files != '0' && always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ ! -s claude-review.md ]; then
+            echo "Claude did not produce a review; see the step above." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          {
+            echo "## Claude code review"
+            echo
+            cat claude-review.md
+          } > comment.md
+          cat comment.md >> "$GITHUB_STEP_SUMMARY"
+          gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" \
+            -F body=@comment.md > /dev/null

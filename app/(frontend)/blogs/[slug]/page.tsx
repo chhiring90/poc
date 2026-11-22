@@ -6,12 +6,14 @@ import { findCached, findSlugsCached } from "@/lib/cms/cache";
 import { Footer } from "@/components/layouts/home";
 import { RichTextWithTableOfContents } from "@/components/layouts/rich-text/rich-text-with-table-of-contents";
 import { JsonLd } from "@/components/seo/json-ld";
+import { ShareButtons } from "@/components/layouts/blog/share-buttons";
 import { getRichTextPlainText } from "@/lib/helper/get-rich-text-plain-text.helper";
 import { isBlogDocument } from "@/lib/helper/is-blog-document.helper";
 import { isRecord } from "@/lib/helper/is-record.helper";
 import { buildPageMetadata } from "@/lib/seo/build-metadata";
 import { blogPostingJsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { parseMedia, parseSeo, truncate } from "@/lib/seo/parse";
+import { absoluteUrl } from "@/lib/seo/site-url";
 
 type BlogPageProps = { params: Promise<{ slug: string }> };
 
@@ -105,6 +107,7 @@ export default async function BlogArticle({ params }: BlogPageProps) {
   if (!seoData) notFound();
   const post = seoData.post;
   const path = `/blogs/${slug}`;
+  const shareUrl = absoluteUrl(path);
   const jsonLd = [
     blogPostingJsonLd({
       title: post.title,
@@ -149,15 +152,18 @@ export default async function BlogArticle({ params }: BlogPageProps) {
           ← Back to blog
         </Link>
 
-        <div className="mb-5 flex flex-wrap gap-2">
-          {categories.map((category, index) => (
-            <span
-              key={category.id ?? `${category.title}-${index}`}
-              className="rounded-none bg-primary/10 px-3 py-1 font-mono text-xs text-primary"
-            >
-              {category.title}
-            </span>
-          ))}
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category, index) => (
+              <span
+                key={category.id ?? `${category.title}-${index}`}
+                className="rounded-none bg-primary/10 px-3 py-1 font-mono text-xs text-primary"
+              >
+                {category.title}
+              </span>
+            ))}
+          </div>
+          <ShareButtons url={shareUrl} title={post.title} className="ml-auto" />
         </div>
         <h1 className="mb-5 font-display text-4xl font-bold tracking-tight md:text-6xl">
           {post.title}
@@ -192,6 +198,12 @@ export default async function BlogArticle({ params }: BlogPageProps) {
             className="text-base leading-relaxed text-muted-foreground [&_a]:text-primary [&_a]:underline [&_h2]:mb-4 [&_h2]:mt-10 [&_h2]:font-display [&_h2]:text-3xl [&_h2]:font-bold [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:font-display [&_h3]:text-2xl [&_h3]:font-bold [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:mb-5 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6"
           />
         )}
+        <ShareButtons
+          url={shareUrl}
+          title={post.title}
+          label="Share this article"
+          className="mt-14 border-t-2 border-border pt-8"
+        />
       </article>
       <Footer />
     </div>
