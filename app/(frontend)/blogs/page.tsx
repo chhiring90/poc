@@ -26,6 +26,8 @@ export function generateMetadata(): Promise<Metadata> {
     titleFields: ["heading"],
     descriptionFields: ["description", "subheading"],
     fallbackTitle: "Blog",
+    fallbackDescription:
+      "Practical articles on building websites, apps and digital products, from the POC Tech team.",
   });
 }
 

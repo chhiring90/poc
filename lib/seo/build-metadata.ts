@@ -30,14 +30,22 @@ export type PageSeoInput = {
   };
 };
 
+/** Used when neither the CMS nor the page supplies a description, so no share card is left blank. */
+const FALLBACK_DESCRIPTION =
+  "We design and build websites, apps and digital platforms that help businesses grow.";
+
 function toImages(media: SeoMedia | null, title: string) {
   if (media) {
+    // Served through app/og/image/route.ts as a 1200×630 compressed JPEG, so
+    // WhatsApp, X, LinkedIn, Facebook, Slack etc. all accept it.
+    const params = new URLSearchParams({ src: media.url, title });
     return [
       {
-        url: media.url,
+        url: `/og/image?${params.toString()}`,
         alt: media.alt ?? title,
-        ...(media.width ? { width: media.width } : {}),
-        ...(media.height ? { height: media.height } : {}),
+        width: 1200,
+        height: 630,
+        type: "image/jpeg",
       },
     ];
   }
@@ -49,6 +57,7 @@ function toImages(media: SeoMedia | null, title: string) {
       alt: title,
       width: 1200,
       height: 630,
+      type: "image/png",
     },
   ];
 }
@@ -71,7 +80,8 @@ export async function buildPageMetadata(input: PageSeoInput): Promise<Metadata> 
   const description = truncate(
     seo.description ??
       toPlainText(input.description) ??
-      settings.defaultDescription,
+      settings.defaultDescription ??
+      FALLBACK_DESCRIPTION,
   );
   const images = toImages(
     seo.image ?? parseMedia(input.image) ?? settings.defaultImage,
