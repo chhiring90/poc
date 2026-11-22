@@ -204,19 +204,23 @@ export function HowWeWorkCommitments({
         >
           {commitments.items.map((item) => {
             const Icon =
-              item.icon in icons ? icons[item.icon as keyof typeof icons] : null;
+              item.icon in icons
+                ? icons[item.icon as keyof typeof icons]
+                : null;
             return (
               <div
                 key={item.id ?? item.title}
                 className="flex gap-5 border-2 border-border bg-card p-7 shadow-[var(--shadow-card)] sm:p-8"
               >
                 {Icon && (
-                  <span className="flex size-12 shrink-0 items-center justify-center border-2 border-border bg-accent text-accent-foreground">
+                  <span className="flex size-12 shrink-0 items-center justify-center border-2 border-border bg-card text-primary">
                     <Icon aria-hidden="true" className="size-5" />
                   </span>
                 )}
                 <div>
-                  <h3 className="font-display text-xl font-bold">{item.title}</h3>
+                  <h3 className="font-display text-xl font-bold">
+                    {item.title}
+                  </h3>
                   {item.description && (
                     <p className="mt-2 leading-relaxed text-muted-foreground">
                       {item.description}
@@ -267,10 +271,7 @@ export function HowWeWorkSizes({ sizes }: Pick<HowWeWorkPageData, "sizes">) {
                     Size {pad(index)}
                   </span>
                   {/* Scale: one filled block per size step, so bigger options read as bigger. */}
-                  <span
-                    aria-hidden="true"
-                    className="flex items-end gap-1"
-                  >
+                  <span aria-hidden="true" className="flex items-end gap-1">
                     {options.map((_, block) => (
                       <span
                         key={block}
