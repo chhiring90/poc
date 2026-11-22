@@ -25,6 +25,8 @@ export function generateMetadata(): Promise<Metadata> {
     titleFields: ["heading"],
     descriptionFields: ["description", "subheading"],
     fallbackTitle: "Our work",
+    fallbackDescription:
+      "Websites, apps and platforms we have designed and built for our clients, and the results they delivered.",
   });
 }
 
