@@ -1,7 +1,7 @@
 import { isRecord } from "@/lib/helper/is-record.helper";
 import { isRichText } from "@/lib/helper/is-rich-text.helper";
 import type { FAQGroup } from "@/lib/type/faq.type";
-import type { PackageDocument } from "@/lib/type/package.type";
+import { isPackageDocument } from "@/lib/helper/is-package-document.helper";
 import type { ServiceDocument } from "@/lib/type/service.type";
 
 function isOptionalString(value: unknown): boolean {
@@ -48,17 +48,6 @@ function isTitledItems(value: unknown): boolean {
           isOptionalString(item.note) &&
           isOptionalString(item.id),
       ))
-  );
-}
-
-function isPackageDocument(value: unknown): value is PackageDocument {
-  return (
-    isRecord(value) &&
-    (typeof value.id === "string" || typeof value.id === "number") &&
-    typeof value.name === "string" &&
-    isOptionalString(value.description) &&
-    isOptionalString(value.price) &&
-    isTextArray(value.features, "feature")
   );
 }
 
