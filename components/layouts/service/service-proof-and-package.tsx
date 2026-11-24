@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { getPackageHref } from "@/lib/helper/get-packages.helper";
 import type { PackageDocument } from "@/lib/type/package.type";
 import type { ServiceDocument } from "@/lib/type/service.type";
 
@@ -42,6 +43,9 @@ export function ServicePackage({
       <div className="grid border-2 border-border bg-card shadow-[var(--shadow-card)] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <div className="p-7 md:p-9">
           <h3 className="font-display text-2xl font-bold">{pkg.name}</h3>
+          {pkg.tagline && (
+            <p className="mt-2 text-lg leading-snug">{pkg.tagline}</p>
+          )}
           {pkg.description && (
             <p className="mt-3 max-w-[50ch] leading-relaxed text-muted-foreground">
               {pkg.description}
@@ -59,11 +63,17 @@ export function ServicePackage({
               ))}
             </ul>
           )}
+          <Link
+            href={getPackageHref(pkg.slug)}
+            className="mt-6 inline-block text-sm font-bold text-primary underline underline-offset-4 hover:no-underline"
+          >
+            See everything in this package →
+          </Link>
         </div>
         <div className="flex flex-col justify-between gap-6 border-t-2 border-border bg-muted p-7 md:border-l-2 md:border-t-0 md:p-9">
-          {pkg.price && (
-            <p className="font-mono text-3xl font-bold text-primary">{pkg.price}</p>
-          )}
+          <p className="font-mono text-3xl font-bold text-primary">
+            {pkg.price || "Quoted"}
+          </p>
           {cta?.label && cta.url && (
             <Button asChild size="lg" className="w-full whitespace-normal">
               <Link href={cta.url}>{cta.label}</Link>

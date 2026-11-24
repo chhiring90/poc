@@ -84,7 +84,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.2,
     }));
 
-  return [...staticRoutes, ...detailRoutes, ...policyRoutes];
+  // Packages has no global of its own; its content is the packages collection.
+  const packagesRoute = {
+    url: toUrl("/packages"),
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  };
+
+  return [...staticRoutes, packagesRoute, ...detailRoutes, ...policyRoutes];
 }
 
 function toDate(value: unknown): Date | undefined {
